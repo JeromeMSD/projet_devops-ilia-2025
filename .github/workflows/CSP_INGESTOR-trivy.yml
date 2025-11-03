@@ -1,0 +1,52 @@
+name: CSP-INGESTOR Trivy Security Scan
+
+on:
+  workflow_dispatch:  # Manual trigger from the Actions tab
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    name: Trivy Scan CSP-INGESTOR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- Filesystem scan (your source code & requirements) ---
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          scan-type: 'fs'
+          scan-ref: 'CSP-INGESTOR'
+          format: 'table'
+          exit-code: '0'  # don’t fail, just report
+          severity: 'HIGH'
+      # Output will appear in the Actions log
+
+      # --- Optional: Build the Docker image ---
+      - name: Build Docker image for CSP-INGESTOR
+        run: |
+          docker build -t csp-ingestor:latest CSP-INGESTOR
+
+      # --- Image scan (checks OS packages & dependencies inside image) ---
+      # --- Detect vulnerabilities in your project code and dependencies before it’s containerized. ---
+      - name: Run Trivy Docker image scan
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: 'csp-ingestor:latest'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+
+      # --- Optional: Save reports as artifacts ---
+      - name: Export Trivy reports
+        run: |
+          mkdir -p trivy-reports
+          trivy fs CSP-INGESTOR --format json -o trivy-reports/fs-report.json
+          trivy image csp-ingestor:latest --format json -o trivy-reports/image-report.json
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-CSP-INGESTOR-reports
+          path: trivy-reports/
