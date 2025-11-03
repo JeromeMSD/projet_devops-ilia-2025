@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docker": "docker build -t frontend . && docker run --rm -p 3000:80 frontend"
   },
   "dependencies": {
     "react": "^19.1.1",
