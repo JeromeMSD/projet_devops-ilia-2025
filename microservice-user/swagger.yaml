@@ -17,27 +17,6 @@ tags:
     description: Authentication operations
 
 paths:
-  /health:
-    get:
-      tags:
-        - Health
-      summary: Health check
-      description: Check if the service is running
-      responses:
-        '200':
-          description: Service is healthy
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: healthy
-                  service:
-                    type: string
-                    example: user-microservice
-
   /api/v1/users:
     post:
       tags:
@@ -51,13 +30,17 @@ paths:
             schema:
               type: object
               required:
-                - username
+                - firstname
+                - lastname
                 - email
                 - password
               properties:
-                username:
+                firstname:
                   type: string
-                  example: john_doe
+                  example: john
+                lastname:
+                  type: string
+                  exemple: doe
                 email:
                   type: string
                   format: email
