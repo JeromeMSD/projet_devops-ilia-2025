@@ -15,6 +15,7 @@ class User:
         - password (str)
         - firstname (str)
         - lastname (str)
+        - role (str)
         Un utilisateur possède aussi un token (str) et cree a une date precise (datetime)
     """
     id_user: str
@@ -23,6 +24,7 @@ class User:
     email: str
     password: str
     token: Optional[str]
+    role: str
     created_at: Optional[datetime] = datetime.now(timezone.utc)
 
 
@@ -46,6 +48,7 @@ class User:
             'firstname': self.firstname,
             'lastname': self.lastname,
             'email': self.email,
+            'role': self.role,
             'token': self.token if self.token else "",
             'created_at': str(self.created_at)
         }
@@ -68,6 +71,7 @@ class User:
             "firstname": self.firstname,
             "lastname": self.lastname,
             "email": self.email,
+            "role": self.role,
             "password": self.password,
             "token" : self.token if self.token else "",
             "created_at": str(self.created_at)
@@ -96,8 +100,9 @@ class User:
             lastname=json_obj["lastname"],
             email=json_obj["email"],
             password=json_obj["password"],
+            role=json_obj["role"],
             token=json_obj["token"],
-            created_at=json_obj["created_at"]
+            created_at= datetime.fromisoformat(json_obj["created_at"])
         )
 
 
