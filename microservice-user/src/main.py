@@ -1,11 +1,12 @@
 from flask import Flask, send_from_directory
 from flask_swagger_ui import get_swaggerui_blueprint
+from .controller import register_routes
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-from controller import register_routes
+#from controller import register_routes
 
 MICRO_SERVICE_HOST = os.getenv('MICRO_SERVICE_USER_HOST')
 MICRO_SERVICE_PORT = int(os.getenv('MICRO_SERVICE_USER_PORT'))
@@ -13,6 +14,9 @@ MICRO_SERVICE_PORT = int(os.getenv('MICRO_SERVICE_USER_PORT'))
 # Swagger configuration
 SWAGGER_URL = '/api/docs'
 API_URL = '/swagger.yaml'
+
+MICRO_SERVICE_HOST = os.getenv('MICRO_SERVICE_USER_HOST')
+MICRO_SERVICE_PORT = int(os.getenv('MICRO_SERVICE_USER_PORT'))
 
 
 def create_app():
@@ -39,9 +43,15 @@ def create_app():
             'swagger.yaml'
         )
 
+
+
+    # Enregistrement des routes
+    register_routes(app_boot)
+
     return app_boot
 
 
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True, host=MICRO_SERVICE_HOST, port=MICRO_SERVICE_PORT)
+

@@ -1,6 +1,9 @@
 from flask import Flask
 from routes.findalluser import Get_all_users
 from routes.createuser import Create_user
+from .routes.login import login_bp
+
+
 
 def register_routes(app: Flask):
     """
@@ -12,3 +15,6 @@ def register_routes(app: Flask):
     
 
     
+
+    # Routes de login et verification du token
+    app.register_blueprint(login_bp)
