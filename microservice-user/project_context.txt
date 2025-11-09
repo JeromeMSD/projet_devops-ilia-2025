@@ -1,0 +1,1560 @@
+Project Context From: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user
+Generated On: dim. 09 nov. 2025 19:04:27 WAT
+===============================================
+Ignored Directory Patterns: .* node_modules vendor build dist target __pycache__ .next cache target venv storage
+Ignored File Patterns: *.log *.jar *.pdf *.png *.jpg *.class *.sqlite *.csv project_context.txt package-lock.json yarn.lock composer.lock *.ico pnpm-lock.yaml
+===============================================
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/docker-compose.yaml
+
+// END OF FILE: docker-compose.yaml
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/Dockerfile
+
+// END OF FILE: Dockerfile
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/.env
+
+# Redis configuration
+REDIS_HOST=localhost
+REDIS_PORT=6380
+REDIS_DB_USERS=0
+
+# user configuration
+EMAIL_KEY=email:
+USER_KEY=user:
+
+
+# JWT configuration
+JWT_SECRET_KEY=dev-secret-key
+
+# Flask configuration
+MICRO_SERVICE_USER_HOST=0.0.0.0
+MICRO_SERVICE_USER_PORT=5010
+
+
+// END OF FILE: .env
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/.env.example
+
+# Redis configuration
+REDIS_HOST=
+REDIS_PORT=
+REDIS_DB_USERS=
+
+# user configuration
+EMAIL_KEY=
+USER_KEY=
+
+
+# JWT configuration
+JWT_SECRET_KEY=
+
+# Flask configuration
+MICRO_SERVICE_USER_HOST=
+MICRO_SERVICE_USER_PORT=
+
+BASE_API_URL=/api/v1
+
+
+// END OF FILE: .env.example
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/.flaskenv
+
+FLASK_APP=src.main:create_app
+FLASK_ENV=development
+FLASK_DEBUG=True
+
+FLASK_RUN_PORT=5010
+FLASK_RUN_HOST=0.0.0.0// END OF FILE: .flaskenv
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/README.md
+
+// END OF FILE: README.md
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/requirements.txt
+
+Flask==3.0.0
+flask-cors==6.0.0
+flask-swagger-ui==4.11.1
+redis==7.0.0
+PyJWT==2.8.0
+werkzeug==3.0.6
+python-dotenv==1.0.0
+bcrypt==4.1.2
+pytest==7.4.3
+pytest-flask==1.3.0// END OF FILE: requirements.txt
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/controller.py
+
+import os
+
+from dotenv import load_dotenv
+from flask import Flask
+from .routes.find_all_user import get_all_users_bp
+from .routes.login import login_bp
+from .routes.swagger import swagger_bp
+
+load_dotenv()
+BASE_API_URL = os.getenv('BASE_API_URL', '/api/v1')
+
+def register_routes(app: Flask):
+    """
+        Dans ce fichier chaque membre du groupe viendra enregistrer sa/ses routes qu'il aura écrites dans son/ses fichiers.
+    """
+
+    # Routes de login et verification du token
+    app.register_blueprint(login_bp, url_prefix=BASE_API_URL)
+
+    # Route de recuperation de tous les utilisateurs presents en BD
+    app.register_blueprint(get_all_users_bp, url_prefix=BASE_API_URL)
+
+    # Routes servant le swagger ui et le swagger.yaml
+    app.register_blueprint(swagger_bp)
+
+
+
+
+
+// END OF FILE: src/controller.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/__init__.py
+
+// END OF FILE: src/__init__.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/main.py
+
+from flask import Flask
+from flask_cors import CORS
+
+from .controller import register_routes
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+
+
+MICRO_SERVICE_HOST = os.getenv('MICRO_SERVICE_USER_HOST')
+MICRO_SERVICE_PORT = int(os.getenv('MICRO_SERVICE_USER_PORT'))
+
+
+
+
+
+
+
+def create_app():
+
+    app_boot = Flask(__name__)
+    CORS(app_boot)
+
+
+
+    # Enregistrement des routes
+    register_routes(app_boot)
+
+    return app_boot
+
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True, host=MICRO_SERVICE_HOST, port=MICRO_SERVICE_PORT)
+
+// END OF FILE: src/main.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/models/__init__.py
+
+// END OF FILE: src/models/__init__.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/models/user.py
+
+import json
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Optional
+
+
+
+
+@dataclass
+class User:
+    """
+        Modèle User représentant un utilisateur du système par:
+        - Son id (uuid)
+        - email (str)
+        - password (str)
+        - firstname (str)
+        - lastname (str)
+        - role (str)
+        Un utilisateur possède aussi un token (str) et cree a une date precise (datetime)
+    """
+    id_user: str
+    firstname: str
+    lastname: str
+    email: str
+    password: str
+    token: Optional[str]
+    role: str
+    created_at: Optional[datetime] = datetime.now(timezone.utc)
+
+
+
+
+    def to_json(self) -> dict:
+        """
+            Convertit l'objet User en un dictionnaire prêt à être retourné par l'API (JSON-compatible).
+
+            Cette méthode exclut les données sensibles (comme le mot de passe) et formate les
+            objets datetime en chaînes de caractères.
+
+            Args:
+                self: L'instance de l'objet User.
+
+            Returns:
+                dict: Un dictionnaire représentant l'utilisateur, adapté pour une réponse HTTP JSON.
+            """
+        return {
+            'id_user': self.id_user,
+            'firstname': self.firstname,
+            'lastname': self.lastname,
+            'email': self.email,
+            'role': self.role,
+            'token': self.token if self.token else "",
+            'created_at': str(self.created_at)
+        }
+
+
+    def to_redis(self):
+        """
+            Sérialise l'objet User en une chaîne JSON prête à être stockée dans Redis.
+
+            Cette méthode inclut toutes les données nécessaires à la persistance et à la vérification
+
+            Args:
+                self: L'instance de l'objet User.
+
+            Returns:
+                str: Une chaîne JSON sérialisée (type str), prête à être envoyée à la commande SET de Redis.
+        """
+        user_json = {
+            "id_user": self.id_user,
+            "firstname": self.firstname,
+            "lastname": self.lastname,
+            "email": self.email,
+            "role": self.role,
+            "password": self.password,
+            "token" : self.token if self.token else "",
+            "created_at": str(self.created_at)
+        }
+        return json.dumps(obj= user_json)
+
+
+
+    @staticmethod
+    def from_redis_to_user(redis_object: bytes) -> 'User':
+
+        """
+            Désérialise une chaîne de bytes (récupérée de Redis) en un objet User.
+            Elle permet de construire un objet User à partir d'un objet de Redis.
+            Args:
+                redis_object (bytes) La chaîne d'octets bruts récupérée directement de la base de données Redis.
+            Returns:
+                User: Une nouvelle instance de la classe User.
+        """
+
+        string_obj: str = redis_object.decode("utf-8")
+        json_obj: dict = json.loads(string_obj)
+        return User(
+            id_user=json_obj["id_user"],
+            firstname=json_obj["firstname"],
+            lastname=json_obj["lastname"],
+            email=json_obj["email"],
+            password=json_obj["password"],
+            role=json_obj["role"],
+            token=json_obj["token"],
+            created_at= datetime.fromisoformat(json_obj["created_at"])
+        )
+
+
+
+
+
+
+// END OF FILE: src/models/user.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/redis_client.py
+
+import redis
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+# Redis connection configuration
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = int(os.getenv('REDIS_PORT'))
+REDIS_DB = int(os.getenv('REDIS_DB_USERS'))
+
+
+# Singleton Redis client instance
+_redis_client = None
+
+def get_redis_client():
+    """
+    Retourne une instance singleton du client Redis.
+
+    Cette fonction crée une connexion Redis unique qui sera réutilisée
+    dans toute l'application, évitant ainsi de créer plusieurs connexions.
+
+    Returns:
+        redis.Redis: Instance du client Redis ou None si la connexion échoue
+    """
+    global _redis_client
+
+    if _redis_client is None:
+        try:
+            _redis_client = redis.Redis(
+                host=REDIS_HOST,
+                port=REDIS_PORT,
+                db=REDIS_DB,
+                decode_responses=False
+            )
+            # Test de la connexion
+            _redis_client.ping()
+            print(f"✓ Connexion Redis établie: {REDIS_HOST}:{REDIS_PORT} (DB: {REDIS_DB})")
+        except Exception as e:
+            print(f"✗ Erreur de connexion à Redis: {e}")
+            _redis_client = None
+
+    return _redis_client
+// END OF FILE: src/redis_client.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/routes/find_all_user.py
+
+from flask import Blueprint, jsonify
+from flask_cors import cross_origin
+import redis
+from ..models.user import User
+from src.redis_client import get_redis_client
+
+
+
+get_all_users_bp = Blueprint('find_all_user', __name__)
+
+
+@get_all_users_bp.route(rule= '/users', methods=['GET'])
+@cross_origin()
+def find_all_users():
+    """
+    Route pour récupérer tous les utilisateurs stockés dans Redis.
+
+    Returns:
+        JSON: Liste de tous les utilisateurs avec leur nombre total
+
+    Responses :
+        200: Liste des utilisateurs récupérée avec succès
+        500: Erreur serveur (problème Redis ou autre)
+    """
+    try:
+        # Obtenir le client Redis
+        redis_client = get_redis_client()
+
+        # Vérifier la connexion Redis
+        if redis_client is None:
+            return jsonify({
+                "error": "Database connection unavailable"
+            }), 500
+
+        # Récupérer toutes les clés des utilisateurs
+        # Pattern: tous les utilisateurs ont des clés qui commencent par "user:"
+        user_keys = redis_client.keys('user:*')
+
+        users_list = []
+
+        # Parcourir toutes les clés et récupérer les utilisateurs
+        for key in user_keys:
+            try:
+                # Récupérer l'objet user depuis Redis (bytes)
+                user_data = redis_client.get(key)
+
+                if user_data:
+                    # Convertir de Redis vers objet User
+                    user = User.from_redis_to_user(user_data)
+                    # Ajouter la version JSON (sans password) à la liste
+                    users_list.append(user.to_json())
+
+            except Exception as e:
+                print(f"Erreur lors de la récupération de l'utilisateur {key}: {e}")
+                continue
+
+        # Retourner la liste avec le nombre total
+        return jsonify({
+            "count": len(users_list),
+            "users": users_list
+        }), 200
+
+    except redis.ConnectionError:
+        return jsonify({
+            "error": "Cannot connect to database"
+        }), 500
+
+    except Exception as e:
+        print(f"Erreur inattendue dans find_all_users: {e}")
+        return jsonify({
+            "error": "Internal server error",
+            "details": str(e)
+        }), 500// END OF FILE: src/routes/find_all_user.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/routes/__init__.py
+
+// END OF FILE: src/routes/__init__.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/routes/login.py
+
+import os
+import uuid
+from dotenv import load_dotenv
+from flask_cors import cross_origin
+
+from ..redis_client import get_redis_client
+
+load_dotenv()
+
+import bcrypt
+import jwt
+from flask import Blueprint, request, jsonify
+from ..utils import verify_password, create_token, verify_token
+from ..models.user import User
+
+
+login_bp = Blueprint('login', __name__)
+EMAIL_KEY = os.getenv('EMAIL_KEY')
+USER_KEY = os.getenv('USER_KEY')
+
+
+redis_client = get_redis_client()
+
+
+
+
+
+@login_bp.route('/login', methods=['POST'])
+@cross_origin()
+def login_route():
+    """
+        Connecte un utilisateur et émet un JSON Web Token (JWT).
+
+        Cette méthode est le point d'entrée pour l'authentification. Elle vérifie les
+        identifiants fournis par l'utilisateur par rapport à ceux stockés dans la base
+        de données Redis et gère la session active.
+
+
+        Returns:
+            flask.Response: Une réponse HTTP JSON contenant l'état de la connexion.
+                - 200 OK : Connexion réussie, renvoie le JWT et les informations utilisateur.
+                - 400 Bad Request: Corps de la requête invalide ou champs 'email'/'password' manquants.
+                - 401 Unauthorized: Mot de passe incorrect.
+                - 404 Not Found: L'utilisateur (email) est inexistant dans Redis.
+                - 500 Internal Server Error: Erreur d'exécution inattendue.
+    """
+    try:
+        # extraction du 'body' de la requête HTTP
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({
+                'error': 'Les champs email et mots de password sont requis'
+            }), 400
+        elif not data.get('email') :
+            return jsonify({
+                'error': 'Le champ email est requis'
+            }), 400
+        elif not data.get('password'):
+            return jsonify({
+                'error': 'Le champ password est requis'
+            }), 400
+        else:
+            email: str = data["email"]
+            password: str = data["password"]
+
+            # Recuperation de l'id de l'utilisateur a l'aide son email.
+            user_id_key_bytes  = redis_client.get(f"{EMAIL_KEY}{email}")
+
+            if not user_id_key_bytes:
+                return jsonify({
+                    'error': 'Utilisateur inexistant'
+                }), 404
+
+            else:
+                user_id: str = user_id_key_bytes.decode("utf-8") if isinstance(user_id_key_bytes, bytes) else user_id_key_bytes
+                redis_object : bytes = redis_client.get(f"{USER_KEY}{user_id}")
+                user_infos: User = User.from_redis_to_user(redis_object)
+
+                # Verification du mot de passe
+                if not verify_password(password, user_infos.password):
+                    return jsonify({
+                        'error': 'Mot de passe incorrect'
+                    }), 401
+                else:
+                    # Creation du token et mise à jour des infos de l'utilisateur
+                    token: str = create_token(user_id, user_infos.role)
+                    user_infos.token = token
+                    redis_client.set(name = f"{USER_KEY}{user_id}", value = user_infos.to_redis())
+
+                    # Retour d'une réponse HTTP 200 avec les infos de l'utilisateur
+                    return jsonify({
+                        'user': user_infos.to_json(),
+                        'message': 'Successfully logged in!'
+                    }), 200
+    except Exception as error:
+        print(f"error", error)
+        return jsonify({
+            'message': "Une erreur inattendue est survenue, veuillez réessayer plus tard !",
+            'error': str(error)
+        }), 500
+
+
+
+
+
+@login_bp.route('/verify-token', methods=['GET'])
+@cross_origin()
+def verify_token_route():
+    """
+        Vérifie la validité d'un JWT et l'état de la session dans Redis.
+
+        Cette méthode extrait le token du header 'Authorization' et le valide contre
+        trois critères : signature, expiration temporelle (via PyJWT) et révocation
+        (via Redis).
+
+
+        Returns:
+            flask.Response: Une réponse HTTP JSON contenant l'état de la vérification.
+                - 200 OK : Token valide et session active. Renvoie les informations utilisateur.
+                - 403 Forbidden :
+                    – Token manquant, signature invalide, ou token expiré.
+                    - Si expiré, le champ 'token' est nettoyé dans Redis.
+                - 500 500 Internal Server Error: Erreur d'exécution inattendue.
+    """
+
+    # Recuperation du champ Authorization dans les headers de la requête.
+    token = request.headers.get(key= 'Authorization', default='').replace('Bearer ', '')
+    try:
+        # Verification du token
+        payload = verify_token(token = token)
+        if not payload:
+            return jsonify({'error': 'Token JWT invalide'}), 403
+        else:
+            # Token valide
+            if type(payload) == dict:
+                user_id = payload['id_user']
+               # user_role = payload['role']
+                user: User = User.from_redis_to_user(redis_client.get(f"{USER_KEY}{user_id}"))
+                stored_token = user.token
+
+                # Verification de l'intégrité du token
+                if not stored_token or stored_token=="":
+                    return jsonify({'error': 'Token révoqué ou expiré, veuillez vous reconnecter !'}), 403
+
+                elif stored_token != token:
+                    return jsonify({'error': 'Token invalide'}), 403
+
+                else:
+                    return jsonify(
+                        {
+                            'message': "Utilisateur connecté",
+                            'user': user.to_json(),
+                        }
+                    ), 200
+
+            # Token expiree
+            elif type(payload) == str:
+                user_id = payload
+                user = User.from_redis_to_user(redis_client.get(f"{USER_KEY}{user_id}"))
+                user.token = ""
+                redis_client.set(name = f"{USER_KEY}{user_id}", value = user.to_redis())
+                return jsonify({
+                    'error': 'Token expiré, veuillez vous reconnecter'
+                }), 403
+            else:
+                return jsonify({'error': 'Erreur inattendue'}), 500
+
+     # Gestion des erreurs
+    except jwt.DecodeError as error:
+        return jsonify({
+                    'error': f'Token invalide - {error}'
+                }), 403
+    except jwt.InvalidTokenError:
+        return jsonify({
+            'error': 'Token invalide'
+        }), 403
+    except Exception as error:
+        print(error)
+        return jsonify({
+            'error': 'Erreur inattendue'
+        }), 500
+
+
+
+
+
+
+@login_bp.route('/register', methods=['POST'])
+def register_route():
+    data = request.get_json(silent=True)
+    if data is None or 'email' not in data or 'password' not in data or 'role' not in data or 'firstname' not in data or 'lastname' not in data:
+        return jsonify({'error': 'Les champs email, password, et first_name , lastname, role sont requis.'}), 400
+    email = data['email'].lower().strip()
+    password = data['password']
+    user_key_email = f'{EMAIL_KEY}{email}'
+    if redis_client.exists(user_key_email):
+        return jsonify({'error': 'Un utilisateur avec cet email existe déjà.'}), 409
+
+  #  if not str(data['role']).__eq__("USER") or not str(data['role']).__eq__("ADMIN") or not str(data['role']).__eq__("TECHNICIEN"):
+  #      return jsonify({
+  #          'error': 'Le champ role doit être soit un user, soit un admin soit un technicien'
+  #      }), 400
+    try:
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+        id_user = str(uuid.uuid4())
+        user: User = User(
+            id_user=id_user,
+            firstname=data['firstname'],
+            lastname=data['lastname'],
+            email=email,
+            token="",
+            role=data['role'],
+            password=hashed_password.decode('utf-8'),
+        )
+        try :
+            redis_client.set(name=user_key_email, value = f"{user.id_user}")
+            redis_client.set(name=f"{USER_KEY}{user.id_user}", value = user.to_redis())
+            return jsonify({
+                'message': 'Utilisateur créé avec succès.',
+                'user': user.to_json(),
+            }), 201
+        except Exception as e:
+            print(f"Erreur lors de l'enregistrement: {e}")
+            return jsonify({'error': str(e)}), 500
+
+    except Exception as e:
+        print(f"Erreur lors de l'enregistrement: {e}")
+        return jsonify({
+            'message': "Erreur interne lors de la création de l'utilisateur.",
+            'error': str(e)
+        }), 500// END OF FILE: src/routes/login.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/routes/swagger.py
+
+import os
+from flask import Blueprint, send_from_directory
+from flask_swagger_ui import get_swaggerui_blueprint
+
+
+SWAGGER_URL = '/api/docs'
+API_URL = '/swagger.yaml'
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+
+
+swagger_bp = Blueprint('swagger_doc', __name__)
+
+
+# 2. Configuration du Swagger UI (Route /api/docs)
+# Le Blueprint Swagger UI est créé et enregistré comme une sous-route.
+swagger_ui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "User Microservice API"
+    }
+)
+
+# Enregistrement de Blueprint de Swagger UI sur notre Blueprint local
+swagger_bp.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
+
+
+# Route pour Servir swagger.yaml (Route /swagger.yaml)
+# Cette route est attachée directement à notre Blueprint 'swagger_bp'
+@swagger_bp.route(API_URL)
+def swagger_yaml():
+    """Sert le fichier swagger.yaml depuis la racine du projet."""
+    return send_from_directory(
+        ROOT_DIR,
+        'swagger.yaml'
+    )// END OF FILE: src/routes/swagger.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/src/utils.py
+
+import bcrypt
+import jwt
+import os
+from datetime import datetime, timedelta, timezone
+
+
+# constantes.
+SECRET_KEY = os.getenv('JWT_SECRET_KEY')
+ENCODER_TYPE = 'utf-8'
+ALGORITHM = 'HS256'
+
+
+
+
+
+def hash_password(password: str) -> str:
+    """
+        Cette fonction permet de hasher une chaine de caractère en utilisant l'algorithme bcrypt.
+        Args:
+            password (str): La chaîne de caractères à hasher (mot de passe en clair).
+        Raise:
+            Leve une exception en cas de pépins
+        Returns:
+            str: Le mot de passe haché et encodé en chaîne de caractères.
+    """
+    try:
+        return bcrypt.hashpw(password.encode(ENCODER_TYPE), bcrypt.gensalt()).decode(ENCODER_TYPE)
+    except Exception as error:
+        print(f"erreur durant l'opération de hash du mot de passe {error}")
+        raise error
+
+
+
+
+
+def verify_password(password: str, hashed_password: str) -> bool:
+    """
+        Cette fonction permet de verifier que deux chaines caractères possèdent le meme hash, garantissant que les deux chaines
+        de caractères sont identiques.
+        Args:
+            password (str): Mot de passe en clair.
+            hashed_password (str): Mot de passe hash
+        Raise:
+            Leve une exception en cas de pépins
+        Returns:
+            bool: True si les deux chaines sont égales et False sinon
+    """
+    try:
+        return bcrypt.checkpw(password.encode(ENCODER_TYPE), hashed_password.encode(ENCODER_TYPE))
+    except Exception as error:
+        print(f"erreur durant la verification du mot de passe {error}")
+        raise error
+
+
+
+
+
+
+def create_token(user_id: str|bytes, user_role: str="", validity : timedelta =timedelta(hours=24)) -> str:
+    """
+        Fonction utilitaire permettant de créer un JWT Token pour sécuriser les sessions et les communications
+        Args:
+            validity (timedelta) : durée de la validité du token
+            user_role (str) : Role de l'utilisateur
+            user_id (str) : id d'un utilisateur
+        Return:
+            str: JWT Token
+        Raise:
+            Exception: Leve une Exception en cas de soucis
+    """
+    try:
+        payload = {
+            'id_user': user_id.decode(ENCODER_TYPE) if isinstance(user_id, bytes) else str(user_id),
+            'role': user_role,
+            'exp': datetime.now(timezone.utc) + validity,
+            'iat': datetime.now(timezone.utc),
+
+        }
+        return jwt.encode(
+            payload= payload,
+            key=SECRET_KEY,
+            algorithm=ALGORITHM)
+
+    except Exception as error:
+        raise error
+
+
+
+
+def decode_token(token: str, disable_exp_verification: bool = False) -> dict:
+    """
+        Fonction utilitaire permettant de decoder un JWT Token
+        Args:
+            token (str) : token de session d'un utilisateur
+            disable_exp_verification:
+        Return:
+            dict: Retourne un tableau cle valeur donnant les informations du token
+        Raise:
+            Exception: Leve une Exception en cas de soucis
+    """
+    try:
+        return jwt.decode(
+            jwt=token,
+            key=SECRET_KEY,
+            algorithms=[ALGORITHM],
+            options={"verify_exp": not disable_exp_verification},
+        )
+    except Exception as error:
+        raise error
+
+
+
+
+def verify_token(token: str) -> dict | str | None:
+    """
+        Fonction utilitaire permettant de decoder un JWT Token afin de verifier son intégrité, sa validité
+        Args:
+            token (str) : token de session d'un utilisateur
+        Return:
+            dict: Retourne un tableau cle valeur donnant les informations du token
+        Raise :
+            – Return id_user (str) : en cas de token expiree, retourne l'id de l'utilisateur
+            — propage les erreurs DecodeError, InvalidTokenError et Exception en cas de soucis lors du décodage du token et retourne None
+    """
+    try:
+        decoded_token: dict = decode_token(token=token, disable_exp_verification=False)
+        return decoded_token
+
+    except jwt.ExpiredSignatureError as error:
+        print(f"Token expiré : {error}")
+        try:
+            expired_payload: dict = decode_token(token=token, disable_exp_verification=True)
+            return expired_payload.get('id_user')
+        except Exception as error:
+            print(f"Erreur lors du décodage de l'expiré: {error}")
+            raise error
+
+    except jwt.DecodeError as error:
+        print(f"Erreur de décodage: {error}")
+        raise error
+
+    except jwt.InvalidTokenError as error:
+        print(f"Token invalide: {error}")
+        raise error
+
+    except Exception as error:
+        print(f"Erreur inattendue: {error}")
+        raise error
+
+
+
+
+// END OF FILE: src/utils.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/swagger.yaml
+
+openapi: 3.0.0
+info:
+  title: User Microservice API
+  description: API for user management, authentication and authorization
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:5001
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Users
+    description: User management operations
+  - name: Authentication
+    description: Authentication operations
+
+paths:
+  /api/v1/users:
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: Register a new user in the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstname
+                - lastname
+                - email
+                - password
+              properties:
+                firstname:
+                  type: string
+                  example: john
+                lastname:
+                  type: string
+                  exemple: doe
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: securePassword123
+                role:
+                  type: string
+                  enum: [user, sre, admin]
+                  default: user
+                  example: user
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User created successfully
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request - validation failed
+        '409':
+          description: Conflict - username already exists
+
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Retrieve a list of all users (requires authentication)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 2
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized - token missing or invalid
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Authenticate user and receive JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: john_doe
+                password:
+                  type: string
+                  format: password
+                  example: securePassword123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+
+  /api/v1/users/{user_id}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      description: Retrieve user details by user ID (requires authentication)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: USR-1699876543
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+
+    put:
+      tags:
+        - Users
+      summary: Update user
+      description: Update user details (users can update their own info, admins can update any user)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: USR-1699876543
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: newemail@example.com
+                password:
+                  type: string
+                  format: password
+                  example: newPassword123
+                role:
+                  type: string
+                  enum: [user, sre, admin]
+                  example: sre
+                  description: Only admins can change roles
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User updated successfully
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: User not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+          example: USR-1699876543
+        username:
+          type: string
+          example: john_doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        role:
+          type: string
+          enum: [user, sre, admin]
+          example: user
+        created_at:
+          type: string
+          format: date-time
+          example: 2024-11-07T10:30:00Z
+// END OF FILE: swagger.yaml
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/tests/conftest.py
+
+import pytest
+import os
+from dotenv import load_dotenv
+from src.main import create_app
+from src.models.user import User
+import bcrypt
+import uuid
+
+from src.redis_client import get_redis_client
+
+load_dotenv()
+
+EMAIL_KEY = os.getenv('EMAIL_KEY')
+USER_KEY = os.getenv('USER_KEY')
+
+
+@pytest.fixture
+def app():
+    """Créer l'application Flask en mode test"""
+    app = create_app()
+    app.config['TESTING'] = True
+    return app
+
+
+@pytest.fixture
+def client(app):
+    """Client de test Flask"""
+    return app.test_client()
+
+
+
+
+@pytest.fixture
+def redis_client():
+    redis_client = get_redis_client()
+
+    test_keys = redis_client.keys('email:test*') + redis_client.keys(f'{USER_KEY}:test*')
+    if test_keys:
+        redis_client.delete(*test_keys)
+
+    yield redis_client
+
+    # Nettoyage après chaque test
+    test_keys = redis_client.keys('email:test*') + redis_client.keys(f'{USER_KEY}:test*')
+    if test_keys:
+        redis_client.delete(*test_keys)
+
+
+
+
+
+@pytest.fixture
+def test_user(redis_client):
+    """Créer un utilisateur de test dans Redis"""
+    email = "test10@mail.com"
+    password = "Password123!"
+    user_id = str(uuid.uuid4())
+
+
+    # Hasher le password
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+
+    # Créer l'utilisateur
+    user = User(
+        id_user=f'test:{user_id}',
+        firstname="Test",
+        lastname="User",
+        email=email,
+        role="USER",
+        token="",
+        password=hashed_password.decode('utf-8'),
+    )
+
+    # Stocker dans Redis (même structure que votre code)
+
+    redis_client.set(name=f"{EMAIL_KEY}{email}", value =f"{user.id_user}")
+    redis_client.set(name =f"{USER_KEY}{user.id_user}", value = user.to_redis())
+
+    return {
+        'user': user,
+        'user_id': user.id_user,
+        'email': email,
+        'password': password,
+        'role': 'USER'
+    }// END OF FILE: tests/conftest.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/tests/__init__.py
+
+// END OF FILE: tests/__init__.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/tests/test_find_all_user.py
+
+"""
+Test suite for Find All Users endpoint
+Run with: pytest test/test_find_all_user.py -v
+"""
+import pytest
+
+
+
+
+
+
+@pytest.fixture
+def sample_user():
+    """Sample user data for testing"""
+    return {
+        "firstname": "John",
+        "lastname": "Doe",
+        "email": "john.doe@example.com",
+        "password": "securePassword123",
+        "role": "user"
+    }
+
+
+class TestFindAllUsers:
+    """Test find all users endpoint"""
+
+    def test_users_attributes_not_empty(self, client, sample_user):
+        """
+        Test that all user attributes are not empty
+        Verify: firstname, lastname, email, role, id_user, token, created_at are all present and not empty
+        """
+        # Create a user first
+        create_response = client.post('/api/v1/users', json=sample_user)
+        assert create_response.status_code == 201
+
+        # Get all users
+        response = client.get('/api/v1/users')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert 'users' in data
+        assert len(data['users']) > 0
+
+        # Check each user has non-empty attributes
+        for user in data['users']:
+            # Firstname should not be empty
+            assert 'firstname' in user
+            assert user['firstname'] is not None
+            assert user['firstname'] != ""
+
+            # Lastname should not be empty
+            assert 'lastname' in user
+            assert user['lastname'] is not None
+            assert user['lastname'] != ""
+
+            # Email should not be empty
+            assert 'email' in user
+            assert user['email'] is not None
+            assert user['email'] != ""
+
+            # Role should not be empty
+            assert 'role' in user
+            assert user['role'] is not None
+            assert user['role'] != ""
+
+            # ID should not be empty
+            assert 'id_user' in user
+            assert user['id_user'] is not None
+            assert user['id_user'] != ""
+
+            # Token should not be empty
+            assert 'token' in user
+            assert user['token'] is not None
+            assert user['token'] != ""
+
+            # Created_at should not be empty
+            assert 'created_at' in user
+            assert user['created_at'] is not None
+            assert user['created_at'] != ""
+
+            # Password should NOT be in the response
+            assert 'password' not in user
+
+
+    def test_get_all_users_empty(self, client):
+        """Test getting all users when database is empty"""
+        response = client.get('/api/v1/users')
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['count'] == 0
+        assert data['users'] == []
+
+
+
+
+
+
+// END OF FILE: tests/test_find_all_user.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/tests/test_login.py
+
+from src.utils import verify_token
+
+
+class TestLogin:
+    """Tests pour la route /login"""
+
+    def test_login_success(self,   client, test_user):
+        """Test : Connexion réussie avec credentials valides"""
+
+        login_body: dict = {
+            'email': test_user['email'],
+            'password': test_user['password'],
+        }
+
+        response = client.post('/login', json=login_body, content_type='application/json')
+
+        assert response.status_code == 200
+        login_data: dict = response.get_json()
+
+        # Vérification de la structure de la réponse
+        assert 'user' in login_data
+        assert 'message' in login_data
+
+        # Vérifier les infos utilisateur
+        assert login_data['user']['email'] == test_user['email']
+        assert login_data['user']['firstname'] == 'Test'
+        assert 'token' in login_data['user']
+        assert login_data['user']['token'] != ""
+        assert 'role' in login_data['user']
+        assert login_data['user']['role'] == test_user['role']
+
+        # Vérifier que le token est valide
+        token = login_data['user']['token']
+        payload = verify_token(token)
+        assert payload is not None
+        id_user: str = payload['id_user'].decode('utf-8') if isinstance(payload['id_user'], bytes) else str(payload['id_user'])
+        assert id_user == test_user['user_id']
+
+
+
+
+    def test_login_wrong_password(self, client, test_user):
+        """Test : Connexion avec mot de passe incorrect"""
+
+        wrong_login_body: dict= {
+            'email': test_user['email'],
+            'password': 'wrongPassword',
+
+        }
+        response = client.post('/login', json= wrong_login_body, content_type='application/json')
+
+        assert response.status_code == 401
+        data = response.get_json()
+        assert 'error' in data
+        assert data['error'] == 'Mot de passe incorrect'
+
+
+
+
+    def test_login_user_not_found(self, client):
+        """Test : Connexion avec email inexistant"""
+
+        wrong_login_body: dict = {
+            'email': 'nonexistent@gmail.com',
+            'password': 'password123',
+
+        }
+        response = client.post('/login', json=wrong_login_body, content_type='application/json')
+        assert response.status_code == 404
+        data = response.get_json()
+        assert 'error' in data
+        assert data['error'] == 'Utilisateur inexistant'
+
+
+
+
+    def test_login_missing_email(self, client):
+        """Test : Requête sans email"""
+        wrong_login_body: dict = {
+            'password': 'password123',
+        }
+        response = client.post('/login', json= wrong_login_body, content_type='application/json')
+
+
+        assert response.status_code == 400
+        data = response.get_json()
+        assert 'error' in data
+        assert 'email' in data['error'].lower()
+
+
+
+
+    def test_login_missing_password(self, client, test_user):
+        """Test : Requête sans password"""
+
+        wrong_login_body: dict = {
+            'email': 'nonexistent@gmail.com',
+        }
+        response = client.post('/login', json=wrong_login_body, content_type='application/json')
+
+        assert response.status_code == 400
+        data = response.get_json()
+        assert 'error' in data
+        assert 'password' in data['error'].lower()
+
+
+
+
+    def test_login_empty_body(self, client):
+        """Test : Requête avec body vide"""
+        response = client.post('/login', json={}, content_type='application/json')
+
+        assert response.status_code == 400
+        data = response.get_json()
+        assert 'error' in data
+
+
+
+
+    def test_login_invalid_json(self, client):
+        """Test : Requête avec JSON invalide"""
+        response = client.post('/login', data='invalid json', content_type='application/json')
+
+        assert response.status_code == 400
+
+
+
+
+// END OF FILE: tests/test_login.py
+
+//---> PATH: /home/ngoupaye/projets-scolaires/polytech-dijon/projet_devops-ilia-2025/microservice-user/tests/test_verify_token.py
+
+import os
+from datetime import timedelta
+from src.models.user import User
+
+from src.utils import create_token
+
+USER_KEY = os.getenv('USER_KEY')
+
+
+class TestVerifyToken:
+    """Tests pour la route /verify-token"""
+
+    def test_verify_token_success(self, client, test_user, redis_client):
+        """Test : Vérification d'un token valide"""
+
+        # Connexion et obtention d'un token
+        login_body: dict = {
+            'email': test_user['email'],
+            'password':test_user['password'] ,
+        }
+        login_response = client.post('/login',json= login_body)
+
+        token = login_response.get_json()['user']['token']
+
+        # Vérification du token
+        response = client.get('/verify-token', headers={'Authorization': f'Bearer {token}'})
+
+        assert response.status_code == 200
+        data = response.get_json()
+
+        assert 'message' in data
+        assert data['message'] == 'Utilisateur connecté'
+        assert 'user' in data
+        assert data['user']['email'] == test_user['email']
+
+
+
+    def test_verify_token_missing_token(self, client):
+        """Test : Requête sans token"""
+        response = client.get('/verify-token')
+
+        assert response.status_code == 403
+        data = response.get_json()
+        assert 'error' in data
+
+
+    def test_verify_token_invalid_token(self, client):
+        """Test : Token JWT invalide"""
+        invalid_token : str = 'invalid_token_abcdefgh'
+        response = client.get('/verify-token',headers={'Authorization': f'Bearer {invalid_token}'})
+
+        assert response.status_code == 403
+        data = response.get_json()
+        assert 'error' in data
+        assert 'invalide' in data['error'].lower()
+
+
+    def test_verify_token_revoked(self, client, test_user, redis_client):
+        """Test : Token révoqué (vide dans Redis)"""
+        # Se connecter
+        login_body: dict = {
+            'email': test_user['email'],
+            'password': test_user['password'],
+        }
+        login_response = client.post('/login', json= login_body)
+        token = login_response.get_json()['user']['token']
+
+        # Révoquer le token (le vider dans Redis)
+        user = User.from_redis_to_user(redis_client.get(name=f"{USER_KEY}{test_user['user_id']}"))
+        user.token = ""
+        redis_client.set(name=f"{USER_KEY}{test_user['user_id']}", value= user.to_redis())
+
+        # Vérifier le token
+        response = client.get('/verify-token',headers={'Authorization': f'Bearer {token}'})
+
+        assert response.status_code == 403
+        data = response.get_json()
+        assert 'error' in data
+        assert 'révoqué' in data['error'].lower() or 'expiré' in data['error'].lower()
+
+
+
+    def test_verify_token_different_token(self, client, test_user, redis_client):
+        """Test : Token valide, mais différent de celui stocké"""
+
+        # Connection d'un utilisateur de tests
+        login_body: dict = {
+            'email': test_user['email'],
+            'password': test_user['password'],
+        }
+        client.post('/login', json=login_body)
+
+        # Creation d'un autre token valide
+        another_token = create_token(test_user['user_id'])
+
+        # Vérifier avec l'autre token
+        response = client.get('/verify-token',headers={'Authorization': f'Bearer {another_token}'})
+
+        assert response.status_code == 403
+        data = response.get_json()
+        assert 'error' in data
+        assert 'invalide' in data['error'].lower()
+
+
+
+    def test_verify_token_expired(self, client, test_user, redis_client, monkeypatch):
+        """Test : Token expiré"""
+
+        # Login de l'utilisateur de test avec un token valide
+        login_body: dict = {
+            'email': test_user['email'],
+            'password': test_user['password'],
+        }
+        client.post('/login', json=login_body)
+        expired_token: str = create_token(user_id= test_user['user_id'], validity= -timedelta(seconds=1))
+
+        # Vérification du token expire
+        response = client.get('/verify-token',headers={'Authorization': f'Bearer {expired_token}'})
+
+        assert response.status_code == 403
+        data = response.get_json()
+        assert 'error' in data
+        assert 'expiré' in data['error'].lower()
+
+        # Vérification du nettoyage du token dans Redis
+        user = User.from_redis_to_user(redis_client.get(f"{USER_KEY}{test_user['user_id']}"))
+        assert user.token == ""
+
+
+// END OF FILE: tests/test_verify_token.py
+

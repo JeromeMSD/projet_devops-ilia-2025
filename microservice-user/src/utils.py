@@ -56,10 +56,12 @@ def verify_password(password: str, hashed_password: str) -> bool:
 
 
 
-def create_token(user_id: str|bytes) -> str:
+def create_token(user_id: str|bytes, user_role: str="", validity : timedelta =timedelta(hours=24)) -> str:
     """
         Fonction utilitaire permettant de créer un JWT Token pour sécuriser les sessions et les communications
         Args:
+            validity (timedelta) : durée de la validité du token
+            user_role (str) : Role de l'utilisateur
             user_id (str) : id d'un utilisateur
         Return:
             str: JWT Token
@@ -69,8 +71,10 @@ def create_token(user_id: str|bytes) -> str:
     try:
         payload = {
             'id_user': user_id.decode(ENCODER_TYPE) if isinstance(user_id, bytes) else str(user_id),
-            'exp': datetime.now(timezone.utc) + timedelta(hours=24),
+            'role': user_role,
+            'exp': datetime.now(timezone.utc) + validity,
             'iat': datetime.now(timezone.utc),
+
         }
         return jwt.encode(
             payload= payload,
@@ -83,7 +87,7 @@ def create_token(user_id: str|bytes) -> str:
 
 
 
-def decode_token(token: str, disable_exp_verification=False) -> dict:
+def decode_token(token: str, disable_exp_verification: bool = False) -> dict:
     """
         Fonction utilitaire permettant de decoder un JWT Token
         Args:
