@@ -45,10 +45,10 @@ def login_route():
     """
     try:
         # extraction du 'body' de la requête HTTP
-        data = request.get_json(silent=True)
+        data: dict = request.get_json(silent=True)
         if not data:
             return jsonify({
-                'error': 'Les champs email et mots de password sont requis'
+                'error': 'Les champs email et password sont requis'
             }), 400
         elif not data.get('email') :
             return jsonify({

@@ -41,22 +41,28 @@ def client(app):
 def redis_client():
     redis_client = get_redis_client()
 
-    # --- Nettoyage de la BD avant le test ---
+    #  Nettoyage de la BD avant le test
 
-    email_pattern = f"{EMAIL_KEY}test*".encode('utf-8')
-    user_pattern = f"{USER_KEY}test*".encode('utf-8')
-    test_keys = redis_client.keys(email_pattern) + redis_client.keys(user_pattern)
+    #email_pattern = f"{EMAIL_KEY}test*".encode('utf-8')
+    #user_pattern = f"{USER_KEY}test*".encode('utf-8')
+    #test_keys = redis_client.keys(email_pattern) + redis_client.keys(user_pattern)
 
-    if test_keys:
+    
+
+    #if test_keys:
         # Supprimer toutes les clés trouvées
-        redis_client.delete(*test_keys)
+    #    redis_client.delete(*test_keys)
+
+    redis_client.flushdb
 
     yield redis_client
 
+    redis_client.flushdb
+
     # Nettoyage de la BD apres le test.
-    test_keys = redis_client.keys(email_pattern) + redis_client.keys(user_pattern)
-    if test_keys:
-        redis_client.delete(*test_keys)
+    #test_keys = redis_client.keys(email_pattern) + redis_client.keys(user_pattern)
+    #if test_keys:
+    #    redis_client.delete(*test_keys)
 
 
 
