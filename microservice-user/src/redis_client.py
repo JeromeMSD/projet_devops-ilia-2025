@@ -35,7 +35,7 @@ def get_redis_client():
             _redis_client = redis.Redis(
                 host=REDIS_HOST,
                 port=REDIS_PORT,
-                db=REDIS_DB, # UTILISATION DE LA VARIABLE DÉFINIE CI-DESSUS
+                db=REDIS_DB, 
                 decode_responses=False
             )
             # Test de la connexion
