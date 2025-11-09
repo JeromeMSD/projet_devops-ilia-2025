@@ -1,40 +1,14 @@
 """
 Test suite for Find All Users endpoint
-Run with: pytest test/test_findalluser.py -v
+Run with: pytest test/test_find_all_user.py -v
 """
-import pytest
-import sys
 import os
 
-# Add src directory to path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-src_dir = os.path.join(current_dir, '..', 'src')
-sys.path.insert(0, src_dir)
-
-from main import create_app
-from redis_client import get_redis_client
+import pytest
 
 
-@pytest.fixture
-def app():
-    """Create Flask application for testing"""
-    app = create_app()
-    app.config['TESTING'] = True
-    return app
 
-
-@pytest.fixture
-def client(app):
-    """Create a test client for the Flask app"""
-    with app.test_client() as client:
-        yield client
-    # Clean up Redis after each test
-    redis_client = get_redis_client()
-    if redis_client:
-        keys = redis_client.keys('user:*')
-        if keys:
-            redis_client.delete(*keys)
-
+BASE_API_URL=os.getenv('BASE_API_URL')
 
 @pytest.fixture
 def sample_user():
@@ -57,11 +31,11 @@ class TestFindAllUsers:
         Verify: firstname, lastname, email, role, id_user, token, created_at are all present and not empty
         """
         # Create a user first
-        create_response = client.post('/api/v1/users', json=sample_user)
+        create_response = client.post(f'{BASE_API_URL}/users', json=sample_user)
         assert create_response.status_code == 201
 
         # Get all users
-        response = client.get('/api/v1/users')
+        response = client.get(f'{BASE_API_URL}/users')
         assert response.status_code == 200
 
         data = response.get_json()
@@ -108,17 +82,18 @@ class TestFindAllUsers:
             # Password should NOT be in the response
             assert 'password' not in user
 
-    def test_get_all_users_empty(self, client):
+
+    def test_get_all_users_empty(self, client, redis_client):
         """Test getting all users when database is empty"""
-        response = client.get('/api/v1/users')
+        response = client.get(f'{BASE_API_URL}/users')
 
         assert response.status_code == 200
         data = response.get_json()
         assert data['count'] == 0
         assert data['users'] == []
 
-    
 
-    
+
+
 
 

@@ -1,6 +1,4 @@
-# tests/conftest.py
 import pytest
-import redis
 import os
 from dotenv import load_dotenv
 from src.main import create_app
@@ -8,14 +6,26 @@ from src.models.user import User
 import bcrypt
 import uuid
 
+from src.redis_client import get_redis_client
+
 load_dotenv()
+
+EMAIL_KEY = os.getenv('EMAIL_KEY')
+USER_KEY = os.getenv('USER_KEY')
+
+
 
 
 @pytest.fixture
 def app():
-    """Créer l'application Flask en mode test"""
+    """Créer l'application Flask en mode test et active la DB de test."""
+
+    os.environ['FLASK_TESTING'] = 'True'
+
     app = create_app()
     app.config['TESTING'] = True
+
+
     return app
 
 
@@ -25,36 +35,38 @@ def client(app):
     return app.test_client()
 
 
+# Dans tests/conftest.py
+
 @pytest.fixture
 def redis_client():
-    """Client Redis de test (DB 1 pour ne pas polluer la DB 0)"""
-    r = redis.Redis(
-        host=os.getenv('REDIS_HOST', 'localhost'),
-        port=int(os.getenv('REDIS_PORT', 6380)),
-        db=0,  # ← CHANGER EN db=0 (même DB que l'app)
-        decode_responses=False
-    )
+    redis_client = get_redis_client()
 
-    # Nettoyer AVANT le test (au lieu d'après)
-    # Seulement les clés de test
-    test_keys = r.keys('email:test*') + r.keys('*test*')
+    # --- Nettoyage de la BD avant le test ---
+
+    email_pattern = f"{EMAIL_KEY}test*".encode('utf-8')
+    user_pattern = f"{USER_KEY}test*".encode('utf-8')
+    test_keys = redis_client.keys(email_pattern) + redis_client.keys(user_pattern)
+
     if test_keys:
-        r.delete(*test_keys)
+        # Supprimer toutes les clés trouvées
+        redis_client.delete(*test_keys)
 
-    yield r
+    yield redis_client
 
-    # Nettoyage après chaque test
-    test_keys = r.keys('email:test*') + r.keys('*test*')
+    # Nettoyage de la BD apres le test.
+    test_keys = redis_client.keys(email_pattern) + redis_client.keys(user_pattern)
     if test_keys:
-        r.delete(*test_keys)
+        redis_client.delete(*test_keys)
+
 
 
 @pytest.fixture
 def test_user(redis_client):
     """Créer un utilisateur de test dans Redis"""
-    email = "test@mail.com"
+    email = "test10@mail.com"
     password = "Password123!"
     user_id = str(uuid.uuid4())
+
 
     # Hasher le password
     salt = bcrypt.gensalt()
@@ -62,7 +74,7 @@ def test_user(redis_client):
 
     # Créer l'utilisateur
     user = User(
-        id_user=user_id,
+        id_user=f'test:{user_id}',
         firstname="Test",
         lastname="User",
         email=email,
@@ -72,13 +84,13 @@ def test_user(redis_client):
     )
 
     # Stocker dans Redis (même structure que votre code)
-    EMAIL_KEY = os.getenv('EMAIL_KEY')
-    redis_client.set(name=f"{EMAIL_KEY}{email}", value = user_id.encode('utf-8'))  # ← Encoder en bytes
-    redis_client.set(name = user_id.encode('utf-8'), value = user.to_redis().encode('utf-8'))  # ← Encoder en bytes
+
+    redis_client.set(name=f"{EMAIL_KEY}{email}", value =f"{user.id_user}")
+    redis_client.set(name =f"{USER_KEY}{user.id_user}", value = user.to_redis())
 
     return {
         'user': user,
-        'user_id': user_id,
+        'user_id': user.id_user,
         'email': email,
         'password': password,
         'role': 'USER'
