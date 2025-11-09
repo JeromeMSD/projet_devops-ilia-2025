@@ -1,4 +1,3 @@
-import React from 'react';
 function ProfilePage() {
     return (
         <div>
@@ -6,4 +5,5 @@ function ProfilePage() {
         </div>
     );
 }
+
 export default ProfilePage;
