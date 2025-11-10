@@ -1,9 +1,12 @@
 import { Routes, Route } from 'react-router';
-import { Home } from '@/routes/Home';
+import RequireAuth from '@auth-kit/react-router/RequireAuth';
+
 import { Navbar } from '@/components/Navbar';
-import { NotFound } from '@/routes/NotFound';
+import { Home } from '@/routes/Home';
 import { About } from '@/routes/About';
-import { LoginPage } from '@/routes/LoginPage.tsx';
+import { LoginPage } from '@/routes/LoginPage';
+import { NotFound } from '@/routes/NotFound';
+import { Dashboard } from '@/routes/Dashboard';
 
 export default function App() {
     return (
@@ -15,6 +18,14 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={<Home/>}/>
                     <Route path="/login" element={<LoginPage/>}/>
+                    <Route
+                        path="/dashboard"
+                        element={(
+                            <RequireAuth>
+                                <Dashboard/>
+                            </RequireAuth>
+                        )}
+                    />
 
                     <Route path="/about" element={<About/>}/>
                     {/* catch-all for unknown routes */}
