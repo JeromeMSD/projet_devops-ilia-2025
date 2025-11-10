@@ -28,6 +28,9 @@ export function Navbar() {
                         <NavLink to="/about" className={linkClasses}>
                             About
                         </NavLink>
+                        <NavLink to="/login" className={linkClasses}>
+                            Login
+                        </NavLink>
                     </nav>
                 </div>
             </div>
