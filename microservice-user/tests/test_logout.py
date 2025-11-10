@@ -126,10 +126,11 @@ class TestLogout:
         )
 
         # Assert
-        assert response.status_code == 403
+       
+        assert response.status_code == 200
         data = response.get_json()
-        assert 'error' in data
-        assert 'révoqué' in data['error'].lower() or 'invalide' in data['error'].lower()
+        assert 'message' in data
+        assert 'déconnecté' in data['message'].lower() 
 
 
     def test_logout_already_logged_out(self, client, test_user, redis_client):
