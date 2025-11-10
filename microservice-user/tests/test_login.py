@@ -10,7 +10,7 @@ BASE_API_URL = os.getenv('BASE_API_URL')
 class TestLogin:
     """Tests pour la route /login"""
 
-    def test_login_success(self,   client, test_user):
+    def test_login_success(self,  client, test_user):
         """Test : Connexion réussie avec credentials valides"""
 
         login_body: dict = {
@@ -20,9 +20,10 @@ class TestLogin:
 
         response = client.post(f'{BASE_API_URL}/login', json=login_body, content_type='application/json')
 
-        print(f'{BASE_API_URL}/login')
-
+      #  print(f'{BASE_API_URL}/login')
+      #  print(response.json())
         assert response.status_code == 200
+
         login_data: dict = response.get_json()
 
         # Vérification de la structure de la réponse
