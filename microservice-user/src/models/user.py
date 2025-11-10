@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from typing import Optional
 
 
+
+
 @dataclass
 class User:
     """
@@ -22,7 +24,7 @@ class User:
     email: str
     password: str
     token: Optional[str]
-    role:str
+    role: str
     created_at: Optional[datetime] = datetime.now(timezone.utc)
 
 
@@ -46,7 +48,7 @@ class User:
             'firstname': self.firstname,
             'lastname': self.lastname,
             'email': self.email,
-            'role':self.role,
+            'role': self.role,
             'token': self.token if self.token else "",
             'created_at': str(self.created_at)
         }
@@ -69,7 +71,7 @@ class User:
             "firstname": self.firstname,
             "lastname": self.lastname,
             "email": self.email,
-            "role":self.role,
+            "role": self.role,
             "password": self.password,
             "token" : self.token if self.token else "",
             "created_at": str(self.created_at)
@@ -80,6 +82,7 @@ class User:
 
     @staticmethod
     def from_redis_to_user(redis_object: bytes) -> 'User':
+
         """
             Désérialise une chaîne de bytes (récupérée de Redis) en un objet User.
             Elle permet de construire un objet User à partir d'un objet de Redis.
@@ -88,22 +91,20 @@ class User:
             Returns:
                 User: Une nouvelle instance de la classe User.
         """
+
         string_obj: str = redis_object.decode("utf-8")
         json_obj: dict = json.loads(string_obj)
-
-        # On reconvertit la chaîne en objet datetime
-        created_at_datetime = datetime.fromisoformat(json_obj["created_at"])
-
         return User(
             id_user=json_obj["id_user"],
             firstname=json_obj["firstname"],
             lastname=json_obj["lastname"],
             email=json_obj["email"],
-            role=json_obj["role"],
             password=json_obj["password"],
+            role=json_obj["role"],
             token=json_obj["token"],
-            created_at=created_at_datetime  # On utilise l'objet converti
+            created_at= datetime.fromisoformat(json_obj["created_at"])
         )
+
 
 
 
