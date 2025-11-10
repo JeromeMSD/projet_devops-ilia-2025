@@ -7,7 +7,8 @@ from .routes.login import login_bp
 from .routes.swagger import swagger_bp
 from .routes.register import register_bp
 from .routes.logout import logout_bp 
-from src.routes.find_users_by_role import find_users_by_role_bp
+from .routes.find_users_by_role import find_users_by_role_bp
+from .routes.update_user import update_user_bp
 
 load_dotenv()
 BASE_API_URL = os.getenv('BASE_API_URL')
@@ -34,4 +35,5 @@ def register_routes(app: Flask):
     #Route pour la filtrage des users par role
     app.register_blueprint(find_users_by_role_bp, url_prefix=BASE_API_URL)
 
-
+    #Route pour la modification d'un user
+    app.register_blueprint(update_user_bp, url_prefix=BASE_API_URL)

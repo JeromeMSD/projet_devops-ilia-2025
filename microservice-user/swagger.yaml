@@ -16,7 +16,7 @@ tags:
   - name: Authentication
     description: Gestion de l'authentification et des tokens JWT
   - name: Users
-    description: Gestion des utilisateurs (consultation, création)
+    description: Gestion des utilisateurs (consultation, création, filtre par rôle)
   - name: Gateway
     description: Vérification des tokens par les autres microservices
 
@@ -226,7 +226,100 @@ paths:
           description: Accès refusé (rôle insuffisant)
         '500':
           description: Erreur interne du serveur
-
+  /api/v1/logout:
+    post:
+      tags: [Authentication]
+      summary: Déconnexion d'un utilisateur
+      description: |
+        Déconnecte l'utilisateur en révoquant son token JWT dans Redis.  
+        Le token devient immédiatement inutilisable, même s'il n'est pas expiré.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Déconnexion réussie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Utilisateur déconnecté avec succès
+        '403':
+          description: Token manquant, expiré, invalide ou déjà révoqué
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token révoqué
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Une erreur inattendue est survenue lors de la déconnexion
+  /api/v1/users/role/{role}:
+    get:
+      tags: [Users]
+      summary: Récupère les utilisateurs filtrés par rôle
+      description: |
+        Retourne la liste des utilisateurs ayant le rôle spécifié.  
+        ⚠️ Accessible uniquement aux rôles `ADMIN` ou `SRE`.  
+        Le filtre est insensible à la casse (admin = ADMIN = Admin).
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: role
+          in: path
+          required: true
+          description: Rôle des utilisateurs à récupérer
+          schema:
+            type: string
+            enum: [USER, SRE, ADMIN]
+            example: ADMIN
+      responses:
+        '200':
+          description: Liste des utilisateurs filtrés par rôle
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 2
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '403':
+          description: Accès refusé (token invalide ou permissions insuffisantes)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Permission refusée, Vous devez être ['ADMIN', 'SRE']
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Cannot connect to database                  
 components:
   securitySchemes:
     bearerAuth:
