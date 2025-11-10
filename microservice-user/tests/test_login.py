@@ -18,10 +18,12 @@ class TestLogin:
             'password': test_user['password'],
         }
 
+        print(login_body)
+
         response = client.post(f'{BASE_API_URL}/login', json=login_body, content_type='application/json')
 
-      #  print(f'{BASE_API_URL}/login')
-      #  print(response.json())
+        print(f'{BASE_API_URL}/login')
+        print(response)
         assert response.status_code == 200
 
         login_data: dict = response.get_json()
@@ -129,7 +131,6 @@ class TestLogin:
     def test_login_invalid_json(self, client):
         """Test : Requête avec JSON invalide"""
         response = client.post(f'{BASE_API_URL}/login', data='invalid json', content_type='application/json')
-
         assert response.status_code == 400
 
 

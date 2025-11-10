@@ -45,7 +45,7 @@ class TestVerifyToken:
 
 
     def test_verify_token_invalid_token(self, client):
-        """Test : Token JWT invalide"""
+        """ Test : Token JWT invalide"""
         invalid_token : str = 'invalid_token_abcdefgh'
         response = client.get(f'{BASE_API_URL}/verify-token',headers={'Authorization': f'Bearer {invalid_token}'})
 
@@ -55,8 +55,9 @@ class TestVerifyToken:
         assert 'invalide' in data['error'].lower()
 
 
+
     def test_verify_token_revoked(self, client, test_user, redis_client):
-        """Test : Token révoqué (vide dans Redis)"""
+        """ Test : Token révoqué"""
         # Se connecter
         login_body: dict = {
             'email': test_user['email'],

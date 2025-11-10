@@ -21,6 +21,7 @@ def setup_test_environment():
     autouse =True : s'exécute automatiquement.
     scope ='session' : une seule fois pour toute la session de tests.
     """
+
     os.environ['FLASK_TESTING'] = 'true'
     reset_redis_client()
     yield
@@ -76,11 +77,11 @@ def test_user(redis_client):
         Il procède directement sans passer par la route /register.
     """
     email = "test10@mail.com"
-    password = "Password123!"
-    user_id = str(uuid.uuid4())
+    password = "Password123"
+    user_id = uuid.uuid4()
 
     user = User(
-        id_user=user_id,
+        id_user= str(user_id),
         firstname="Test",
         lastname="User",
         email=email,
@@ -99,5 +100,5 @@ def test_user(redis_client):
         'user_id': user.id_user,
         'email': email,
         'password': password,
-        'role': 'USER'
+        'role': "USER"
     }

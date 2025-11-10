@@ -24,7 +24,7 @@ USER_KEY = os.getenv('USER_KEY')
 
 
 
-@login_bp.route(rule= '/login', methods=['POST'])
+@login_bp.route('/login', methods=['POST'])
 @cross_origin()
 def login_route() -> tuple[Response, int]:
     """
@@ -103,7 +103,7 @@ def login_route() -> tuple[Response, int]:
 
 
 
-@login_bp.route(rule='/verify-token', methods=['GET'])
+@login_bp.route('/verify-token', methods=['GET'])
 @cross_origin()
 def verify_token_route():
     """
