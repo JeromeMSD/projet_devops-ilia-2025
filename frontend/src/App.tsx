@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { NotFound } from './routes/NotFound';
 import { About } from './routes/About';
 import ProfilePage from './routes/ProfilePage';
+import DashboardPage from './routes/DashboardPage';
 export default function App() {
     return (
         <div
@@ -15,6 +16,7 @@ export default function App() {
                     <Route path="/" element={<Home/>}/>
                     <Route path="/about" element={<About/>}/>
                     <Route path="/me" element={<ProfilePage/>}/>
+                    <Route path="/dashboard" element={<DashboardPage/>}/>
                     <Route path="*" element={<NotFound/>}/>
                 </Routes>
             </main>
