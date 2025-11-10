@@ -1,15 +1,19 @@
 from flask import Blueprint, jsonify
 from flask_cors import cross_origin
 import redis
-from models.user import User
-from redis_client import get_redis_client
+
+from ..auth import auth_required
+from ..models.user import User
+from src.redis_client import get_redis_client
 
 
-Get_all_users = Blueprint('findAllUser', __name__)
+
+get_all_users_bp = Blueprint('find_all_user', __name__)
 
 
-@Get_all_users.route('/api/v1/users', methods=['GET'])
+@get_all_users_bp.route(rule= '/users', methods=['GET'])
 @cross_origin()
+@auth_required(roles=['ADMIN', 'SRE'])
 def find_all_users():
     """
     Route pour récupérer tous les utilisateurs stockés dans Redis.
@@ -17,7 +21,7 @@ def find_all_users():
     Returns:
         JSON: Liste de tous les utilisateurs avec leur nombre total
 
-    Responses:
+    Responses :
         200: Liste des utilisateurs récupérée avec succès
         500: Erreur serveur (problème Redis ou autre)
     """
