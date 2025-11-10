@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router';
-import RequireAuth from '@auth-kit/react-router/RequireAuth';
 
 import { Navbar } from '@/components/Navbar';
 import { Home } from '@/routes/Home';
@@ -7,6 +6,7 @@ import { About } from '@/routes/About';
 import { LoginPage } from '@/routes/LoginPage';
 import { NotFound } from '@/routes/NotFound';
 import { Dashboard } from '@/routes/Dashboard';
+import { ProtectedRoute } from '@/routes/ProtectedRoute';
 
 export default function App() {
     return (
@@ -21,9 +21,9 @@ export default function App() {
                     <Route
                         path="/dashboard"
                         element={(
-                            <RequireAuth>
+                            <ProtectedRoute>
                                 <Dashboard/>
-                            </RequireAuth>
+                            </ProtectedRoute>
                         )}
                     />
 
