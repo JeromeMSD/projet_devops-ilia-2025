@@ -8,6 +8,61 @@ import pytest
 BASE_API_URL = os.getenv('BASE_API_URL')
 
 
+# Fixtures complets pour éviter les dépendances
+@pytest.fixture
+def sample_admin_user():
+    """Sample admin user data for testing"""
+    return {
+        "firstname": "Admin",
+        "lastname": "Testeur", 
+        "email": "admin@example.com",
+        "password": "Password123",
+        "role": "ADMIN"
+    }
+
+@pytest.fixture
+def get_admin_token(client, sample_admin_user):
+    """Create and login a sample admin user"""
+    # Create admin user first
+    create_response = client.post(f'{BASE_API_URL}/register', json=sample_admin_user)
+    assert create_response.status_code == 201
+
+    # Login the created admin user
+    login_response = client.post(f'{BASE_API_URL}/login', json={
+        "email": sample_admin_user["email"],
+        "password": sample_admin_user["password"]
+    })
+    assert login_response.status_code == 200
+    user = login_response.get_json()['user']
+    
+    return user
+
+@pytest.fixture
+def get_user_token(client):
+    """Create and login a regular USER for permission testing"""
+    user_data = {
+        "firstname": "Regular",
+        "lastname": "User", 
+        "email": "regular@example.com",
+        "password": "Password123",
+        "role": "USER"
+    }
+    
+    # Create user
+    create_response = client.post(f'{BASE_API_URL}/register', json=user_data)
+    assert create_response.status_code == 201
+    
+    # Login user
+    login_response = client.post(f'{BASE_API_URL}/login', json={
+        "email": user_data["email"],
+        "password": user_data["password"]
+    })
+    assert login_response.status_code == 200
+    user = login_response.get_json()['user']
+    
+    return user
+
+
 class TestFindUsersByRole:
     """Test find users by role endpoint"""
 
@@ -134,7 +189,6 @@ class TestFindUsersByRole:
         """
         Test: Accès avec un token USER (permissions insuffisantes)
         - Doit retourner 403
-        - Note: Tu devras peut-être créer un fixture get_user_token
         """
         # Act: Appeler avec un token USER
         response = client.get(
@@ -168,27 +222,3 @@ class TestFindUsersByRole:
             assert response.status_code == 200
             data = response.get_json()
             assert data['count'] >= 2  # Au moins l'admin fixture + l'admin créé
-
-
-# Fixture supplémentaire pour les tests de permissions
-@pytest.fixture
-def get_user_token(client):
-    """Create and login a regular USER for permission testing"""
-    user_data = {
-        "firstname": "Regular",
-        "lastname": "User", 
-        "email": "regular@example.com",
-        "password": "Password123",
-        "role": "USER"
-    }
-    
-    # Create user
-    create_response = client.post(f'{BASE_API_URL}/register', json=user_data)
-    assert create_response.status_code == 201
-    
-    # Login user
-    login_response = client.post(f'{BASE_API_URL}/login', json=user_data)
-    assert login_response.status_code == 200
-    user = login_response.get_json()['user']
-    
-    return user
