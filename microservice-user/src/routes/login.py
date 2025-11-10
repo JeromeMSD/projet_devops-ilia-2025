@@ -8,7 +8,7 @@ from ..redis_client import get_redis_client
 load_dotenv()
 
 import jwt
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from ..utils import verify_password, create_token, verify_token
 from ..models.user import User
 
@@ -18,7 +18,7 @@ EMAIL_KEY = os.getenv('EMAIL_KEY')
 USER_KEY = os.getenv('USER_KEY')
 
 
-redis_client = get_redis_client()
+
 
 
 
@@ -26,7 +26,7 @@ redis_client = get_redis_client()
 
 @login_bp.route('/login', methods=['POST'])
 @cross_origin()
-def login_route():
+def login_route() -> tuple[Response, int]:
     """
         Connecte un utilisateur et émet un JSON Web Token (JWT).
 
@@ -43,6 +43,7 @@ def login_route():
                 - 404 Not Found: L'utilisateur (email) est inexistant dans Redis.
                 - 500 Internal Server Error: Erreur d'exécution inattendue.
     """
+    redis_client = get_redis_client()
     try:
         # extraction du 'body' de la requête HTTP
         data: dict = request.get_json(silent=True)
@@ -121,7 +122,7 @@ def verify_token_route():
                     - Si expiré, le champ 'token' est nettoyé dans Redis.
                 - 500 500 Internal Server Error: Erreur d'exécution inattendue.
     """
-
+    redis_client = get_redis_client()
     # Recuperation du champ Authorization dans les headers de la requête.
     token = request.headers.get(key= 'Authorization', default='').replace('Bearer ', '')
     try:

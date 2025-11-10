@@ -3,6 +3,9 @@ import jwt
 import os
 from datetime import datetime, timedelta, timezone
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # constantes.
 SECRET_KEY = os.getenv('JWT_SECRET_KEY')
