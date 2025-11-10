@@ -23,11 +23,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application code
 COPY . .
 
-# Expose port
-EXPOSE 5001
+# Expose port (will be set by environment variable)
+EXPOSE 5010
 
-# Set working directory to src for proper imports
-WORKDIR /app/src
+# Set working directory to app root for Flask
+WORKDIR /app
 
-# Run the application
-CMD ["python", "main.py"]
+# Run the application with Flask
+CMD ["flask", "run", "--host=0.0.0.0"]
