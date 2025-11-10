@@ -9,6 +9,8 @@ from .routes.register import register_bp
 from .routes.logout import logout_bp 
 from .routes.find_users_by_role import find_users_by_role_bp
 from .routes.update_user import update_user_bp
+from .routes.forgot_password import forgot_password_bp  
+from .routes.reset_password import reset_password_bp 
 
 load_dotenv()
 BASE_API_URL = os.getenv('BASE_API_URL')
@@ -37,3 +39,7 @@ def register_routes(app: Flask):
 
     #Route pour la modification d'un user
     app.register_blueprint(update_user_bp, url_prefix=BASE_API_URL)
+
+     # Routes de réinitialisation du mot de passe  
+    app.register_blueprint(forgot_password_bp, url_prefix=BASE_API_URL)
+    app.register_blueprint(reset_password_bp, url_prefix=BASE_API_URL)
