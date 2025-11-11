@@ -85,9 +85,11 @@ jobs:
       # 5. Lancer Redis pour les tests (DB 1)
       - name: Start Redis and Docker Network
         run: |
+          docker network rm ci-network || true
           docker network create ci-network || true
+          
           docker run -d  \
-            --name redis-test\
+            --name redis-test \
             --network ci-network \
             -p ${{ env.REDIS_PORT }}:${{ env.REDIS_PORT }} \ 
             redis:7-alpine
