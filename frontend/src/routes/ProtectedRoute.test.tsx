@@ -4,10 +4,10 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { ProtectedRoute } from './ProtectedRoute';
 
-const useIsAuthenticatedMock = vi.fn();
+const isAuthenticatedMock = vi.fn();
 
 vi.mock('react-auth-kit/hooks/useIsAuthenticated', () => ({
-    default: () => useIsAuthenticatedMock(),
+    default: () => isAuthenticatedMock(),
 }));
 
 const renderWithRouter = () =>
@@ -29,7 +29,7 @@ const renderWithRouter = () =>
 
 describe('ProtectedRoute', () => {
     it('renders children when the user is authenticated', () => {
-        useIsAuthenticatedMock.mockReturnValue(true);
+        isAuthenticatedMock.mockReturnValue(true);
 
         renderWithRouter();
 
@@ -37,7 +37,7 @@ describe('ProtectedRoute', () => {
     });
 
     it('redirects to /login when the user is not authenticated', () => {
-        useIsAuthenticatedMock.mockReturnValue(false);
+        isAuthenticatedMock.mockReturnValue(false);
 
         renderWithRouter();
 

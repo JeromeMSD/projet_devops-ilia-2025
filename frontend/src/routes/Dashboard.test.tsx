@@ -3,15 +3,15 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { Dashboard } from './Dashboard';
 
-const useAuthUserMock = vi.fn();
+const authUserMock = vi.fn();
 
 vi.mock('react-auth-kit/hooks/useAuthUser', () => ({
-    default: () => useAuthUserMock(),
+    default: () => authUserMock(),
 }));
 
 describe('Dashboard', () => {
     it('renders a friendly fallback when no user is available', () => {
-        useAuthUserMock.mockReturnValue(null);
+        authUserMock.mockReturnValue(null);
 
         render(<Dashboard/>);
 
