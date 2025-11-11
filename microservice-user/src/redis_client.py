@@ -52,6 +52,8 @@ def get_redis_client():
                print("Connexion établie avec success")
             else :
                 raise redis.ConnectionError
+        except redis.ConnectionError as error:
+            raise error
         except Exception as e:
             print(f"Erreur de connexion à Redis: {e}")
             _redis_client = None

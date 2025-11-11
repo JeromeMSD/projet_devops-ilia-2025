@@ -61,15 +61,14 @@ def register_user() -> tuple[Response, int]:
     if errors:
         return jsonify({'error': str(errors)}), 400
 
-
-    email = data['email'].lower().strip()
-    user_key_email = f'{EMAIL_KEY}{email}'
-    redis_client = get_redis_client()
-
-    if redis_client.exists(user_key_email):
-        return jsonify({'error': 'Un utilisateur avec cet email existe déjà.'}), 409
-
     try:
+        email = data['email'].lower().strip()
+        user_key_email = f'{EMAIL_KEY}{email}'
+        redis_client = get_redis_client()
+
+        if redis_client.exists(user_key_email):
+            return jsonify({'error': 'Un utilisateur avec cet email existe déjà.'}), 409
+
         hashed_password = hash_password(data['password'])
         id_user = str(uuid.uuid4())
         user = User(
@@ -92,5 +91,6 @@ def register_user() -> tuple[Response, int]:
     except Exception as error:
         print(f"Erreur lors de l'enregistrement: {error}")
         return jsonify({
-            'error': 'Erreur interne lors de la création de l\'utilisateur.'
+            'message': 'Erreur interne lors de la création de l\'utilisateur, veuillez réessayer plus tard',
+            'error': str(error)
         }), 500

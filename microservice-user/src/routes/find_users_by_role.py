@@ -23,16 +23,16 @@ def find_users_by_role():
     Returns:
         JSON: Liste des utilisateurs (filtrés ou tous) avec leur nombre total
 
-    Responses:
+    Responses :
         200: Liste des utilisateurs récupérée avec succès
         403: Accès non autorisé (token manquant, invalide ou permissions insuffisantes)
         500: Erreur serveur (problème Redis ou autre)
     
     Examples:
-        GET /api/v1/users              -> Tous les utilisateurs
-        GET /api/v1/users?role=ADMIN   -> Seulement les ADMIN
-        GET /api/v1/users?role=USER    -> Seulement les USER
-        GET /api/v1/users?role=SRE     -> Seulement les SRE
+        GET /api/v1/users → Tous les utilisateurs
+        GET /api/v1/users ? Role=ADMIN → Seulement les ADMIN
+        GET /api/v1/users ? role=USER → Uniquement les USER
+        GET /api/v1/users ? role=SRE → Uniquement les SRE
     """
     try:
         # Obtenir le client Redis
