@@ -427,7 +427,7 @@ Pour toute question ou problème, veuillez contacter l'équipe de développement
 | Nom            | Prénom           | Pseudo GitHub              | Lien GitHub                                           |
 |------          |-----------       |----------------            |-------------                                 |
 | DZESSI SIMO    | Franck Junior    | FracnkSimo314              |[Profil](https://github.com/FranckSimo314)    |
-| NGOUPAYE DJIO  |  Thierry         |    ThierryNgoupaye         | [Profil](https://github.com/ThierryNgoupaye) |
-| AYMEN          | Ben chaabane     |    aymen147                | [Profil](https://github.com/aymen147)        |
+| NGOUPAYE DJIO  | Thierry         |    ThierryNgoupaye         | [Profil](https://github.com/ThierryNgoupaye) |
+| BEN CHAABANE   | Aymen     |    aymen147                | [Profil](https://github.com/aymen147)        |
 | MENDJE TCHEMMOE| Vanelle          |  MENDJEV                   | [Profil](https://github.com/MENDJEV)         |
-| NDONGO NGAH    | Estelle Clotilde |  estelleNdongo             [Profil](https://github.com/estelleNdongo)     |
+| NDONGO NGAH    | Estelle Clotilde |  estelleNdongo            | [Profil](https://github.com/estelleNdongo)     |
