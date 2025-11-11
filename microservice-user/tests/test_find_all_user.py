@@ -1,4 +1,4 @@
-"""
+""""
 Test suite for Find All Users endpoint
 Run with: pytest test/test_find_all_user.py -v
 """
@@ -108,9 +108,3 @@ class TestFindAllUsers:
         data = response.get_json()
         assert data['count'] == 1
         assert data['users'] == [get_admin_token]
-
-
-
-
-
-
