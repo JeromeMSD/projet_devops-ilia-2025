@@ -1,5 +1,7 @@
 import os
-from flask import Flask, jsonify
+import uuid 
+import time
+from flask import Flask, jsonify, request
 
 # Initialise l'application Flask
 app = Flask(__name__)
@@ -27,6 +29,34 @@ def get_incidents():
     incidents_list = list(db["incidents"].values())
     return jsonify(incidents_list), 200
 
+
+@app.route('/api/v1/incidents', methods=['POST'])
+def create_incident(): # Crée un nouvel incident
+
+    data = request.get_json() # On récupere le JSON, pour l'instant basé sur le modèl du swagger de base
+
+    # Validation (le Swagger demande "title" et "sev")
+    if not data or 'title' not in data or 'sev' not in data: # Verifie que title et sev on était initié car obligatoire d'après le swagger
+        return jsonify({"error": "Requête invalide: 'title' et 'sev' sont requis."}), 400
+
+    # Construire l'objet incident (basé sur schéma "Incident")
+    new_id = f"INC-{uuid.uuid4().hex[:6].upper()}" # Génère un ID d'incident court, unique et lisible. ex : INC-153F5C 
+    new_incident = {
+        "id": new_id,
+        "title": data.get("title"),
+        "sev": data.get("sev"),
+        "services": data.get("services", []), # "services" est optionnel
+        "summary": data.get("summary", ""),   # "summary" est optionnel
+        "status": "open",                     # "open" par défaut
+        "started_at": int(time.time()),       # Timestamp UNIX
+        "commander": None                     # Pas de "commander" assigné au début
+    }
+
+    # Sauvegarde dans notre base de données "dictionnaire"
+    db["incidents"][new_id] = new_incident
+
+    # Retourne l'incident créé avec un statut 201
+    return jsonify(new_incident), 201
 
 # Lancement du serveur
 if __name__ == '__main__':
