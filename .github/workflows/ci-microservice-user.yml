@@ -1,17 +1,17 @@
 name: CI Build - User Microservice
 
 on:
- # push:
- #   branches: [ Microservice-USER, thierry-microservice-user, estelle-microservice-user, Microservice-USER-Aymen, microservice-user-vanelle, Microservice-USER-Franck ]
- #   paths:
- #     - 'microservice-user/**'
- #     - '.github/workflows/ci-microservice-user.yml'
- # pull_request:
- #   branches: [ main, Microservice-USER ]
- #   paths:
- #     - 'microservice-user/**'
- #     - '.github/workflows/ci-microservice-user.yml'
-  workflow_dispatch:
+  push:
+    branches: [ Microservice-USER, thierry-microservice-user, estelle-microservice-user, Microservice-USER-Aymen, microservice-user-vanelle, Microservice-USER-Franck ]
+    paths:
+      - 'microservice-user/**'
+      - '.github/workflows/ci-microservice-user.yml'
+  pull_request:
+    branches: [ main, Microservice-USER ]
+    paths:
+      - 'microservice-user/**'
+      - '.github/workflows/ci-microservice-user.yml'
+ # workflow_dispatch:
 
 
 jobs:
