@@ -29,6 +29,7 @@ def CreateAnnouncement():
 
     redis_client.lpush("annonces", str(announce1))
 
+    #Retourne l'annonce et la confirmation en json
     return jsonify({
         "message":"Annonce bien enregistrée",
         "announce": announce1
