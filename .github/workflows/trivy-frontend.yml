@@ -1,0 +1,43 @@
+name: Trivy scan (frontend)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  trivy-scan-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          tags: frontend:trivy
+          load: true
+
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'image'
+          image-ref: 'frontend:trivy'
+          format: 'table'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          ignore-unfixed: true
+          exit-code: '1'
+          output: 'trivy-frontend.txt'
+
+      - name: Show Trivy report
+        run: cat trivy-frontend.txt
+
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-frontend
+          path: trivy-frontend.txt
