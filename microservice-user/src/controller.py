@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask
-#from .routes.find_all_user import get_all_users_bp
+from .routes.find_all_user import get_all_users_bp
 from .routes.login import login_bp
 from .routes.swagger import swagger_bp
 from .routes.register import register_bp
@@ -22,7 +22,7 @@ def register_routes(app: Flask):
     app.register_blueprint(login_bp, url_prefix=BASE_API_URL)
 
     # Route de recuperation de tous les utilisateurs presents en BD
-    #app.register_blueprint(get_all_users_bp, url_prefix=BASE_API_URL)
+    app.register_blueprint(get_all_users_bp, url_prefix=BASE_API_URL)
 
     # Routes servant le swagger ui et le swagger.yaml
     app.register_blueprint(swagger_bp)
