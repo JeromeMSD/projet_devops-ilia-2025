@@ -7,11 +7,13 @@ import json
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
 from main import app as flask_app
+from main import db  
 
 # Fonction qui va crée un faux client qui va pouvoir simuler des requêtes HTML (GET, POST)
 @pytest.fixture 
 def client():
     with flask_app.test_client() as client:
+        db['incidents'] = {} # On remet à zéro la base de données avant CHAQUE test.
         yield client
 
 # Va tester la route /health pour s'assurer qu'elle répond 200 OK et retourne le bon JSON
@@ -79,4 +81,5 @@ def test_create_incident_fail_missing_sev(client):
     # Vérifie le statut (400=Bad Request)
     assert response.status_code == 400
     assert "error" in response.get_json()
+    print(db)
     assert len(db['incidents']) == 0 # Rien ne doit être sauvegardé
