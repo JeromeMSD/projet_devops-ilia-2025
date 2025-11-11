@@ -31,7 +31,7 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            username: '',
+            email: '',
             password: '',
         },
     });
@@ -53,7 +53,7 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                 <CardHeader>
                     <CardTitle>Connectez-vous à votre compte</CardTitle>
                     <CardDescription>
-                        Entrez votre nom d&apos;utilisateur ci-dessous pour vous connecter à votre compte
+                        Entrez votre adresse email ci-dessous pour vous connecter à votre compte
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -64,16 +64,16 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                     >
                         <FieldGroup>
                             <Controller
-                                name="username"
+                                name="email"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
-                                        <FieldLabel htmlFor="username">Nom d&apos;utilisateur</FieldLabel>
+                                        <FieldLabel htmlFor="email">Adresse email</FieldLabel>
                                         <Input
                                             {...field}
-                                            id="username"
-                                            type="text"
-                                            placeholder="johndoe"
+                                            id="email"
+                                            type="email"
+                                            placeholder="simon.pierre@example.com"
                                             aria-invalid={fieldState.invalid}
                                             disabled={login.isPending}
                                         />

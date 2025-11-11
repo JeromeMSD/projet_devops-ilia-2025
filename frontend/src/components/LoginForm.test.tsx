@@ -58,7 +58,7 @@ describe('LoginForm', () => {
 
         await user.click(screen.getByRole('button', { name: /se connecter/i }));
 
-        expect(await screen.findByText('Nom d\'utilisateur requis')).toBeInTheDocument();
+        expect(await screen.findByText('Adresse email requise')).toBeInTheDocument();
         expect(await screen.findByText('Mot de passe requis')).toBeInTheDocument();
     });
 
@@ -66,14 +66,14 @@ describe('LoginForm', () => {
         renderForm();
         const user = userEvent.setup();
 
-        await user.type(screen.getByLabelText('Nom d\'utilisateur'), 'john');
+        await user.type(screen.getByLabelText('Adresse email'), 'john@example.com');
         await user.type(screen.getByLabelText('Mot de passe'), 'secret');
         await user.click(screen.getByRole('button', { name: /se connecter/i }));
 
         expect(resetMock).toHaveBeenCalledTimes(1);
         expect(mutateMock).toHaveBeenCalledTimes(1);
         expect(mutateMock).toHaveBeenCalledWith(
-            { username: 'john', password: 'secret' },
+            { email: 'john@example.com', password: 'secret' },
             expect.objectContaining({
                 onSuccess: expect.any(Function),
             }),
