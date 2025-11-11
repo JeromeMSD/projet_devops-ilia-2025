@@ -122,6 +122,11 @@ jobs:
             -e FLASK_RUN_HOST=${{ env.FLASK_RUN_HOST }} \
             -e EMAIL_KEY=${{ env.EMAIL_KEY }} \
             -e USER_KEY=${{ env.USER_KEY }} \
+            -e MICRO_SERVICE_USER_HOST=${{ env.MIRCRO_SERVICE_USER_PORT }} \
+            -e MICRO_SERVICE_USER_PORT:${{ env.MIRCRO_SERVICE_USER_HOST }} \
+            -e REDIS_DB_USERS=${{ env.REDIS_DB_USERS }} \
+            -e REDIS_TEST_DB=${{ env.REDIS_TEST_DB }} \
+            -e FLASK_TESTING=${{ env.FLASK_TESTING }} \
             user-microservice:${{ github.sha }}
       
           echo "⏳ Waiting for Flask server to start..."
