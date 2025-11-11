@@ -105,9 +105,55 @@ jobs:
       - name: Test Docker image Health Check
         shell: bash
         run: |
-          docker run -d --name user-service-test --network ci-network -p 5010:${{ env.FLASK_RUN_PORT }} -e REDIS_PORT=${{ env.REDIS_PORT }} -e REDIS_HOST=${{ env.REDIS_HOST_DOCKER }} -e JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }} -e RESET_TOKEN_KEY=${{ env.RESET_TOKEN_KEY }} -e BASE_API_URL=${{ env.BASE_API_URL }} -e FLASK_APP=${{ env.FLASK_APP }} -e FLASK_ENV=${{ env.FLASK_ENV }} -e FLASK_DEBUG=${{ env.FLASK_DEBUG }} -e FLASK_RUN_PORT=${{ env.FLASK_RUN_PORT }} -e FLASK_RUN_HOST=${{ env.FLASK_RUN_HOST }} -e EMAIL_KEY=${{ env.EMAIL_KEY }} -e USER_KEY=${{ env.USER_KEY }} user-microservice:${{ github.sha }}
-          docker exec user-service-test curl -f http://localhost:5010/api/docs
-
+          # Lancer le container Flask
+          docker run -d \
+            --name user-service-test \
+            --network ci-network \
+            -p 5010:${{ env.FLASK_RUN_PORT }} \
+            -e REDIS_PORT=${{ env.REDIS_PORT }} \
+            -e REDIS_HOST=${{ env.REDIS_HOST_DOCKER }} \
+            -e JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }} \
+            -e RESET_TOKEN_KEY=${{ env.RESET_TOKEN_KEY }} \
+            -e BASE_API_URL=${{ env.BASE_API_URL }} \
+            -e FLASK_APP=${{ env.FLASK_APP }} \
+            -e FLASK_ENV=${{ env.FLASK_ENV }} \
+            -e FLASK_DEBUG=${{ env.FLASK_DEBUG }} \
+            -e FLASK_RUN_PORT=${{ env.FLASK_RUN_PORT }} \
+            -e FLASK_RUN_HOST=${{ env.FLASK_RUN_HOST }} \
+            -e EMAIL_KEY=${{ env.EMAIL_KEY }} \
+            -e USER_KEY=${{ env.USER_KEY }} \
+            user-microservice:${{ github.sha }}
+      
+          echo "⏳ Waiting for Flask server to start..."
+          # Attendre que le serveur Flask soit prêt
+          for i in {1..10}; do
+            if docker logs user-service-test 2>&1 | grep -q "Running on"; then
+              echo "✅ Flask seems to be running"
+              break
+            fi
+            sleep 3
+            if [ $i -eq 10 ]; then
+              echo "❌ Flask failed to start"
+              docker logs user-service-test
+              exit 1
+            fi
+          done
+      
+          # Tester le endpoint depuis le runner
+          for i in {1..10}; do
+            echo "⏳ Checking /api/docs endpoint (try $i/10)..."
+            if curl -f http://localhost:${{ env.FLASK_RUN_PORT }}/api/docs > /dev/null 2>&1; then
+              echo "✅ Flask /api/docs is reachable!"
+              break
+            fi
+            sleep 3
+            if [ $i -eq 10 ]; then
+              echo "❌ Flask /api/docs endpoint is not responding"
+              docker logs user-service-test
+              exit 1
+            fi
+          done
+      
 
 
           
