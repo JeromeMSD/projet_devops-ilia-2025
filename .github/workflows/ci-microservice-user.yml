@@ -129,16 +129,16 @@ jobs:
             -e FLASK_TESTING=${{ env.FLASK_TESTING }} \
             user-microservice:${{ github.sha }}
       
-          echo "⏳ Waiting for Flask server to start..."
+          echo "Waiting for Flask server to start..."
           # Attendre que le serveur Flask soit prêt
           for i in {1..10}; do
             if docker logs user-service-test 2>&1 | grep -q "Running on"; then
-              echo "✅ Flask seems to be running"
+              echo "Flask seems to be running"
               break
             fi
             sleep 3
             if [ $i -eq 10 ]; then
-              echo "❌ Flask failed to start"
+              echo "Flask failed to start"
               docker logs user-service-test
               exit 1
             fi
@@ -148,12 +148,12 @@ jobs:
           for i in {1..10}; do
             echo "⏳ Checking /api/docs endpoint (try $i/10)..."
             if curl -f http://localhost:${{ env.FLASK_RUN_PORT }}/api/docs > /dev/null 2>&1; then
-              echo "✅ Flask /api/docs is reachable!"
+              echo "Flask /api/docs is reachable!"
               break
             fi
             sleep 3
             if [ $i -eq 10 ]; then
-              echo "❌ Flask /api/docs endpoint is not responding"
+              echo "Flask /api/docs endpoint is not responding"
               docker logs user-service-test
               exit 1
             fi
