@@ -93,8 +93,7 @@ jobs:
         env:
           FLASK_TESTING: "true"
           REDIS_HOST: ${{ env.REDIS_HOST_PYTEST }}
-        run: python -m pytest -v -s --cov=src --cov-report=term-missing
-
+        run: python -m pytest tests -v -s 
 
       # 7. Build Docker image
       - name: Build Docker image
