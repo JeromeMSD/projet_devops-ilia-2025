@@ -2,6 +2,7 @@ import bcrypt
 import jwt
 import os
 from datetime import datetime, timedelta, timezone
+import uuid
 
 from dotenv import load_dotenv
 
@@ -77,6 +78,7 @@ def create_token(user_id: str|bytes, user_role: str="", validity : timedelta =ti
             'role': user_role,
             'exp': datetime.now(timezone.utc) + validity,
             'iat': datetime.now(timezone.utc),
+            'jti': str(uuid.uuid4()) 
 
         }
         return jwt.encode(
