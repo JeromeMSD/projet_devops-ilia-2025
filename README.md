@@ -12,3 +12,4 @@ Polytech Dijon - ILIA - Projet DevOps 2025
 | ASDRUBAL | Raphaël | [Horizon-NTH](https://github.com/Horizon-NTH) |
 | NGOUPAYE DJIO | THIERRY | [ThierryNgoupaye](https://github.com/ThierryNgoupaye) |
 | DEFOUR | Nicolas | [Craftsman0001](https://github.com/Craftsman0001) |
+| Mezazem| Esteban  | [Esteban237](https://github.com/ESTEBAN237) |
