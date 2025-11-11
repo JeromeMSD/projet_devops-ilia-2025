@@ -1,0 +1,22 @@
+name: Analyse Trivy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Construction de l'image Docker
+        run: docker build -t user-microservice:latest .
+
+      - name: Scan de vulnérabilités avec Trivy
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: 'user-microservice:latest'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
