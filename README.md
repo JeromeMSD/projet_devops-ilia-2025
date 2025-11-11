@@ -1,8 +1,13 @@
 # projet_devops-ilia-2025
+
 Polytech Dijon - ILIA - Projet DevOps 2025
 
-> [!note]
-> To Do
-
 > [!important]
-> Have fun ! 🚀
+> Have fun! 🚀
+
+## Contributeurs
+
+| Nom      | Prénom  | GitHub                                        |
+|----------|---------|-----------------------------------------------|
+| ASDRUBAL | Raphaël | [Horizon-NTH](https://github.com/Horizon-NTH) |
+
