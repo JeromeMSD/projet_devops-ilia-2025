@@ -83,3 +83,33 @@ def test_create_incident_fail_missing_sev(client):
     assert "error" in response.get_json()
     print(db)
     assert len(db['incidents']) == 0 # Rien ne doit être sauvegardé
+
+
+# Va tester les filtres "commander" et "status" pour les incidents
+def test_get_incidents_with_filters(client): 
+    
+    # On simule dans notre base de données des données de test
+    inc1 = {"id": "INC-1", "title1": "A", "status": "open", "sev": 1, "commander": "user-aurelien"}
+    inc2 = {"id": "INC-2", "title2": "B", "status": "resolved", "sev": 2, "commander": "user-aurelien"}
+    inc3 = {"id": "INC-3", "title3": "C", "status": "open", "sev": 1, "commander": "user-thomas"}
+    db['incidents'] = {
+        "INC-1": inc1,
+        "INC-2": inc2,
+        "INC-3": inc3
+    }
+
+    # Test filtre : Status
+    response_status = client.get('/api/v1/incidents?status=open')
+    assert response_status.status_code == 200
+    data_status = response_status.get_json()
+    assert len(data_status) == 2 # INC-1 et INC-3
+    assert data_status[0]['id'] == "INC-1"
+    assert data_status[1]['id'] == "INC-3"
+
+    # Test filtre : Commander
+    response_commander = client.get('/api/v1/incidents?commander=user-aurelien')
+    assert response_commander.status_code == 200
+    data_commander = response_commander.get_json()
+    assert len(data_commander) == 2 # INC-1 et INC-2
+    assert data_commander[0]['id'] == "INC-1"
+    assert data_commander[1]['id'] == "INC-2"
