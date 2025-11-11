@@ -2,7 +2,11 @@ import bcrypt
 import jwt
 import os
 from datetime import datetime, timedelta, timezone
+import uuid
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # constantes.
 SECRET_KEY = os.getenv('JWT_SECRET_KEY')
@@ -74,13 +78,13 @@ def create_token(user_id: str|bytes, user_role: str="", validity : timedelta =ti
             'role': user_role,
             'exp': datetime.now(timezone.utc) + validity,
             'iat': datetime.now(timezone.utc),
+            'jti': str(uuid.uuid4()) 
 
         }
         return jwt.encode(
             payload= payload,
             key=SECRET_KEY,
             algorithm=ALGORITHM)
-
     except Exception as error:
         raise error
 
@@ -105,8 +109,12 @@ def decode_token(token: str, disable_exp_verification: bool = False) -> dict:
             algorithms=[ALGORITHM],
             options={"verify_exp": not disable_exp_verification},
         )
+    except jwt.DecodeError:
+        raise jwt.DecodeError
+    except jwt.ExpiredSignatureError:
+        raise jwt.ExpiredSignatureError
     except Exception as error:
-        raise error
+        raise RuntimeError("Error lors du décodage du token", error)
 
 
 
@@ -132,7 +140,7 @@ def verify_token(token: str) -> dict | str | None:
             expired_payload: dict = decode_token(token=token, disable_exp_verification=True)
             return expired_payload.get('id_user')
         except Exception as error:
-            print(f"Erreur lors du décodage de l'expiré: {error}")
+            print(f"Erreur lors du décodage du token expiré: {error}")
             raise error
 
     except jwt.DecodeError as error:

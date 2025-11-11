@@ -1,4 +1,4 @@
-"""
+""""
 Test suite for Find All Users endpoint
 Run with: pytest test/test_find_all_user.py -v
 """
@@ -11,31 +11,46 @@ import pytest
 BASE_API_URL=os.getenv('BASE_API_URL')
 
 @pytest.fixture
-def sample_user():
+def sample_admin_user():
     """Sample user data for testing"""
     return {
         "firstname": "Test",
         "lastname": "Testeur",
         "email": "test@example.com",
         "password": "securePassword123",
-        "role": "USER"
+        "role": "ADMIN"
     }
+
+
+@pytest.fixture
+def get_admin_token(client, sample_admin_user):
+
+    """Create and login a sample admin user"""
+    # Create a user first
+    create_response = client.post(f'{BASE_API_URL}/register', json=sample_admin_user)
+    assert create_response.status_code == 201
+
+    # log in the created user
+    login_response = client.post(f'{BASE_API_URL}/login', json=sample_admin_user)
+    assert login_response.status_code == 200
+    user = login_response.get_json()['user']
+
+    return user
+
+
 
 
 class TestFindAllUsers:
     """Test find all users endpoint"""
 
-    def test_users_attributes_not_empty(self, client, sample_user, redis_client):
+    def test_users_attributes_not_empty(self, client, redis_client, get_admin_token):
         """
         Test that all user attributes are not empty
         Verify: firstname, lastname, email, role, id_user, token, created_at are all present and not empty
         """
-        # Create a user first
-        create_response = client.post(f'{BASE_API_URL}/register', json=sample_user)
-        assert create_response.status_code == 201
 
         # Get all users
-        response = client.get(f'{BASE_API_URL}/users')
+        response = client.get(f'{BASE_API_URL}/users', headers ={'Authorization': f'Bearer {get_admin_token['token']}'})
         assert response.status_code == 200
 
         data = response.get_json()
@@ -82,17 +97,14 @@ class TestFindAllUsers:
             assert 'password' not in user
 
 
-    def test_get_all_users_empty(self, client, redis_client):
-        """Test getting all users when database is empty"""
-        response = client.get(f'{BASE_API_URL}/users')
+
+
+    def test_get_all_users_empty(self, client, redis_client, get_admin_token):
+        """Testing the recovery of all users when the database contains only the administrator"""
+
+        response = client.get(f'{BASE_API_URL}/users', headers ={'Authorization': f'Bearer {get_admin_token['token']}'})
 
         assert response.status_code == 200
         data = response.get_json()
-        assert data['count'] == 0
-        assert data['users'] == []
-
-
-
-
-
-
+        assert data['count'] == 1
+        assert data['users'] == [get_admin_token]
