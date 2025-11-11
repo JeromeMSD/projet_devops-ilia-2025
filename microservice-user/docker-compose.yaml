@@ -4,7 +4,7 @@ services:
     image: redis:7-alpine
     container_name: user-microservice-redis
     ports:
-      - "6380:6379"
+      - "6385:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -45,6 +45,7 @@ services:
 
       # JWT configuration
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret-key}
+      - RESET_TOKEN_KEY=${RESET_TOKEN:-reset:token:}
 
       # User keys
       - EMAIL_KEY=${EMAIL_KEY:-email:}
