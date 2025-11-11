@@ -14,9 +14,6 @@ ENCODER_TYPE = 'utf-8'
 ALGORITHM = 'HS256'
 
 
-
-
-
 def hash_password(password: str) -> str:
     """
         Cette fonction permet de hasher une chaine de caractère en utilisant l'algorithme bcrypt.
@@ -32,9 +29,6 @@ def hash_password(password: str) -> str:
     except Exception as error:
         print(f"erreur durant l'opération de hash du mot de passe {error}")
         raise error
-
-
-
 
 
 def verify_password(password: str, hashed_password: str) -> bool:
@@ -56,11 +50,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
         raise error
 
 
-
-
-
-
-def create_token(user_id: str|bytes, user_role: str="", validity : timedelta =timedelta(hours=24)) -> str:
+def create_token(user_id: str | bytes, user_role: str = "", validity: timedelta = timedelta(hours=24)) -> str:
     """
         Fonction utilitaire permettant de créer un JWT Token pour sécuriser les sessions et les communications
         Args:
@@ -73,22 +63,19 @@ def create_token(user_id: str|bytes, user_role: str="", validity : timedelta =ti
             Exception: Leve une Exception en cas de soucis
     """
     try:
-        payload = {
+        payload: dict = {
             'id_user': user_id.decode(ENCODER_TYPE) if isinstance(user_id, bytes) else str(user_id),
             'role': user_role,
             'exp': datetime.now(timezone.utc) + validity,
             'iat': datetime.now(timezone.utc),
-            'jti': str(uuid.uuid4()) 
-
+            'jti': str(uuid.uuid4())
         }
         return jwt.encode(
-            payload= payload,
+            payload=payload,
             key=SECRET_KEY,
             algorithm=ALGORITHM)
     except Exception as error:
         raise error
-
-
 
 
 def decode_token(token: str, disable_exp_verification: bool = False) -> dict:
@@ -117,8 +104,6 @@ def decode_token(token: str, disable_exp_verification: bool = False) -> dict:
         raise RuntimeError("Error lors du décodage du token", error)
 
 
-
-
 def verify_token(token: str) -> dict | str | None:
     """
         Fonction utilitaire permettant de decoder un JWT Token afin de verifier son intégrité, sa validité
@@ -133,7 +118,6 @@ def verify_token(token: str) -> dict | str | None:
     try:
         decoded_token: dict = decode_token(token=token, disable_exp_verification=False)
         return decoded_token
-
     except jwt.ExpiredSignatureError as error:
         print(f"Token expiré : {error}")
         try:
@@ -142,19 +126,12 @@ def verify_token(token: str) -> dict | str | None:
         except Exception as error:
             print(f"Erreur lors du décodage du token expiré: {error}")
             raise error
-
     except jwt.DecodeError as error:
         print(f"Erreur de décodage: {error}")
         raise error
-
     except jwt.InvalidTokenError as error:
         print(f"Token invalide: {error}")
         raise error
-
     except Exception as error:
         print(f"Erreur inattendue: {error}")
         raise error
-
-
-
-

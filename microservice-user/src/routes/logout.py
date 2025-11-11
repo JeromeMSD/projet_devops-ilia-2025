@@ -21,14 +21,10 @@ logout_bp = Blueprint('logout', __name__)
 def logout_route() -> tuple[Response, int]:
     """
     Déconnecte un utilisateur en vidant son token dans Redis.
-    
     Cette route nécessite une authentification valide (token JWT dans le header Authorization).
-    Après la déconnexion, le token de l'utilisateur est vidé ("") dans Redis, 
-    ce qui révoque sa session active.
-    
+    Après la déconnexion, le token de l'utilisateur est vidé ("") dans Redis, ce qui révoque sa session active.
     Headers:
-        Authorization (str): Bearer token JWT
-    
+        Authorization (str) : Bearer token JWT
     Returns:
         flask.Response: Une réponse HTTP JSON contenant l'état de la déconnexion.
             - 200 OK : Déconnexion réussie.
@@ -39,16 +35,13 @@ def logout_route() -> tuple[Response, int]:
         # L'utilisateur courant est déjà vérifié par @auth_required
         # et stocké dans g.current_user
         current_user = g.current_user
-        
         # Obtenir le client Redis
         redis_client = get_redis_client()
-        
         # Vérifier la connexion Redis
         if redis_client is None:
             return jsonify({
                 "error": "Database connection unavailable"
             }), 500
-        
         # Vider le token dans Redis avec gestion d'erreur
         try:
             current_user.token = ""
@@ -56,23 +49,19 @@ def logout_route() -> tuple[Response, int]:
                 name=f"{USER_KEY}{current_user.id_user}",
                 value=current_user.to_redis()
             )
-            
         except redis.RedisError as e:
             print(f"Erreur Redis lors de la déconnexion: {e}")
             return jsonify({
                 "error": "Cannot update user session in database"
             }), 500
-        
         return jsonify({
             'message': 'Utilisateur déconnecté avec succès'
         }), 200
-        
     except redis.ConnectionError as e:
         print(f"Erreur de connexion Redis: {e}")
         return jsonify({
             "error": "Cannot connect to database"
         }), 500
-        
     except Exception as error:
         print(f"Erreur inattendue lors de la déconnexion: {error}")
         return jsonify({
