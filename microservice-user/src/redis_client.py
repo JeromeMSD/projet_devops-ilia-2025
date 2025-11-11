@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+USER_KEY = os.getenv('USER_KEY', 'user:')
+EMAIL_KEY = os.getenv('EMAIL_KEY', 'email:')
 
 # Redis connection configuration
 REDIS_HOST = os.getenv('REDIS_HOST')
