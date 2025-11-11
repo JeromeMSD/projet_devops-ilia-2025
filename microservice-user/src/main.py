@@ -11,7 +11,6 @@ import os
 load_dotenv()
 
 
-
 MICRO_SERVICE_HOST = os.getenv('MICRO_SERVICE_USER_HOST')
 MICRO_SERVICE_PORT = int(os.getenv('MICRO_SERVICE_USER_PORT'))
 

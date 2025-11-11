@@ -19,6 +19,8 @@ tags:
     description: Gestion des utilisateurs (consultation, création, filtre par rôle)
   - name: Gateway
     description: Vérification des tokens par les autres microservices
+  - name: Password
+    description: Gestion du changement de mot de passe
 
 paths:
   /api/v1/register:
@@ -97,7 +99,6 @@ paths:
                     type: string
                     example: Erreur interne du serveur
 
-
   /api/v1/login:
     post:
       tags: [Authentication]
@@ -167,14 +168,13 @@ paths:
         '500':
           description: Erreur interne du serveur
 
-
   /api/v1/verify-token:
     get:
       tags: [Gateway]
       summary: Vérifie la validité d'un token JWT
       description: |
         Vérifie un **token JWT** envoyé dans le header `Authorization: Bearer <token>`.  
-        - Valide la signature, l’expiration et la présence dans Redis.  
+        - Valide la signature, l'expiration et la présence dans Redis.  
         - Utilisé par les **autres microservices** pour valider un utilisateur.
         - Utilisé par le frontend pour obtenir l'utilisateur connectée.
       security:
@@ -197,35 +197,6 @@ paths:
         '500':
           description: Erreur interne du serveur
 
-
-  /api/v1/users:
-    get:
-      tags: [Users]
-      summary: Récupère tous les utilisateurs
-      description: |
-        Retourne la liste complète des utilisateurs enregistrés dans Redis.  
-        ⚠️ Accessible uniquement aux rôles `ADMIN` ou `SRE`.
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Liste des utilisateurs
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: integer
-                    example: 3
-                  users:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/User'
-        '403':
-          description: Accès refusé (rôle insuffisant)
-        '500':
-          description: Erreur interne du serveur
   /api/v1/logout:
     post:
       tags: [Authentication]
@@ -266,6 +237,36 @@ paths:
                   error:
                     type: string
                     example: Une erreur inattendue est survenue lors de la déconnexion
+
+  /api/v1/users:
+    get:
+      tags: [Users]
+      summary: Récupère tous les utilisateurs
+      description: |
+        Retourne la liste complète des utilisateurs enregistrés dans Redis.  
+        ⚠️ Accessible uniquement aux rôles `ADMIN` ou `SRE`.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Liste des utilisateurs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 3
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '403':
+          description: Accès refusé (rôle insuffisant)
+        '500':
+          description: Erreur interne du serveur
+
   /api/v1/users/role/{role}:
     get:
       tags: [Users]
@@ -319,7 +320,176 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: Cannot connect to database                  
+                    example: Cannot connect to database
+
+  /api/v1/users/{user_id}:
+    put:
+      tags: [Users]
+      summary: Modifie un utilisateur
+      description: |
+        Modifie les informations d'un utilisateur.  
+        ⚠️ Accessible uniquement aux rôles `ADMIN` ou `SRE`.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID de l'utilisateur à modifier
+          schema:
+            type: string
+            example: 4fa3a1c2-84ad-42b8-8123-1234abcd5678
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstname:
+                  type: string
+                  example: NouveauPrénom
+                lastname:
+                  type: string
+                  example: NouveauNom
+                role:
+                  type: string
+                  enum: [USER, SRE, ADMIN]
+                  example: ADMIN
+      responses:
+        '200':
+          description: Utilisateur modifié avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Utilisateur modifié avec succès
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Données invalides
+        '403':
+          description: Accès refusé
+        '404':
+          description: Utilisateur non trouvé
+        '500':
+          description: Erreur interne du serveur
+
+  /api/v1/forgot-password:
+    post:
+      tags: [Password]
+      summary: Demande de réinitialisation de mot de passe
+      description: |
+        Génère un token de réinitialisation de mot de passe valable 30 minutes.  
+        ⚠️ Pour des raisons de sécurité (OWASP), retourne toujours 200 même si l'email n'existe pas.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: utilisateur@example.com
+      responses:
+        '200':
+          description: Token généré avec succès (même si email inexistant)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: Si cet email existe, un lien de réinitialisation a été envoyé
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                        example: Token de réinitialisation généré avec succès
+                      reset_token:
+                        type: string
+                        description: Token JWT de réinitialisation (valable 30 minutes)
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Email manquant ou format invalide
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Format d'email invalide
+        '500':
+          description: Erreur interne du serveur
+
+  /api/v1/reset-password:
+    post:
+      tags: [Password]
+      summary: Réinitialisation du mot de passe
+      description: |
+        Réinitialise le mot de passe avec un token de reset.  
+        Le token est à usage unique et expire après 30 minutes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reset_token, new_password]
+              properties:
+                reset_token:
+                  type: string
+                  description: Token reçu via /forgot-password
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                new_password:
+                  type: string
+                  format: password
+                  description: |
+                    Nouveau mot de passe (min 6 caractères, 1 majuscule, 1 minuscule, 1 chiffre)
+                  example: NouveauPassword123
+      responses:
+        '200':
+          description: Mot de passe réinitialisé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Mot de passe réinitialisé avec succès
+        '400':
+          description: Champs manquants ou mot de passe invalide
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Le mot de passe doit contenir au moins 6 caractères, une majuscule, une minuscule et un chiffre
+        '403':
+          description: Token invalide, expiré ou déjà utilisé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token de réinitialisation invalide ou expiré
+        '500':
+          description: Erreur interne du serveur
+
 components:
   securitySchemes:
     bearerAuth:
