@@ -21,8 +21,8 @@ jobs:
 
     # Récupérer la clé secrète depuis GitHub pour l'injecter dans les tests et l'image
     env:
-      # JWT_SECRET_KEY doit être configuré dans les secrets du dépôt
-      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      # JWT_SECRET_KEY doit être configuré dans les secrets du dépôt (mais pas acces -> on ecrit en brut)
+      JWT_SECRET_KEY: "dev-secret-key"
 
        # User keys
       EMAIL_KEY: "email:"
