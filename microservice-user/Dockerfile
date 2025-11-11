@@ -31,3 +31,4 @@ WORKDIR /app
 
 # Run the application with Flask
 CMD ["flask", "run", "--host=0.0.0.0"]
+
