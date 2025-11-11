@@ -8,23 +8,31 @@ from src.redis_client import get_redis_client
 
 find_users_by_role_bp = Blueprint('find_users_by_role', __name__)
 
-@find_users_by_role_bp.route('/users/role/<string:role>', methods=['GET'])
+
+@find_users_by_role_bp.route('/users', methods=['GET'])
 @cross_origin()
 @auth_required(roles=['ADMIN', 'SRE'])
-def find_users_by_role(role: str):
+def find_users_by_role():
     """
-    Route pour récupérer les utilisateurs filtrés par rôle.
-    
-    Args:
-        role (str): Le rôle pour filtrer les utilisateurs (ex: 'ADMIN', 'USER', 'SRE')
-    
+    Route pour récupérer tous les utilisateurs stockés dans Redis,
+    avec filtrage optionnel par rôle via query parameter.
+
+    Query params:
+        role (str, optional): Le rôle pour filtrer les utilisateurs (ex: 'ADMIN', 'USER', 'SRE')
+
     Returns:
-        JSON: Liste des utilisateurs ayant le rôle spécifié avec leur nombre total
-    
+        JSON: Liste des utilisateurs (filtrés ou tous) avec leur nombre total
+
     Responses:
         200: Liste des utilisateurs récupérée avec succès
         403: Accès non autorisé (token manquant, invalide ou permissions insuffisantes)
         500: Erreur serveur (problème Redis ou autre)
+    
+    Examples:
+        GET /api/v1/users              -> Tous les utilisateurs
+        GET /api/v1/users?role=ADMIN   -> Seulement les ADMIN
+        GET /api/v1/users?role=USER    -> Seulement les USER
+        GET /api/v1/users?role=SRE     -> Seulement les SRE
     """
     try:
         # Obtenir le client Redis
@@ -36,15 +44,24 @@ def find_users_by_role(role: str):
                 "error": "Database connection unavailable"
             }), 500
 
-        # Normaliser le rôle (majuscules pour la cohérence)
-        normalized_role = role.upper()
+        # Récupérer le query param 'role' (optionnel)
+        role_filter = request.args.get('role', None)
+        
+        # Normaliser le rôle si fourni (majuscules pour la cohérence)
+        normalized_role = role_filter.upper() if role_filter else None
 
-        # Récupérer toutes les clés des utilisateurs
-        user_keys = redis_client.keys('user:*')
+        # Récupérer toutes les clés des utilisateurs avec try/except
+        try:
+            user_keys = redis_client.keys('user:*')
+        except redis.RedisError as e:
+            print(f"Erreur Redis lors de la récupération des clés: {e}")
+            return jsonify({
+                "error": "Cannot retrieve users from database"
+            }), 500
 
         users_list = []
 
-        # Parcourir toutes les clés et récupérer les utilisateurs avec le rôle spécifié
+        # Parcourir toutes les clés et récupérer les utilisateurs
         for key in user_keys:
             try:
                 # Récupérer l'objet user depuis Redis (bytes)
@@ -54,13 +71,16 @@ def find_users_by_role(role: str):
                     # Convertir de Redis vers objet User
                     user = User.from_redis_to_user(user_data)
                     
-                    # Filtrer par rôle (comparaison insensible à la casse)
-                    if user.role.upper() == normalized_role:
+                    # Filtrer par rôle si spécifié, sinon retourner tous les users
+                    if normalized_role is None or user.role.upper() == normalized_role:
                         # Ajouter la version JSON (sans password) à la liste
                         users_list.append(user.to_json())
 
+            except redis.RedisError as e:
+                print(f"Erreur Redis lors de la récupération de l'utilisateur {key}: {e}")
+                continue
             except Exception as e:
-                print(f"Erreur lors de la récupération de l'utilisateur {key}: {e}")
+                print(f"Erreur lors du traitement de l'utilisateur {key}: {e}")
                 continue
 
         # Retourner la liste avec le nombre total
@@ -69,7 +89,8 @@ def find_users_by_role(role: str):
             "users": users_list
         }), 200
 
-    except redis.ConnectionError:
+    except redis.ConnectionError as e:
+        print(f"Erreur de connexion Redis: {e}")
         return jsonify({
             "error": "Cannot connect to database"
         }), 500

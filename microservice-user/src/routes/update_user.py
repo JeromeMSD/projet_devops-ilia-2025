@@ -38,9 +38,13 @@ def update_user(user_id: str):
         if redis_client is None:
             return jsonify({"error": "Database connection unavailable"}), 500
 
-        # Vérifier que l'utilisateur existe
+        # Vérifier que l'utilisateur existe avec gestion d'erreur Redis
         user_key = f"user:{user_id}"
-        user_data = redis_client.get(user_key)
+        try:
+            user_data = redis_client.get(user_key)
+        except redis.RedisError as e:
+            print(f"Erreur Redis lors de la récupération de l'utilisateur {user_id}: {e}")
+            return jsonify({"error": "Cannot retrieve user from database"}), 500
         
         if not user_data:
             return jsonify({"error": "Utilisateur non trouvé"}), 404
@@ -64,15 +68,20 @@ def update_user(user_id: str):
                 return jsonify({"error": f"Rôle invalide. Rôles valides: {valid_roles}"}), 400
             user.role = update_data['role']
 
-        # Sauvegarder dans Redis
-        redis_client.set(user_key, user.to_redis())
+        # Sauvegarder dans Redis avec gestion d'erreur
+        try:
+            redis_client.set(user_key, user.to_redis())
+        except redis.RedisError as e:
+            print(f"Erreur Redis lors de la sauvegarde de l'utilisateur {user_id}: {e}")
+            return jsonify({"error": "Cannot update user in database"}), 500
 
         return jsonify({
             "message": "Utilisateur modifié avec succès",
             "user": user.to_json()
         }), 200
 
-    except redis.ConnectionError:
+    except redis.ConnectionError as e:
+        print(f"Erreur de connexion Redis: {e}")
         return jsonify({"error": "Cannot connect to database"}), 500
 
     except Exception as e:

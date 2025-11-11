@@ -3,6 +3,7 @@ import re
 from flask import Blueprint, request, jsonify, Response
 from flask_cors import cross_origin
 from dotenv import load_dotenv
+import redis
 
 from ..redis_client import get_redis_client
 from ..utils import hash_password, verify_token
@@ -37,9 +38,12 @@ def reset_password_route() -> tuple[Response, int]:
             - 403 Forbidden : Token invalide, expiré ou déjà utilisé
             - 500 Internal Server Error : Erreur serveur
     """
-    redis_client = get_redis_client()
-    
     try:
+        # Obtenir le client Redis
+        redis_client = get_redis_client()
+        if redis_client is None:
+            return jsonify({"error": "Database connection unavailable"}), 500
+        
         # Extraction du body
         data = request.get_json(silent=True)
         
@@ -69,8 +73,14 @@ def reset_password_route() -> tuple[Response, int]:
                 'error': 'Le mot de passe doit contenir au moins 6 caractères, une majuscule, une minuscule et un chiffre'
             }), 400
         
-        # Vérifier que le token existe dans Redis
-        user_id_bytes = redis_client.get(f"{RESET_TOKEN_KEY}{reset_token}")
+        # Vérifier que le token existe dans Redis avec gestion d'erreur
+        try:
+            user_id_bytes = redis_client.get(f"{RESET_TOKEN_KEY}{reset_token}")
+        except redis.RedisError as e:
+            print(f"Erreur Redis lors de la vérification du token reset: {e}")
+            return jsonify({
+                'error': 'Erreur de base de données lors de la vérification du token'
+            }), 500
         
         if not user_id_bytes:
             return jsonify({
@@ -85,8 +95,13 @@ def reset_password_route() -> tuple[Response, int]:
             
             # Si le token est expiré, verify_token retourne un string (user_id)
             if isinstance(payload, str):
-                # Nettoyer le token expiré de Redis
-                redis_client.delete(f"{RESET_TOKEN_KEY}{reset_token}")
+                # Nettoyer le token expiré de Redis avec gestion d'erreur
+                try:
+                    redis_client.delete(f"{RESET_TOKEN_KEY}{reset_token}")
+                except redis.RedisError as e:
+                    print(f"Erreur Redis lors de la suppression du token expiré: {e}")
+                    # On continue car le token est déjà expiré de toute façon
+                
                 return jsonify({
                     'error': 'Token de réinitialisation expiré'
                 }), 403
@@ -103,8 +118,14 @@ def reset_password_route() -> tuple[Response, int]:
                 'error': 'Token de réinitialisation invalide'
             }), 403
         
-        # Récupérer l'utilisateur depuis Redis
-        user_data = redis_client.get(f"{USER_KEY}{user_id}")
+        # Récupérer l'utilisateur depuis Redis avec gestion d'erreur
+        try:
+            user_data = redis_client.get(f"{USER_KEY}{user_id}")
+        except redis.RedisError as e:
+            print(f"Erreur Redis lors de la récupération de l'utilisateur {user_id}: {e}")
+            return jsonify({
+                'error': 'Erreur de base de données lors de la récupération de l\'utilisateur'
+            }), 500
         
         if not user_data:
             return jsonify({
@@ -119,18 +140,34 @@ def reset_password_route() -> tuple[Response, int]:
         # Révoquer le token de session actuel pour forcer une reconnexion
         user.token = ""
         
-        # Sauvegarder dans Redis
-        redis_client.set(name=f"{USER_KEY}{user_id}", value=user.to_redis())
+        # Sauvegarder dans Redis avec gestion d'erreur
+        try:
+            redis_client.set(name=f"{USER_KEY}{user_id}", value=user.to_redis())
+        except redis.RedisError as e:
+            print(f"Erreur Redis lors de la sauvegarde de l'utilisateur {user_id}: {e}")
+            return jsonify({
+                'error': 'Erreur de base de données lors de la mise à jour du mot de passe'
+            }), 500
         
-        # Supprimer le token de reset (usage unique)
-        redis_client.delete(f"{RESET_TOKEN_KEY}{reset_token}")
+        # Supprimer le token de reset (usage unique) avec gestion d'erreur
+        try:
+            redis_client.delete(f"{RESET_TOKEN_KEY}{reset_token}")
+        except redis.RedisError as e:
+            print(f"Erreur Redis lors de la suppression du token reset: {e}")
+            # On continue car l'utilisateur a déjà été mis à jour
         
         return jsonify({
             'message': 'Mot de passe réinitialisé avec succès'
         }), 200
         
+    except redis.ConnectionError as e:
+        print(f"Erreur de connexion Redis: {e}")
+        return jsonify({
+            "error": "Cannot connect to database"
+        }), 500
+        
     except Exception as error:
-        print(f"Erreur dans reset_password: {error}")
+        print(f"Erreur inattendue dans reset_password: {error}")
         return jsonify({
             'error': 'Une erreur inattendue est survenue',
             'details': str(error)

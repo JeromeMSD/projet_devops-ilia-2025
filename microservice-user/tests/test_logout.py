@@ -108,9 +108,9 @@ class TestLogout:
         """
         Test: Déconnexion avec un token révoqué (différent de celui en Redis)
         - Token JWT valide mais ne correspond pas à celui stocké dans Redis
-        - Retourne 403
+        - Retourne 403 car l'authentification échoue avant même d'arriver à la déconnexion
         """
-        # Arrange: Créer deux tokens différents
+        # Arrange: Créer deux tokens différents      
         token1 = create_token(test_user['user_id'], test_user['role'])
         token2 = create_token(test_user['user_id'], test_user['role'])
         
@@ -125,12 +125,10 @@ class TestLogout:
             headers={'Authorization': f'Bearer {token2}'}
         )
 
-        # Assert
-       
-        assert response.status_code == 200
+        # Assert: Doit retourner 403 - le token de la requête ne correspond pas à Redis
+        assert response.status_code == 403
         data = response.get_json()
-        assert 'message' in data
-        assert 'déconnecté' in data['message'].lower() 
+        assert 'error' in data
 
 
     def test_logout_already_logged_out(self, client, test_user, redis_client):
