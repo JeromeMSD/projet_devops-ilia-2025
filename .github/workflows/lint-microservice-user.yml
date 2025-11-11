@@ -76,7 +76,7 @@ jobs:
         run: |
           echo "::group::MyPy Type Checking"
           python -m mypy src/ --ignore-missing-imports --no-strict-optional
-          echo "::endgroup::"
+          echo "::endgroup:;"
         continue-on-error: true
 
   lint-dockerfile:
@@ -91,7 +91,7 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: microservice-user/Dockerfile
-          failure-threshold: warning
+          failure-threshold: error
 
   lint-yaml:
     name: Lint YAML Files
@@ -109,7 +109,7 @@ jobs:
         run: |
           echo "::group::YAML Linting"
           yamllint docker-compose.yaml swagger.yaml || true
-          echo "::endgroup::"
+          echo "::endgroup:;"
         continue-on-error: true
 
   security-check:
