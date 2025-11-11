@@ -13,7 +13,7 @@ def test_get_user_by_id_success():
     result = repository.get_by_id(1)
     
     # ASSERT
-    assert result.identifiant == 100
+    assert result.identifiant == 1
     assert result.nom == "Dupont"
     assert result.prenom == "Jean"
     assert result.role == "admin"
@@ -26,4 +26,4 @@ def test_get_user_by_id_not_found():
     
     # ACT & ASSERT
     with pytest.raises(UserNotFoundError):
-        repository.get_by_id(999)
+        repository.get_by_id(1)
