@@ -7,6 +7,7 @@ import os
 
 USER_KEY = os.getenv("USER_KEY")
 
+
 def auth_required(roles=None):
     """
     Décorateur Flask pour sécuriser les routes.

@@ -7,14 +7,15 @@ import pytest
 
 BASE_API_URL = os.getenv('BASE_API_URL')
 
-
 # Fixtures
+
+
 @pytest.fixture
 def sample_admin_user():
     """Sample admin user data for testing"""
     return {
         "firstname": "Admin",
-        "lastname": "Testeur", 
+        "lastname": "Testeur",
         "email": "admin@example.com",
         "password": "Password123",
         "role": "ADMIN"
@@ -27,7 +28,6 @@ def get_admin_token(client, sample_admin_user, redis_client):
     # Create admin user first
     create_response = client.post(f'{BASE_API_URL}/register', json=sample_admin_user)
     assert create_response.status_code == 201
-
     # Login the created admin user
     login_response = client.post(f'{BASE_API_URL}/login', json={
         "email": sample_admin_user["email"],
@@ -35,7 +35,6 @@ def get_admin_token(client, sample_admin_user, redis_client):
     })
     assert login_response.status_code == 200
     user = login_response.get_json()['user']
-    
     return user
 
 
@@ -44,16 +43,14 @@ def get_user_token(client, redis_client):
     """Create and login a regular USER for permission testing"""
     user_data = {
         "firstname": "Regular",
-        "lastname": "User", 
+        "lastname": "User",
         "email": "regular@example.com",
         "password": "Password123",
         "role": "USER"
     }
-    
     # Create user
     create_response = client.post(f'{BASE_API_URL}/register', json=user_data)
     assert create_response.status_code == 201
-    
     # Login user
     login_response = client.post(f'{BASE_API_URL}/login', json={
         "email": user_data["email"],
@@ -61,7 +58,6 @@ def get_user_token(client, redis_client):
     })
     assert login_response.status_code == 200
     user = login_response.get_json()['user']
-    
     return user
 
 
@@ -75,27 +71,23 @@ def get_sre_token(client, redis_client):
         "password": "Password123",
         "role": "SRE"
     }
-    
     # Create SRE
     create_response = client.post(f'{BASE_API_URL}/register', json=sre_data)
     assert create_response.status_code == 201
-    
     # Login SRE
     login_response = client.post(f'{BASE_API_URL}/login', json={
         "email": sre_data["email"],
         "password": sre_data["password"]
     })
+
     assert login_response.status_code == 200
     user = login_response.get_json()['user']
-    
     return user
 
 
 class TestFindUsers:
     """Test find users endpoint (with optional role filtering)"""
-
     # ========== Tests sans filtrage (tous les utilisateurs) ==========
-    
     def test_get_all_users_without_filter(self, client, redis_client, get_admin_token):
         """
         Test: Récupérer tous les utilisateurs sans filtrage
@@ -109,17 +101,14 @@ class TestFindUsers:
             {"firstname": "User1", "lastname": "Test", "email": "user1@test.com", "password": "Password123", "role": "USER"},
             {"firstname": "SRE1", "lastname": "Test", "email": "sre1@test.com", "password": "Password123", "role": "SRE"}
         ]
-        
         for user_data in users_data:
             response = client.post(f'{BASE_API_URL}/register', json=user_data)
             assert response.status_code == 201
-
         # Act: Appeler /users SANS query param
         response = client.get(
             f'{BASE_API_URL}/users',
             headers={'Authorization': f'Bearer {get_admin_token["token"]}'}
         )
-
         # Assert
         assert response.status_code == 200
         data = response.get_json()
@@ -138,7 +127,6 @@ class TestFindUsers:
             f'{BASE_API_URL}/users',
             headers={'Authorization': f'Bearer {get_admin_token["token"]}'}
         )
-
         # Assert
         assert response.status_code == 200
         data = response.get_json()
@@ -156,44 +144,34 @@ class TestFindUsers:
             f'{BASE_API_URL}/users',
             headers={'Authorization': f'Bearer {get_admin_token["token"]}'}
         )
-        
         # Assert
         assert response.status_code == 200
         data = response.get_json()
         assert 'users' in data
         assert len(data['users']) > 0
-
         # Vérifier chaque utilisateur
         for user in data['users']:
             assert 'firstname' in user
             assert user['firstname'] is not None
             assert user['firstname'] != ""
-
             assert 'lastname' in user
             assert user['lastname'] is not None
             assert user['lastname'] != ""
-
             assert 'email' in user
             assert user['email'] is not None
             assert user['email'] != ""
-
             assert 'role' in user
             assert user['role'] is not None
             assert user['role'] != ""
-
             assert 'id_user' in user
             assert user['id_user'] is not None
             assert user['id_user'] != ""
-
             assert 'token' in user
-
             assert 'created_at' in user
             assert user['created_at'] is not None
             assert user['created_at'] != ""
-
             # Password ne doit PAS être présent
             assert 'password' not in user
-
     # ========== Tests avec filtrage par rôle ==========
 
     def test_get_users_by_role_admin(self, client, redis_client, get_admin_token):
@@ -210,17 +188,14 @@ class TestFindUsers:
             {"firstname": "Admin2", "lastname": "Test", "email": "admin2@test.com", "password": "Password123", "role": "ADMIN"},
             {"firstname": "SRE1", "lastname": "Test", "email": "sre1@test.com", "password": "Password123", "role": "SRE"}
         ]
-        
         for user_data in users_data:
             response = client.post(f'{BASE_API_URL}/register', json=user_data)
             assert response.status_code == 201
-
         # Act: Filtrer par rôle ADMIN
         response = client.get(
             f'{BASE_API_URL}/users?role=ADMIN',
             headers={'Authorization': f'Bearer {get_admin_token["token"]}'}
         )
-
         # Assert
         assert response.status_code == 200
         data = response.get_json()
@@ -241,17 +216,14 @@ class TestFindUsers:
             {"firstname": "User2", "lastname": "Test", "email": "user2@test.com", "password": "Password123", "role": "USER"},
             {"firstname": "Admin1", "lastname": "Test", "email": "admin1@test.com", "password": "Password123", "role": "ADMIN"}
         ]
-        
         for user_data in users_data:
             response = client.post(f'{BASE_API_URL}/register', json=user_data)
             assert response.status_code == 201
-
         # Act
         response = client.get(
             f'{BASE_API_URL}/users?role=USER',
             headers={'Authorization': f'Bearer {get_admin_token["token"]}'}
         )
-
         # Assert
         assert response.status_code == 200
         data = response.get_json()
@@ -270,13 +242,11 @@ class TestFindUsers:
         sre_user = {"firstname": "SRE", "lastname": "Engineer", "email": "sre@test.com", "password": "Password123", "role": "SRE"}
         response = client.post(f'{BASE_API_URL}/register', json=sre_user)
         assert response.status_code == 201
-
         # Act
         response = client.get(
             f'{BASE_API_URL}/users?role=SRE',
             headers={'Authorization': f'Bearer {get_admin_token["token"]}'}
         )
-
         # Assert
         assert response.status_code == 200
         data = response.get_json()
@@ -296,7 +266,6 @@ class TestFindUsers:
             f'{BASE_API_URL}/users?role=INEXISTANT',
             headers={'Authorization': f'Bearer {get_admin_token["token"]}'}
         )
-
         # Assert
         assert response.status_code == 200
         data = response.get_json()
@@ -312,21 +281,18 @@ class TestFindUsers:
         # Arrange
         admin_user = {"firstname": "Admin", "lastname": "Test", "email": "admin@test.com", "password": "Password123", "role": "ADMIN"}
         client.post(f'{BASE_API_URL}/register', json=admin_user)
-
         # Act: Tester différentes casses
         for role_variant in ['admin', 'ADMIN', 'Admin']:
             response = client.get(
                 f'{BASE_API_URL}/users?role={role_variant}',
                 headers={'Authorization': f'Bearer {get_admin_token["token"]}'}
             )
-            
             # Assert
             assert response.status_code == 200
             data = response.get_json()
             assert data['count'] >= 2  # Au moins l'admin fixture + l'admin créé
 
     # ========== Tests de sécurité et permissions ==========
-
     def test_get_users_unauthorized(self, client):
         """
         Test: Accès sans token d'authentification
@@ -334,7 +300,6 @@ class TestFindUsers:
         """
         # Act
         response = client.get(f'{BASE_API_URL}/users')
-
         # Assert
         assert response.status_code == 403
         data = response.get_json()
@@ -351,7 +316,6 @@ class TestFindUsers:
             f'{BASE_API_URL}/users',
             headers={'Authorization': f'Bearer {get_user_token["token"]}'}
         )
-
         # Assert
         assert response.status_code == 403
         data = response.get_json()
@@ -368,7 +332,6 @@ class TestFindUsers:
             f'{BASE_API_URL}/users',
             headers={'Authorization': f'Bearer {get_sre_token["token"]}'}
         )
-
         # Assert
         assert response.status_code == 200
         data = response.get_json()

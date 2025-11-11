@@ -21,13 +21,11 @@ def setup_test_environment():
     autouse =True : s'exécute automatiquement.
     scope ='session' : une seule fois pour toute la session de tests.
     """
-
     os.environ['FLASK_TESTING'] = 'true'
     reset_redis_client()
     yield
     os.environ['FLASK_TESTING'] = 'false'
     reset_redis_client()
-
 
 
 @pytest.fixture
@@ -38,24 +36,19 @@ def app():
     return app
 
 
-
 @pytest.fixture
 def client(app):
     """Client de test Flask"""
     return app.test_client()
 
 
-
-
 @pytest.fixture
 def redis_client():
     """ Client Redis de test pour la base de donnees de tests (db 1)"""
     redis_client = get_redis_client()
-
     # Verification de la base de donnees.
     current_db = redis_client.connection_pool.connection_kwargs.get('db')
     expected_db = int(os.getenv('REDIS_TEST_DB'))
-
     if current_db != expected_db:
         raise RuntimeError(
             f"ERREUR: Redis connecté à DB {current_db} au lieu de DB {expected_db} (test)!\n"
@@ -64,10 +57,11 @@ def redis_client():
     # Nettoyage de la BD avant le test
     redis_client.flushdb()
     # Execution du test
+
     yield redis_client
+
     # Nettoyage de la BD après le test
     redis_client.flushdb()
-
 
 
 @pytest.fixture
@@ -79,9 +73,8 @@ def test_user(redis_client):
     email = "test10@mail.com"
     password = "Password123"
     user_id = uuid.uuid4()
-
-    user = User(
-        id_user= str(user_id),
+    user: User = User(
+        id_user=str(user_id),
         firstname="Test",
         lastname="User",
         email=email,
@@ -89,11 +82,9 @@ def test_user(redis_client):
         token="",
         password=hash_password(password),
     )
-
     # enregistrement de l'utilisateur selon notre logique du registration
     redis_client.set(name=f"{EMAIL_KEY}{email}", value=f"{user.id_user}")
     redis_client.set(name=f"{USER_KEY}{user.id_user}", value=user.to_redis())
-
     # retour de l'utilisateur enregistré
     return {
         'user': user,

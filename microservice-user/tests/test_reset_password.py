@@ -1,5 +1,3 @@
-
-import pytest
 import os
 from src.utils import verify_password
 
@@ -26,7 +24,6 @@ class TestResetPassword:
         )
         reset_token = response_forgot.get_json()['reset_token']
         new_password = "NewPassword456"
-
         # Act: Réinitialiser le mot de passe
         response = client.post(
             f'{BASE_API_URL}/reset-password',
@@ -35,22 +32,18 @@ class TestResetPassword:
                 'new_password': new_password
             }
         )
-
         # Assert: Réponse OK
         assert response.status_code == 200
         data = response.get_json()
         assert 'message' in data
         assert 'succès' in data['message'].lower() or 'success' in data['message'].lower()
-
         # Assert: Le mot de passe a été mis à jour
         from src.models.user import User
         user_data = redis_client.get(f"{USER_KEY}{test_user['user_id']}")
         user = User.from_redis_to_user(user_data)
         assert verify_password(new_password, user.password)
-
         # Assert: Le token de reset a été supprimé
         assert redis_client.get(f"{RESET_TOKEN_KEY}{reset_token}") is None
-
 
     def test_reset_password_invalid_token(self, client, test_user, redis_client):
         """
@@ -66,12 +59,10 @@ class TestResetPassword:
                 'new_password': 'NewPassword456'
             }
         )
-
         # Assert
         assert response.status_code in [400, 403]
         data = response.get_json()
         assert 'error' in data
-
 
     def test_reset_password_expired_token(self, client, test_user, redis_client):
         """
@@ -85,10 +76,8 @@ class TestResetPassword:
             json={'email': test_user['email']}
         )
         reset_token = response_forgot.get_json()['reset_token']
-        
         # Supprimer le token pour simuler l'expiration
         redis_client.delete(f"{RESET_TOKEN_KEY}{reset_token}")
-
         # Act
         response = client.post(
             f'{BASE_API_URL}/reset-password',
@@ -97,13 +86,11 @@ class TestResetPassword:
                 'new_password': 'NewPassword456'
             }
         )
-
         # Assert
         assert response.status_code == 403
         data = response.get_json()
         assert 'error' in data
         assert 'expiré' in data['error'].lower() or 'expired' in data['error'].lower() or 'invalide' in data['error'].lower()
-
 
     def test_reset_password_weak_password(self, client, test_user, redis_client):
         """
@@ -118,7 +105,6 @@ class TestResetPassword:
             'NOLOWERCASE1',    # Pas de minuscule
             'NoNumber',        # Pas de chiffre
         ]
-
         for invalid_password in invalid_passwords:
             # Arrange: Obtenir un nouveau token de reset pour chaque test
             response_forgot = client.post(
@@ -126,7 +112,6 @@ class TestResetPassword:
                 json={'email': test_user['email']}
             )
             reset_token = response_forgot.get_json()['reset_token']
-            
             # Act
             response = client.post(
                 f'{BASE_API_URL}/reset-password',
@@ -135,12 +120,10 @@ class TestResetPassword:
                     'new_password': invalid_password
                 }
             )
-
             # Assert
             assert response.status_code == 400, f"Expected 400 for password '{invalid_password}', got {response.status_code}"
             data = response.get_json()
             assert 'error' in data
-
 
     def test_reset_password_missing_fields(self, client):
         """
@@ -155,7 +138,6 @@ class TestResetPassword:
         )
         assert response1.status_code == 400
         assert 'error' in response1.get_json()
-
         # Test sans new_password
         response2 = client.post(
             f'{BASE_API_URL}/reset-password',
@@ -163,7 +145,6 @@ class TestResetPassword:
         )
         assert response2.status_code == 400
         assert 'error' in response2.get_json()
-
 
     def test_reset_password_empty_body(self, client):
         """
@@ -173,12 +154,10 @@ class TestResetPassword:
         """
         # Act
         response = client.post(f'{BASE_API_URL}/reset-password')
-
         # Assert
         assert response.status_code == 400
         data = response.get_json()
         assert 'error' in data
-
 
     def test_reset_password_token_single_use(self, client, test_user, redis_client):
         """
@@ -192,7 +171,6 @@ class TestResetPassword:
             json={'email': test_user['email']}
         )
         reset_token = response_forgot.get_json()['reset_token']
-
         # Première réinitialisation
         response1 = client.post(
             f'{BASE_API_URL}/reset-password',
@@ -202,7 +180,6 @@ class TestResetPassword:
             }
         )
         assert response1.status_code == 200
-
         # Act: Essayer de réutiliser le même token
         response2 = client.post(
             f'{BASE_API_URL}/reset-password',
@@ -211,8 +188,7 @@ class TestResetPassword:
                 'new_password': 'SecondNewPassword456'
             }
         )
-
-        # Assert: Le token ne peut plus être utilisé
+        # Assert : Le token ne peut plus être utilisé
         assert response2.status_code == 403
         data = response2.get_json()
         assert 'error' in data

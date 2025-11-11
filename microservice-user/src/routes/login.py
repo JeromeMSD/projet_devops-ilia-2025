@@ -1,17 +1,19 @@
 import os
 from dotenv import load_dotenv
 from flask_cors import cross_origin
-from ..redis_client import get_redis_client
-load_dotenv()
-
-import jwt
 from flask import Blueprint, request, jsonify, Response
-from ..utils import verify_password, create_token, verify_token
+import jwt
+from ..redis_client import get_redis_client
 from ..models.user import User
+from ..utils import verify_password, create_token, verify_token
+
 
 login_bp = Blueprint('login', __name__)
 EMAIL_KEY = os.getenv('EMAIL_KEY')
 USER_KEY = os.getenv('USER_KEY')
+
+load_dotenv()
+
 
 @login_bp.route('/login', methods=['POST'])
 @cross_origin()
@@ -37,7 +39,7 @@ def login_route() -> tuple[Response, int]:
             return jsonify({
                 'error': 'Les champs email et password sont requis'
             }), 400
-        elif not data.get('email') :
+        elif not data.get('email'):
             return jsonify({
                 'error': 'Le champ email est requis'
             }), 400
@@ -49,14 +51,14 @@ def login_route() -> tuple[Response, int]:
             email: str = data["email"]
             password: str = data["password"]
             # Recuperation de l'id de l'utilisateur a l'aide son email.
-            user_id_key_bytes  = redis_client.get(f"{EMAIL_KEY}{email}")
+            user_id_key_bytes = redis_client.get(f"{EMAIL_KEY}{email}")
             if not user_id_key_bytes:
                 return jsonify({
                     'error': 'Utilisateur inexistant'
                 }), 404
             else:
                 user_id: str = user_id_key_bytes.decode("utf-8") if isinstance(user_id_key_bytes, bytes) else user_id_key_bytes
-                redis_object : bytes = redis_client.get(f"{USER_KEY}{user_id}")
+                redis_object: bytes = redis_client.get(f"{USER_KEY}{user_id}")
                 user_infos: User = User.from_redis_to_user(redis_object)
                 # Verification du mot de passe
                 if not verify_password(password, user_infos.password):
@@ -67,14 +69,14 @@ def login_route() -> tuple[Response, int]:
                     # Creation du token et mise à jour des infos de l'utilisateur
                     token: str = create_token(user_id, user_infos.role)
                     user_infos.token = token
-                    redis_client.set(name = f"{USER_KEY}{user_id}", value = user_infos.to_redis())
+                    redis_client.set(name=f"{USER_KEY}{user_id}", value=user_infos.to_redis())
                     # Retour d'une réponse HTTP 200 avec les infos de l'utilisateur
                     return jsonify({
                         'user': user_infos.to_json(),
                         'message': 'Successfully logged in!'
                     }), 200
     except Exception as error:
-        print(f"error", error)
+        print(f"error {error} ")
         return jsonify({
             'message': "Une erreur inattendue est survenue, veuillez réessayer plus tard !",
             'error': str(error)
@@ -102,31 +104,28 @@ def verify_token_route():
     auth_header = request.headers.get("Authorization")
     if not auth_header:
         return jsonify({"error": "En-tête Authorization manquante"}), 403
-
     parts = auth_header.split()
-
     if parts[0] != "Bearer":
         return jsonify({"error": "Cle Bearer manquante dans l'en-tête Authorization"}), 403
-
     if len(parts) == 1 or not parts[1].strip():
         return jsonify({"error": "Token manquant"}), 403
     else:
         token = parts[1].strip()
         try:
             # Verification du token
-            payload = verify_token(token = token)
+            payload = verify_token(token=token)
             if not payload:
                 return jsonify({'error': 'Token JWT invalide'}), 403
             else:
                 # Token valide
-                if type(payload) == dict:
+                if type(payload) is dict:
                     user_id = payload['id_user']
                     print(user_id)
                     if redis_client.exists(f"{USER_KEY}{user_id}"):
                         user: User = User.from_redis_to_user(redis_client.get(f"{USER_KEY}{user_id}"))
                         stored_token = user.token
                         # Verification de l'intégrité du token
-                        if not stored_token or stored_token=="":
+                        if not stored_token or stored_token == "":
                             return jsonify({'error': 'Token révoqué ou expiré, veuillez vous reconnecter !'}), 403
                         elif stored_token != token:
                             return jsonify({
@@ -140,18 +139,18 @@ def verify_token_route():
                                     'user': user.to_json(),
                                 }
                             ), 200
-                    else :
+                    else:
                         return jsonify({
                             'error': 'Token invalide',
                             'message': 'L\'utilisateur associé a ce token est inexistant'
                         }), 403
                 # Token expire
-                elif type(payload) == str:
+                elif type(payload) is str:
                     user_id = payload
                     if redis_client.exists(f"{USER_KEY}{user_id}"):
                         user = User.from_redis_to_user(redis_client.get(f"{USER_KEY}{user_id}"))
                         user.token = ""
-                        redis_client.set(name = f"{USER_KEY}{user_id}", value = user.to_redis())
+                        redis_client.set(name=f"{USER_KEY}{user_id}", value=user.to_redis())
                         return jsonify({
                             'error': 'Token expiré, veuillez vous reconnecter'
                         }), 403
@@ -162,13 +161,12 @@ def verify_token_route():
                         }), 403
                 else:
                     return jsonify({'error': 'Erreur inattendue'}), 500
-         # Gestion des erreurs
+        # Gestion des erreurs
         except jwt.DecodeError:
             return jsonify({
                         'error': 'Token invalide ',
                         'message': 'erreur lors du décodage du token'
                     }), 403
-
         except jwt.InvalidTokenError as error:
             return jsonify({
                 'error': 'Token invalide',
@@ -180,9 +178,3 @@ def verify_token_route():
                 'error': 'Erreur inattendue',
                 'message': str(error)
             }), 500
-
-
-
-
-
-
