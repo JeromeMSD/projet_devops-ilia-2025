@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint src --ext ts,tsx --max-warnings=0",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "docker": "docker build -t frontend . && docker run --rm -p 3000:80 frontend",
+    "docker": "docker build -t frontend . && docker run --rm -p 3000:8080 frontend",
     "test": "vitest"
   },
   "dependencies": {
