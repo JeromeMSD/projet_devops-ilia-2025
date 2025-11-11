@@ -22,14 +22,6 @@ def health_check():
     }), 200
 
 
-@app.route('/api/v1/incidents', methods=['GET'])
-def get_incidents():
-
-    # Pour l'instant, on retourne juste la liste des valeurs de notre dictionnaire d'incidents.
-    incidents_list = list(db["incidents"].values())
-    return jsonify(incidents_list), 200
-
-
 @app.route('/api/v1/incidents', methods=['POST'])
 def create_incident(): # Crée un nouvel incident
 
@@ -58,9 +50,44 @@ def create_incident(): # Crée un nouvel incident
     # Retourne l'incident créé avec un statut 201
     return jsonify(new_incident), 201
 
+
+@app.route('/api/v1/incidents', methods=['GET'])
+def get_incidents(): # Lister tous les incidents, gérer les filtres
+
+    # Récupérer les filtres de l'URL (query parameters)
+    filters = request.args
+
+    # Commencer avec la liste complète (On fait une copie pour ne pas modifier l'original)
+    incidents_list = list(db["incidents"].values())
+
+    # On va appliquer les filtres un par un
+
+    # Filtre commander
+    if 'commander' in filters:
+        commander_id = filters.get('commander')
+        new_filtered_list = []
+        for inc in incidents_list:
+            if inc.get('commander') == commander_id:
+                new_filtered_list.append(inc)
+        incidents_list = new_filtered_list
+
+    # Filtre status
+    if 'status' in filters:
+        status = filters.get('status')
+        new_filtered_list = []
+        for inc in incidents_list:
+            if inc.get('status') == status:
+                new_filtered_list.append(inc)
+        incidents_list = new_filtered_list
+        
+
+    return jsonify(incidents_list), 200
+
 # Lancement du serveur
 if __name__ == '__main__':
     # On récupère le port depuis les variables d'environnement, avec 5000 comme valeur par défaut.
     port = int(os.environ.get('PORT', 5000))
     # 0.0.0.0 = accessible depuis l'extérieur du conteneur, debug=True = recharge auto quand on sauve
     app.run(host='0.0.0.0', port=port, debug=True)
+
+
