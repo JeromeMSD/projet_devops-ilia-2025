@@ -1,5 +1,4 @@
 import type { ComponentProps } from 'react';
-import { Link, useNavigate } from 'react-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -20,40 +19,42 @@ import {
     FieldLabel,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { useLogin } from '@/auth/useLogin';
-import { loginSchema, type LoginFormValues } from '@/auth/login-schema';
 import { Spinner } from '@/components/ui/spinner';
+import { resetPasswordSchema, type ResetPasswordValues } from '@/auth/reset-password-schema';
+import { useResetPassword } from '@/auth/useResetPassword';
 
-export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
-    const login = useLogin();
-    const navigate = useNavigate();
-
-    const form = useForm<LoginFormValues>({
-        resolver: zodResolver(loginSchema),
+export function ResetPasswordForm({ className, ...props }: ComponentProps<'div'>) {
+    const mutation = useResetPassword();
+    const form = useForm<ResetPasswordValues>({
+        resolver: zodResolver(resetPasswordSchema),
         defaultValues: {
-            email: '',
-            password: '',
+            reset_token: '',
+            new_password: '',
         },
     });
 
-    function onSubmit(values: LoginFormValues) {
-        login.reset();
-        login.mutate(values, {
+    function onSubmit(values: ResetPasswordValues) {
+        mutation.reset();
+        mutation.mutate(values, {
             onSuccess: () => {
-                navigate('/dashboard');
+                form.reset({
+                    reset_token: '',
+                    new_password: '',
+                });
             },
         });
     }
 
-    const formError = login.error instanceof Error ? login.error.message : null;
+    const formError = mutation.error instanceof Error ? mutation.error.message : null;
+    const successMessage = mutation.data?.message ?? (mutation.isSuccess ? 'Mot de passe réinitialisé avec succès.' : null);
 
     return (
         <div className={cn('flex flex-col gap-6', className)} {...props}>
             <Card>
                 <CardHeader>
-                    <CardTitle>Connectez-vous à votre compte</CardTitle>
+                    <CardTitle>Réinitialiser votre mot de passe</CardTitle>
                     <CardDescription>
-                        Entrez votre adresse email ci-dessous pour vous connecter à votre compte
+                        Collez le token reçu par email et choisissez un nouveau mot de passe.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -64,18 +65,18 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                     >
                         <FieldGroup>
                             <Controller
-                                name="email"
+                                name="reset_token"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
-                                        <FieldLabel htmlFor="email">Adresse email</FieldLabel>
+                                        <FieldLabel htmlFor="reset-token">Token de réinitialisation</FieldLabel>
                                         <Input
                                             {...field}
-                                            id="email"
-                                            type="email"
-                                            placeholder="simon.pierre@example.com"
+                                            id="reset-token"
+                                            type="text"
+                                            placeholder="Collez votre token"
                                             aria-invalid={fieldState.invalid}
-                                            disabled={login.isPending}
+                                            disabled={mutation.isPending}
                                         />
                                         {fieldState.invalid && (
                                             <FieldError errors={[fieldState.error]}/>
@@ -85,26 +86,22 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                             />
 
                             <Controller
-                                name="password"
+                                name="new_password"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
-                                        <div className="flex items-center">
-                                            <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-                                            <Link
-                                                to="/forgot-password"
-                                                className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                                            >
-                                                Mot de passe oublié ?
-                                            </Link>
-                                        </div>
+                                        <FieldLabel htmlFor="reset-password">Nouveau mot de passe</FieldLabel>
                                         <Input
                                             {...field}
-                                            id="password"
+                                            id="reset-password"
                                             type="password"
+                                            placeholder="NouveauPassword123"
                                             aria-invalid={fieldState.invalid}
-                                            disabled={login.isPending}
+                                            disabled={mutation.isPending}
                                         />
+                                        <FieldDescription>
+                                            6 caractères min., au moins une majuscule et un chiffre.
+                                        </FieldDescription>
                                         {fieldState.invalid && (
                                             <FieldError errors={[fieldState.error]}/>
                                         )}
@@ -118,14 +115,17 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                                 </Field>
                             )}
 
+                            {successMessage && (
+                                <Field>
+                                    <p className="text-sm font-medium text-emerald-700">{successMessage}</p>
+                                </Field>
+                            )}
+
                             <Field>
-                                <Button type="submit" disabled={login.isPending} className="w-full">
-                                    {login.isPending && <Spinner/>}
-                                    {login.isPending ? 'Connexion...' : 'Se connecter'}
+                                <Button type="submit" disabled={mutation.isPending} className="w-full">
+                                    {mutation.isPending && <Spinner/>}
+                                    {mutation.isPending ? 'Réinitialisation...' : 'Réinitialiser'}
                                 </Button>
-                                <FieldDescription className="text-center">
-                                    Vous n&apos;avez pas de compte ? <Link to="/register">S&apos;inscrire</Link>
-                                </FieldDescription>
                             </Field>
                         </FieldGroup>
                     </form>

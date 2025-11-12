@@ -8,6 +8,8 @@ import { NotFound } from '@/routes/NotFound';
 import { Dashboard } from '@/routes/Dashboard';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
 import { RegisterPage } from '@/routes/RegisterPage';
+import { ForgotPasswordPage } from '@/routes/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/routes/ResetPasswordPage';
 
 export default function App() {
     return (
@@ -20,6 +22,8 @@ export default function App() {
                     <Route path="/" element={<Home/>}/>
                     <Route path="/login" element={<LoginPage/>}/>
                     <Route path="/register" element={<RegisterPage/>}/>
+                    <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
+                    <Route path="/reset-password" element={<ResetPasswordPage/>}/>
                     <Route
                         path="/dashboard"
                         element={(
