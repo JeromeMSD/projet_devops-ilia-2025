@@ -144,3 +144,31 @@ def test_get_incident_by_id(client):
     # Teste un incident qui n'existe pas
     response_404 = client.get("/api/v1/incidents/INC-DOESNOTEXIST")
     assert response_404.status_code == 404
+
+
+def test_update_incident_status(client):
+    # Créer un incident temporaire
+    db["incidents"]["INC-999"] = {
+        "id": "INC-999",
+        "title": "Test incident",
+        "sev": 2,
+        "status": "open",
+        "services": ["api"],
+        "summary": "Test summary"
+    }
+
+    # Test mise à jour du status
+    response = client.post(
+        '/api/v1/incidents/INC-999/status',
+        json={"status": "resolved"}
+    )
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert json_data["status"] == "resolved"
+
+    # Test incident inexistant
+    response = client.post(
+        '/api/v1/incidents/INC-404/status',
+        json={"status": "mitigated"}
+    )
+    assert response.status_code == 404
