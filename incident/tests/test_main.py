@@ -5,7 +5,8 @@ import os
 # Va aller chercher le dossier src, la ou se trouve le main
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
-from main import app as flask_app
+from main import app as flask_app, db
+
 
 # Fonction qui va crée un faux client qui va pouvoir simuler des requêtes HTML (GET, POST)
 @pytest.fixture 
@@ -38,3 +39,33 @@ def test_get_incidents_empty(client):
     # Vérifie que la réponse est une liste vide
     json_data = response.get_json()
     assert json_data == []
+
+def test_add_timeline_event(client):
+    # Créer un incident temporaire
+    db["incidents"]["INC-888"] = {
+        "id": "INC-888",
+        "title": "Incident timeline test",
+        "sev": 2,
+        "status": "open",
+        "services": ["api"],
+        "summary": "Testing timeline",
+        "timeline": []  # On initialise la timeline
+    }
+
+    # Ajouter un événement
+    event = {"type": "note", "message": "Premier test de note"}
+    response = client.post(
+        '/api/v1/incidents/INC-888/timeline',
+        json=event
+    )
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert "timeline" in json_data
+    assert json_data["timeline"][0] == event
+
+    # Cas incident inexistant
+    response = client.post(
+        '/api/v1/incidents/INC-404/timeline',
+        json=event
+    )
+    assert response.status_code == 404
