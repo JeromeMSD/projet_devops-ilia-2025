@@ -33,7 +33,6 @@ describe('useLogin', () => {
     it('performs a successful API login and caches the user', async () => {
         const loginResponse = {
             message: 'ok',
-            token: 'jwt-token',
             user: {
                 id_user: '1',
                 firstname: 'John',
@@ -41,6 +40,7 @@ describe('useLogin', () => {
                 email: 'john@example.com',
                 role: 'USER' as const,
                 created_at: new Date().toISOString(),
+                token: 'jwt-token',
             },
         };
 
@@ -69,10 +69,43 @@ describe('useLogin', () => {
             }),
         );
         expect(signInSpy).toHaveBeenCalledWith({
-            auth: { token: loginResponse.token, type: 'Bearer' },
+            auth: { token: 'jwt-token', type: 'Bearer' },
             userState: loginResponse.user,
         });
         expect(queryClient.getQueryData(['currentUser'])).toEqual(loginResponse.user);
+    });
+
+    it('throws when the API response does not contain a token', async () => {
+        const loginResponse = {
+            message: 'ok',
+            user: {
+                id_user: '1',
+                firstname: 'John',
+                lastname: 'Doe',
+                email: 'john@example.com',
+                role: 'USER' as const,
+                created_at: new Date().toISOString(),
+            },
+        };
+
+        global.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => loginResponse,
+        } as Response);
+
+        const { useLogin } = await loadUseLogin();
+        const queryClient = createQueryClient();
+        const wrapper = ({ children }: { children: ReactNode }) => (
+            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        );
+
+        const { result } = renderHook(() => useLogin(), { wrapper });
+
+        await expect(
+            act(async () => {
+                await result.current.mutateAsync({ email: 'john@example.com', password: 'secret' });
+            }),
+        ).rejects.toThrow('Token manquant dans la réponse du serveur');
     });
 
     it('throws a network error when the server is unreachable', async () => {

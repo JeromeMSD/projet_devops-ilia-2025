@@ -82,9 +82,14 @@ export function Navbar() {
                                 </div>
                             </>
                         ) : (
-                            <NavLink to="/login" className={linkClasses}>
-                                Login
-                            </NavLink>
+                            <>
+                                <NavLink to="/login" className={linkClasses}>
+                                    Login
+                                </NavLink>
+                                <NavLink to="/register" className={linkClasses}>
+                                    Register
+                                </NavLink>
+                            </>
                         )}
                     </nav>
                 </div>

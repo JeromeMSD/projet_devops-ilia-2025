@@ -38,9 +38,14 @@ export function useLogin() {
             return body as LoginResponse;
         },
         onSuccess: (data) => {
+            const token = data?.user.token ?? null;
+            if (!token) {
+                throw new Error('Token manquant dans la réponse du serveur');
+            }
+
             const ok = signIn({
                 auth: {
-                    token: data.token,
+                    token,
                     type: 'Bearer',
                 },
                 userState: data.user,

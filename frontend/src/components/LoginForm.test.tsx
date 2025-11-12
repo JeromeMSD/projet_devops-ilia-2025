@@ -10,6 +10,9 @@ vi.mock('react-router', async () => {
     return {
         ...actual,
         useNavigate: () => navigateMock,
+        Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
+            <a href={String(to)}>{children}</a>
+        ),
     };
 });
 

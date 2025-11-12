@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -22,7 +22,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useLogin } from '@/auth/useLogin';
 import { loginSchema, type LoginFormValues } from '@/auth/login-schema';
-import { Spinner } from '@/components/ui/spinner.tsx';
+import { Spinner } from '@/components/ui/spinner';
 
 export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
     const login = useLogin();
@@ -124,7 +124,7 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                                     {login.isPending ? 'Connexion...' : 'Se connecter'}
                                 </Button>
                                 <FieldDescription className="text-center">
-                                    Vous n&apos;avez pas de compte ? <a href="#">S&apos;inscrire</a>
+                                    Vous n&apos;avez pas de compte ? <Link to="/register">S&apos;inscrire</Link>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>

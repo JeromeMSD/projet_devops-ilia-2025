@@ -7,6 +7,7 @@ import { LoginPage } from '@/routes/LoginPage';
 import { NotFound } from '@/routes/NotFound';
 import { Dashboard } from '@/routes/Dashboard';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
+import { RegisterPage } from '@/routes/RegisterPage';
 
 export default function App() {
     return (
@@ -18,6 +19,7 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={<Home/>}/>
                     <Route path="/login" element={<LoginPage/>}/>
+                    <Route path="/register" element={<RegisterPage/>}/>
                     <Route
                         path="/dashboard"
                         element={(
