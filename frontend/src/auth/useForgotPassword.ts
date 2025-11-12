@@ -5,7 +5,7 @@ type ForgotPasswordResponse = {
     reset_token?: string;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5010';
+const API_BASE_URL = import.meta.env.VITE_USER_API_URL ?? 'http://localhost:5010';
 
 export function useForgotPassword() {
     return useMutation({

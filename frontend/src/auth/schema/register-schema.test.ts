@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { registerSchema } from './register-schema';
+import { registerSchema } from './register-schema.ts';
 
 describe('registerSchema', () => {
     it('validates required fields and constraints', () => {

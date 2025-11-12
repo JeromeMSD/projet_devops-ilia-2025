@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
-import { resetPasswordSchema, type ResetPasswordValues } from '@/auth/reset-password-schema';
+import { resetPasswordSchema, type ResetPasswordValues } from '@/auth/schema/reset-password-schema.ts';
 import { useResetPassword } from '@/auth/useResetPassword';
 
 export function ResetPasswordForm({ className, ...props }: ComponentProps<'div'>) {
@@ -79,7 +79,7 @@ export function ResetPasswordForm({ className, ...props }: ComponentProps<'div'>
                                             disabled={mutation.isPending}
                                         />
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -103,7 +103,7 @@ export function ResetPasswordForm({ className, ...props }: ComponentProps<'div'>
                                             6 caractères min., au moins une majuscule et un chiffre.
                                         </FieldDescription>
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -111,7 +111,7 @@ export function ResetPasswordForm({ className, ...props }: ComponentProps<'div'>
 
                             {formError && (
                                 <Field data-invalid>
-                                    <FieldError errors={[{ message: formError }]}/>
+                                    <FieldError errors={[{ message: formError }]} />
                                 </Field>
                             )}
 
@@ -123,7 +123,7 @@ export function ResetPasswordForm({ className, ...props }: ComponentProps<'div'>
 
                             <Field>
                                 <Button type="submit" disabled={mutation.isPending} className="w-full">
-                                    {mutation.isPending && <Spinner/>}
+                                    {mutation.isPending && <Spinner />}
                                     {mutation.isPending ? 'Réinitialisation...' : 'Réinitialiser'}
                                 </Button>
                             </Field>

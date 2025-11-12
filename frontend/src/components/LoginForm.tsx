@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useLogin } from '@/auth/useLogin';
-import { loginSchema, type LoginFormValues } from '@/auth/login-schema';
+import { loginSchema, type LoginFormValues } from '@/auth/schema/login-schema.ts';
 import { Spinner } from '@/components/ui/spinner';
 
 export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
@@ -78,7 +78,7 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                                             disabled={login.isPending}
                                         />
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -106,7 +106,7 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                                             disabled={login.isPending}
                                         />
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -114,13 +114,13 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
 
                             {formError && (
                                 <Field data-invalid>
-                                    <FieldError errors={[{ message: formError }]}/>
+                                    <FieldError errors={[{ message: formError }]} />
                                 </Field>
                             )}
 
                             <Field>
                                 <Button type="submit" disabled={login.isPending} className="w-full">
-                                    {login.isPending && <Spinner/>}
+                                    {login.isPending && <Spinner />}
                                     {login.isPending ? 'Connexion...' : 'Se connecter'}
                                 </Button>
                                 <FieldDescription className="text-center">

@@ -13,7 +13,7 @@ const createQueryClient = () =>
 
 const loadUseResetPassword = async () => {
     vi.resetModules();
-    vi.stubEnv('VITE_API_URL', 'http://auth.local');
+    vi.stubEnv('VITE_USER_API_URL', 'http://auth.local');
 
     return import('./useResetPassword');
 };

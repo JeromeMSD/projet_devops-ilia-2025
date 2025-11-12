@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
-import { forgotPasswordSchema, type ForgotPasswordValues } from '@/auth/forgot-password-schema';
+import { forgotPasswordSchema, type ForgotPasswordValues } from '@/auth/schema/forgot-password-schema.ts';
 import { useForgotPassword } from '@/auth/useForgotPassword';
 
 export function ForgotPasswordForm({ className, ...props }: ComponentProps<'div'>) {
@@ -74,7 +74,7 @@ export function ForgotPasswordForm({ className, ...props }: ComponentProps<'div'
                                             disabled={mutation.isPending}
                                         />
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -82,7 +82,7 @@ export function ForgotPasswordForm({ className, ...props }: ComponentProps<'div'
 
                             {formError && (
                                 <Field data-invalid>
-                                    <FieldError errors={[{ message: formError }]}/>
+                                    <FieldError errors={[{ message: formError }]} />
                                 </Field>
                             )}
 
@@ -99,7 +99,7 @@ export function ForgotPasswordForm({ className, ...props }: ComponentProps<'div'
 
                             <Field>
                                 <Button type="submit" disabled={mutation.isPending} className="w-full">
-                                    {mutation.isPending && <Spinner/>}
+                                    {mutation.isPending && <Spinner />}
                                     {mutation.isPending ? 'Envoi...' : 'Envoyer le lien'}
                                 </Button>
                             </Field>

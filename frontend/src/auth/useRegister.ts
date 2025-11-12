@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import type { AuthUser } from '@/auth/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5010';
+const API_BASE_URL = import.meta.env.VITE_USER_API_URL ?? 'http://localhost:5010';
 
 type RegisterPayload = {
     firstname: string;
@@ -43,7 +43,7 @@ export function useRegister() {
                     : null;
                 throw new Error(message ?? 'Inscription impossible');
             }
-            
+
             return body as RegisterResponse;
         },
     });

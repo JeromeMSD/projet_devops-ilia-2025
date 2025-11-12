@@ -3,7 +3,7 @@ import useSignIn from 'react-auth-kit/hooks/useSignIn';
 
 import type { LoginResponse } from '@/auth/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5010';
+const API_BASE_URL = import.meta.env.VITE_USER_API_URL ?? 'http://localhost:5010';
 
 export function useLogin() {
     const signIn = useSignIn();

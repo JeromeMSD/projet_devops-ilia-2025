@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { resetPasswordSchema } from './reset-password-schema';
+import { resetPasswordSchema } from './reset-password-schema.ts';
 
 describe('resetPasswordSchema', () => {
     it('validates required token and password strength', () => {

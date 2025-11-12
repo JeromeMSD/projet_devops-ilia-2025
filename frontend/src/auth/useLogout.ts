@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import useSignOut from 'react-auth-kit/hooks/useSignOut';
 import useAuthHeader from 'react-auth-kit/hooks/useAuthHeader';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5010';
+const API_BASE_URL = import.meta.env.VITE_USER_API_URL ?? 'http://localhost:5010';
 
 export function useLogout() {
     const signOut = useSignOut();

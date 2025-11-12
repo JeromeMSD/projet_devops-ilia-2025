@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { loginSchema } from './login-schema';
+import { loginSchema } from './login-schema.ts';
 
 describe('loginSchema', () => {
     it('rejects empty credentials', () => {

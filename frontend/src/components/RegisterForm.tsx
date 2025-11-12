@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
-import { registerSchema, roles, type RegisterFormValues } from '@/auth/register-schema';
+import { registerSchema, roles, type RegisterFormValues } from '@/auth/schema/register-schema.ts';
 import { useRegister } from '@/auth/useRegister';
 import { useLogin } from '@/auth/useLogin';
 
@@ -116,7 +116,7 @@ export function RegisterForm({ className, ...props }: ComponentProps<'div'>) {
                                                 disabled={isBusy}
                                             />
                                             {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]}/>
+                                                <FieldError errors={[fieldState.error]} />
                                             )}
                                         </Field>
                                     )}
@@ -137,7 +137,7 @@ export function RegisterForm({ className, ...props }: ComponentProps<'div'>) {
                                                 disabled={isBusy}
                                             />
                                             {fieldState.invalid && (
-                                                <FieldError errors={[fieldState.error]}/>
+                                                <FieldError errors={[fieldState.error]} />
                                             )}
                                         </Field>
                                     )}
@@ -159,7 +159,7 @@ export function RegisterForm({ className, ...props }: ComponentProps<'div'>) {
                                             disabled={isBusy}
                                         />
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -183,7 +183,7 @@ export function RegisterForm({ className, ...props }: ComponentProps<'div'>) {
                                             6 caractères min., au moins une majuscule et un chiffre.
                                         </FieldDescription>
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -209,7 +209,7 @@ export function RegisterForm({ className, ...props }: ComponentProps<'div'>) {
                                             ))}
                                         </select>
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -217,7 +217,7 @@ export function RegisterForm({ className, ...props }: ComponentProps<'div'>) {
 
                             {apiErrors.length > 0 && (
                                 <Field data-invalid>
-                                    <FieldError errors={apiErrors.map((message) => ({ message }))}/>
+                                    <FieldError errors={apiErrors.map((message) => ({ message }))} />
                                 </Field>
                             )}
 
@@ -229,7 +229,7 @@ export function RegisterForm({ className, ...props }: ComponentProps<'div'>) {
 
                             <Field>
                                 <Button type="submit" disabled={isBusy} className="w-full">
-                                    {isBusy && <Spinner/>}
+                                    {isBusy && <Spinner />}
                                     {isBusy ? 'Création...' : 'Créer le compte'}
                                 </Button>
                                 <FieldDescription className="text-center">
