@@ -1,4 +1,8 @@
-# C'est ma branche, pas touche !
+# projet_devops-ilia-2025
+Polytech Dijon - ILIA - Projet DevOps 2025
 
-liste des ajouts :
-- 
+> [!note]
+> To Do
+
+> [!important]
+> Have fun ! 🚀
