@@ -45,7 +45,25 @@ def add_timeline_event(id):
     db["incidents"][id] = incident
     return jsonify(incident), 200
 
+@app.route('/api/v1/incidents/<id>/postmortem', methods=['POST'])
+def add_postmortem(id):
+    incident = db["incidents"].get(id)
+    if not incident:
+        return jsonify({"error": "Incident not found"}), 404
 
+    data = request.get_json()
+    required_fields = ["what_happened", "root_cause", "action_items"]
+    if not data or not all(field in data for field in required_fields):
+        return jsonify({"error": "Missing postmortem fields"}), 400
+
+    incident["postmortem"] = {
+        "what_happened": data["what_happened"],
+        "root_cause": data["root_cause"],
+        "action_items": data["action_items"]
+    }
+
+    db["incidents"][id] = incident
+    return jsonify(incident), 200
 
 # Lancement du serveur
 if __name__ == '__main__':
