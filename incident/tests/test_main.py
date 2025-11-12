@@ -152,7 +152,8 @@ def test_assign_incident(client):
         "title": "Database outage",
         "sev": 2,
         "services": ["db"],
-        "summary": "Primary DB unavailable"
+        "summary": "Primary DB unavailable",
+        "commander": "thomas"
     }
     create_response = client.post("/api/v1/incidents", json=payload)
     created = create_response.get_json()
