@@ -1,13 +1,7 @@
 from main import db
 from main import app as flask_app
 import pytest
-import sys
-import os
 import json
-
-# Va aller chercher le dossier src, la ou se trouve le main
-sys.path.insert(0, os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', 'src')))
 
 
 # Fonction qui va crée un faux client qui va pouvoir simuler des requêtes HTML (GET, POST)
@@ -128,19 +122,25 @@ def test_get_incidents_with_filters(client):
 
 
 def test_get_incident_by_id(client):
-    inc1 = {"id": "INC-1", "title1": "A", "status": "open",
-            "sev": 1, "commander": "user-aurelien"}
-    inc2 = {"id": "INC-2", "title2": "B", "status": "resolved",
-            "sev": 2, "commander": "user-aurelien"}
-    inc3 = {"id": "INC-3", "title3": "C", "status": "open",
-            "sev": 1, "commander": "user-thomas"}
-    db['incidents'] = {
-        "INC-1": inc1,
-        "INC-2": inc2,
-        "INC-3": inc3
+    # Crée d'abord un incident (pour avoir un ID connu)
+    payload = {
+        "title": "API Latency EU",
+        "sev": 3,
+        "services": ["api"],
+        "summary": "High latency detected in EU-West"
     }
+    create_response = client.post("/api/v1/incidents", json=payload)
+    created = create_response.get_json()
+    incident_id = created["id"]
 
-    response_status = client.get('/api/v1/incidents/INC-1')
-    assert response_status == 200
-    data_status = response_status.get_json()
-    assert data_status[0]['id'] == 'INC-1'
+    # Récupère l'incident créé
+    response = client.get(f"/api/v1/incidents/{incident_id}")
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["id"] == incident_id
+    assert data["title"] == payload["title"]
+
+    # Teste un incident qui n'existe pas
+    response_404 = client.get("/api/v1/incidents/INC-DOESNOTEXIST")
+    assert response_404.status_code == 404
