@@ -45,6 +45,8 @@ def add_timeline_event(id):
     db["incidents"][id] = incident
     return jsonify(incident), 200
 
+
+
 # Lancement du serveur
 if __name__ == '__main__':
     # On récupère le port depuis les variables d'environnement, avec 5000 comme valeur par défaut.
