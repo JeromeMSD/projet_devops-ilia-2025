@@ -1,15 +1,16 @@
 import { NavLink, useNavigate } from 'react-router';
 import useIsAuthenticated from 'react-auth-kit/hooks/useIsAuthenticated';
-import useSignOut from 'react-auth-kit/hooks/useSignOut';
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 
 import type { AuthUser } from '@/auth/types';
+import { useLogout } from '@/auth/useLogout';
+import { Spinner } from '@/components/ui/spinner.tsx';
 
 export function Navbar() {
     const navigate = useNavigate();
     const isAuthenticated = useIsAuthenticated();
-    const signOut = useSignOut();
     const authUser = useAuthUser<AuthUser | null>();
+    const logout = useLogout();
     const displayName = authUser
         ? [authUser.firstname, authUser.lastname].filter(Boolean).join(' ').trim() || authUser.email
         : '';
@@ -23,8 +24,11 @@ export function Navbar() {
         ].join(' ');
 
     const handleSignOut = () => {
-        signOut();
-        navigate('/login');
+        logout.mutate(undefined, {
+            onSettled: () => {
+                navigate('/login');
+            },
+        });
     };
 
     return (
@@ -60,13 +64,22 @@ export function Navbar() {
                                 <NavLink to="/dashboard" className={linkClasses}>
                                     Dashboard
                                 </NavLink>
-                                <button
-                                    type="button"
-                                    onClick={handleSignOut}
-                                    className="inline-flex items-center rounded-full border border-transparent bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-800/40"
-                                >
-                                    Déconnexion
-                                </button>
+                                <div className="flex flex-col items-stretch">
+                                    <button
+                                        type="button"
+                                        onClick={handleSignOut}
+                                        disabled={logout.isPending}
+                                        className="inline-flex items-center rounded-full border border-transparent bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-800/40"
+                                    >
+                                        {logout.isPending && <Spinner/>}
+                                        {logout.isPending ? 'Déconnexion...' : 'Déconnexion'}
+                                    </button>
+                                    {logout.error instanceof Error && (
+                                        <p className="mt-1 text-xs font-medium text-red-600" role="status">
+                                            {logout.error.message}
+                                        </p>
+                                    )}
+                                </div>
                             </>
                         ) : (
                             <NavLink to="/login" className={linkClasses}>
