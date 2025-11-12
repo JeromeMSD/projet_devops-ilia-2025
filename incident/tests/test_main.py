@@ -69,3 +69,39 @@ def test_add_timeline_event(client):
         json=event
     )
     assert response.status_code == 404
+
+
+def test_postmortem_incident(client):
+    # Créer un incident temporaire
+    db["incidents"]["INC-777"] = {
+        "id": "INC-777",
+        "title": "Incident postmortem test",
+        "sev": 2,
+        "status": "open",
+        "services": ["api"],
+        "summary": "Testing postmortem"
+    }
+
+    # Corps JSON du postmortem
+    postmortem_data = {
+        "what_happened": "Panne API",
+        "root_cause": "Erreur de configuration",
+        "action_items": ["Redémarrer service", "Mettre à jour config"]
+    }
+
+    # Ajouter ou modifier le postmortem
+    response = client.post(
+        '/api/v1/incidents/INC-777/postmortem',
+        json=postmortem_data
+    )
+    assert response.status_code == 200
+    json_data = response.get_json()
+    assert "postmortem" in json_data
+    assert json_data["postmortem"] == postmortem_data
+
+    # Cas incident inexistant
+    response = client.post(
+        '/api/v1/incidents/INC-404/postmortem',
+        json=postmortem_data
+    )
+    assert response.status_code == 404
