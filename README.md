@@ -13,3 +13,4 @@ Polytech Dijon - ILIA - Projet DevOps 2025
 | NGOUPAYE DJIO | THIERRY | [ThierryNgoupaye](https://github.com/ThierryNgoupaye) |
 | DEFOUR | Nicolas | [Craftsman0001](https://github.com/Craftsman0001) |
 | Mezazem| Esteban  | [Esteban237](https://github.com/ESTEBAN237) |
+| PEYRONNET | Emmanuel  | [Emmanuel0071](https://github.com/Emmanuel0071) |
