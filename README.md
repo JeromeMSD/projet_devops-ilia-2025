@@ -2,6 +2,9 @@
 Polytech Dijon - ILIA - Projet DevOps 2025
 
 > [!note]
+    commande d'instalation 
+    pip install pytest
+
     Pour tester il faut faire python
     flags/app.py  # pour lancer le serveur 
 
@@ -14,6 +17,7 @@ Polytech Dijon - ILIA - Projet DevOps 2025
     exemple de requete pour rajouter un nouveau flag dans les deux presents pour le moment en la metant dans un autre terminal
     Invoke-WebRequest -Uri http://127.0.0.1:5000/admin/flags/new-login-page -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"enabled": true, "description": "Nouvelle page de connexion", "roles": ["sre"]}'
 
-
+    test unitaire :
+    pytest flags/test_app.py
 > [!important]
 > Have fun ! 🚀
