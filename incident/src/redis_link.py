@@ -1,76 +1,41 @@
 import redis
 import json
-import time
-import subprocess
-
-# Démarre le serveur Redis en arrière-plan
-process = subprocess.Popen(["redis-server", "--port", "6379"])
-
-# Attend un court instant pour laisser Redis se lancer
-time.sleep(1)
-
-print("Redis lancé sur le port 6379")
 
 # Connexion à Redis
-r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 try:
+    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
     r.ping()
     print("Connexion à Redis réussie !")
-except redis.exceptions.ConnectionError as e:
-    print(f"Erreur de connexion : {e}")
+except redis.exceptions.ConnectionError:
+    print("Erreur : impossible de se connecter à Redis.")
+    r = None
+
 
 def saveJSONFile(obj):
-    """
-    Sauvegarde un objet JSON dans Redis en utilisant son identifiant comme clé.
-    
-    Exemple :
-        obj = {"id": 123, "title": "Incident", "status": "open"}
-        saveJSONFile(obj)
-        => Stocke dans Redis : key="INC:123", value="{...json...}"
-    """
+    if r is None:
+        print("Redis non connecté.")
+        return None
     try:
-        # Vérification que 'id' existe dans l'objet
         if "id" not in obj:
             raise ValueError("L'objet JSON doit contenir un champ 'id' unique.")
-        
-        # Création de la clé
         key = obj["id"]
-        
-        # Conversion de l'objet en texte JSON
         json_data = json.dumps(obj)
-        
-        # Enregistrement dans Redis
         r.set(key, json_data)
-        
-        print(f"Objet enregistré dans Redis avec la clé {key}")
         return obj
-    
     except Exception as e:
         print(f"Erreur lors de la sauvegarde : {e}")
         return None
-    
+
 
 def loadJSONFile(id):
-    """
-    Récupère un objet JSON depuis Redis en utilisant son identifiant.
-    
-    Exemple :
-        loadJSONFile(123) => {"id":123, "title":"Incident", ...}
-    """
+    if r is None:
+        print("Redis non connecté.")
+        return None
     try:
-        key = id
-        
-        # Lecture depuis Redis
-        json_data = r.get(key)
-        
+        json_data = r.get(id)
         if json_data is None:
-            print(f"Aucun objet trouvé pour la clé {key}")
             return None
-        
-        # Conversion JSON -> dict Python
-        obj = json.loads(json_data)
-        return obj
-    
+        return json.loads(json_data)
     except Exception as e:
         print(f"Erreur lors de la lecture : {e}")
         return None
