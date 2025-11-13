@@ -14,14 +14,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PublicAnnouncement'
+              $ref: '#/components/schemas/PublicAnnoucement'
       responses:
         "201":
           description: Annonce créée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PublicAnnouncementResponse'
+                $ref: '#/components/schemas/PublicAnnoucementResponse'
         "400": { description: Requête invalide }
 
   /api/v1/public/status:
