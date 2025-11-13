@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 
 #Route test
-@app.route("api/v1/test", methods=['GET'])
+@app.route("/api/v1/test", methods=['GET'])
 def test():
     test1 = {"id":1, "name":"Aude", "Lastname":"Javel"}
     return jsonify(test1)
