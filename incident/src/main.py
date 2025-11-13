@@ -2,6 +2,7 @@ import os
 import uuid
 import time
 from flask import Flask, jsonify, request
+from redis_link import *
 
 # Initialise l'application Flask
 app = Flask(__name__)
