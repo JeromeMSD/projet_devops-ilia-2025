@@ -45,6 +45,36 @@ Dans le dossier Incident avec la commande :
 ```
 pytest
 ```
+##  Docker
+### Construire l'image
+Depuis le dossier incidents/ :
+```
+docker build -t incidents-service .
+```
+### Lancer le conteneur
+```
+docker run -p 5000:5000 incidents-service
+```
+Le service sera disponible ici : 
+```
+http://localhost:5000/api/v1/incidents/health
+```
+## Scanner avec Trivy
+### Si Trivy est déjà installé :
+```
+trivy image incidents-service
+```
+Ajouter ici les résultats du dernier scan trivy :
+```
+Résultat dernier scan
+
+CRITICAL: X
+HIGH: X
+MEDIUM: X
+LOW: X
+```
+## Swagger
+Le fichier swagger.yaml se trouve à la racine du microservice et doit rester synchronisé avec les routes implémentées
 
 ## Contributeurs
 
