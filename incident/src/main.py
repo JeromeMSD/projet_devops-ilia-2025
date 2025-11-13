@@ -1,6 +1,8 @@
 import os
 import time
+import time
 import uuid
+import redis
 import redis
 from flask import Flask, jsonify, request
 from redis_link import *
@@ -49,8 +51,14 @@ def create_incident():
         "status": "open",
         "started_at": int(time.time()),
         "commander": None
+        "services": data.get("services", []),
+        "summary": data.get("summary", ""),
+        "status": "open",
+        "started_at": int(time.time()),
+        "commander": None
     }
 
+    saveJSONFile(new_incident)
     saveJSONFile(new_incident)
     return jsonify(new_incident), 201
 
@@ -75,6 +83,7 @@ def get_incidents():
     # Filtre par 'status' si spécifié
     if 'status' in filters:
         status = filters.get('status')
+        incidents_list = [inc for inc in incidents_list if inc.get('status') == status]
         incidents_list = [inc for inc in incidents_list if inc.get('status') == status]
 
     return jsonify(incidents_list), 200
