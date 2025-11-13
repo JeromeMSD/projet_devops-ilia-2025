@@ -34,7 +34,7 @@ def saveJSONFile(obj):
             raise ValueError("L'objet JSON doit contenir un champ 'id' unique.")
         
         # Création de la clé
-        key = f"INC:{obj['id']}"
+        key = obj["id"]
         
         # Conversion de l'objet en texte JSON
         json_data = json.dumps(obj)
@@ -58,7 +58,7 @@ def loadJSONFile(id):
         loadJSONFile(123) => {"id":123, "title":"Incident", ...}
     """
     try:
-        key = f"INC:{id}"
+        key = id
         
         # Lecture depuis Redis
         json_data = r.get(key)
