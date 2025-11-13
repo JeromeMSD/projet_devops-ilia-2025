@@ -4,6 +4,8 @@ import pytest
 import json
 from main import app as flask_app, db
 
+from main import app as flask_app, db
+
 
 # Fonction qui va crée un faux client qui va pouvoir simuler des requêtes HTML (GET, POST)
 
