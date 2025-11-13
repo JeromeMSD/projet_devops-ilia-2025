@@ -2,6 +2,9 @@ from main import db
 from main import app as flask_app
 import pytest
 import json
+from main import app as flask_app, db
+
+from main import app as flask_app, db
 
 
 # Fonction qui va crée un faux client qui va pouvoir simuler des requêtes HTML (GET, POST)
@@ -172,3 +175,34 @@ def test_update_incident_status(client):
         json={"status": "mitigated"}
     )
     assert response.status_code == 404
+def test_assign_incident(client):
+    # Créons d'abord un incident pour l'assigner ensuite
+    payload = {
+        "title": "Database outage",
+        "sev": 2,
+        "services": ["db"],
+        "summary": "Primary DB unavailable",
+        "commander": "thomas"
+    }
+    create_response = client.post("/api/v1/incidents", json=payload)
+    created = create_response.get_json()
+    incident_id = created["id"]
+
+    # Cas normal : assigner un user
+    assign_payload = {"commander": "thomas"}
+    response = client.post(
+        f"/api/v1/incidents/{incident_id}/assign", json=assign_payload)
+    assert response.status_code == 200
+
+    updated = response.get_json()
+    assert updated["commander"] == "thomas"
+
+    # Cas invalide : pas de champ commander
+    response_invalid = client.post(
+        f"/api/v1/incidents/{incident_id}/assign", json={})
+    assert response_invalid.status_code == 400
+
+    # Cas incident inexistant
+    response_404 = client.post(
+        "/api/v1/incidents/INC-UNKNOWN/assign", json=assign_payload)
+    assert response_404.status_code == 404
