@@ -1,13 +1,24 @@
 import { useState, useMemo } from "react";
 import { mockIncidents } from "../mocks/mockData";
 
-const padTwoDigits = (value: number) => value.toString().padStart(2, '0');
+const frenchDateFormatter = new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "Europe/Paris",
+});
+
+const frenchTimeFormatter = new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "Europe/Paris",
+});
 
 const formatIncidentDate = (timestamp: number) => {
     const date = new Date(timestamp * 1000);
-    return `${padTwoDigits(date.getDate())}/${padTwoDigits(date.getMonth() + 1)}/${date.getFullYear()}, ${padTwoDigits(
-        date.getHours(),
-    )}:${padTwoDigits(date.getMinutes())}:${padTwoDigits(date.getSeconds())}`;
+    return `${frenchDateFormatter.format(date)}, ${frenchTimeFormatter.format(date)}`;
 };
 
 const PAGE_SIZE = 10; // nombre d'incidents par page
@@ -109,7 +120,7 @@ function IncidentsPage() {
               </span>
             </div>
             <p className="text-gray-700 mb-1">{incident.summary}</p>
-            
+
             {/* Informations sur deux lignes */}
             <p className="text-gray-500 text-sm flex justify-between">
               <span>Services : {incident.services.join(", ")}</span>
