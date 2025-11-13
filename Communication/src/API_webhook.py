@@ -1,7 +1,8 @@
 
 from flask import Flask, request, jsonify
 from datetime import datetime
-from config_redis import redis_client
+from src.config_redis import redis_client
+
 
 app = Flask(__name__)
 
