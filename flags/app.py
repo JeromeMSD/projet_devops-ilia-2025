@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 feature_flags = {
-    "new-dashboard": {
+    "dashboard": {
         "enabled": True,
         "description": "Activer le nouveau tableau de bord.",
         "roles": ["admin", "sre"]
@@ -17,10 +17,11 @@ feature_flags = {
 
 @app.route('/flags', methods=['GET'])
 def get_flags_for_user():
-    """
-    Récupère les flags applicables à un utilisateur en fonction de son rôle.
-    Exemple d'appel : /flags?role=admin
-    """
+
+
+    #Récupère les flags applicables à un utilisateur en fonction de son rôle.
+    
+    
     # 1. Récupérer le rôle depuis les paramètres de l'URL (ex: ?role=admin)
     user_role = request.args.get('role')
     
@@ -41,3 +42,29 @@ def get_flags_for_user():
 def get_all_flags():
     """Retourne la liste complète de tous les feature flags et leur configuration."""
     return jsonify(feature_flags)
+
+@app.route('/admin/flags/<string:flag_name>', methods=['POST'])
+def create_or_update_flag(flag_name):
+
+    #Crée un feature flag s'il n'existe pas (HTTP 201) ou le met à jour complètement s'il existe (HTTP 200).
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    # Déterminer si c'est une création ou une mise à jour pour le code de statut
+    http_status = 200 # OK (Update)
+    if flag_name not in feature_flags:
+        http_status = 201 # Created
+    
+    # Créer ou remplacer la configuration du flag
+    feature_flags[flag_name] = {
+        "enabled": data.get("enabled", False),
+        "description": data.get("description", ""),
+        "roles": data.get("roles", [])
+    }
+    
+    return jsonify(feature_flags[flag_name]), http_status
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
