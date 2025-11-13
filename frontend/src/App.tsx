@@ -3,7 +3,7 @@ import { Home } from './routes/Home';
 import { Navbar } from './components/Navbar';
 import { NotFound } from './routes/NotFound';
 import { About } from './routes/About';
-import IncidentCreatePage from './routes/IncidentCreatePage';
+import IncidentCreatePage from '/Users/air/FrontendDevops/projet_devops-ilia-2025/frontend/src/routes/IncidentCreatePage.tsx';
 
 export default function App() {
     return (
@@ -15,7 +15,7 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={<Home/>}/>
                     <Route path="/about" element={<About/>}/>
-                    {/* catch-all for unknown routes */}
+                    <Route path="/admin/incidents/new" element={<IncidentCreatePage/>}/>
                     <Route path="*" element={<NotFound/>}/>
                 </Routes>
             </main>
