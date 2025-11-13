@@ -6,13 +6,13 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 
 #Route test
-@app.route("/test", methods=['GET'])
+@app.route("api/v1/test", methods=['GET'])
 def test():
     test1 = {"id":1, "name":"Aude", "Lastname":"Javel"}
     return jsonify(test1)
 
 #Route annonce
-@app.route('/api/announce', methods=['POST'])
+@app.route('/api/v1/public/announce', methods=['POST'])
 def CreateAnnouncement():
 
     data = request.get_json()
@@ -57,7 +57,7 @@ INCIDENTS = [
     }
 ]
 # route get status
-@app.route("/api/status", methods=["GET"])
+@app.route("/api/v1/public/status", methods=["GET"])
 def get_public_status():
     return jsonify({
         "status": "success",
@@ -67,3 +67,4 @@ def get_public_status():
 
 
 app.run()
+
