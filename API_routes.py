@@ -6,13 +6,13 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 
 #Route test
-@app.route("/test", methods=['GET'])
+@app.route("api/v1/test", methods=['GET'])
 def test():
     test1 = {"id":1, "name":"Aude", "Lastname":"Javel"}
     return jsonify(test1)
 
 #Route annonce
-@app.route('/api/announce', methods=['POST'])
+@app.route('/api/v1/public/announce', methods=['POST'])
 def CreateAnnouncement():
 
     data = request.get_json()
@@ -35,4 +35,36 @@ def CreateAnnouncement():
         "announce": announce1
     }),201
 
+
+#données fictives simulées pour tester le get : 
+INCIDENTS = [
+    {
+        "id": 1,
+        "title": "Panne du serveur principal",
+        "status": "en cours",
+        "messages": [
+            {"timestamp": "2025-11-11T09:00:00Z", "text": "Incident détecté."},
+            {"timestamp": "2025-11-11T09:30:00Z", "text": "Équipe en intervention."}
+        ]
+    },
+    {
+        "id": 2,
+        "title": "Maintenance planifiée API",
+        "status": "résolu",
+        "messages": [
+            {"timestamp": "2025-11-10T12:00:00Z", "text": "Maintenance terminée."}
+        ]
+    }
+]
+# route get status
+@app.route("/api/v1/public/status", methods=["GET"])
+def get_public_status():
+    return jsonify({
+        "status": "success",
+        "count": len(INCIDENTS),
+        "data": INCIDENTS
+    }), 200
+
+
 app.run()
+
