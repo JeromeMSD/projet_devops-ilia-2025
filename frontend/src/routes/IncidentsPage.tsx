@@ -1,6 +1,15 @@
 import { useState, useMemo } from "react";
 import { mockIncidents } from "../mocks/mockData";
 
+const padTwoDigits = (value: number) => value.toString().padStart(2, '0');
+
+const formatIncidentDate = (timestamp: number) => {
+    const date = new Date(timestamp * 1000);
+    return `${padTwoDigits(date.getDate())}/${padTwoDigits(date.getMonth() + 1)}/${date.getFullYear()}, ${padTwoDigits(
+        date.getHours(),
+    )}:${padTwoDigits(date.getMinutes())}:${padTwoDigits(date.getSeconds())}`;
+};
+
 const PAGE_SIZE = 10; // nombre d'incidents par page
 
 function IncidentsPage() {
@@ -45,7 +54,7 @@ function IncidentsPage() {
         <select
           className="border rounded px-3 py-1"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
+          onChange={(e) => setStatusFilter(e.target.value as 'all' | 'open' | 'resolved' | 'mitigated')}
         >
           <option value="all">Tous les statuts</option>
           <option value="open">En cours</option>
@@ -100,7 +109,7 @@ function IncidentsPage() {
               </span>
             </div>
             <p className="text-gray-700 mb-1">{incident.summary}</p>
-
+            
             {/* Informations sur deux lignes */}
             <p className="text-gray-500 text-sm flex justify-between">
               <span>Services : {incident.services.join(", ")}</span>
@@ -108,7 +117,7 @@ function IncidentsPage() {
             </p>
             <p className="text-gray-500 text-sm flex justify-between">
               <span>Commandant : {incident.commander}</span>
-              <span>Date : {new Date(incident.started_at * 1000).toLocaleString()}</span>
+              <span>Date : {formatIncidentDate(incident.started_at)}</span>
             </p>
           </div>
         ))}
