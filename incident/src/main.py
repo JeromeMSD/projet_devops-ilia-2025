@@ -132,6 +132,23 @@ def get_incident_by_id(incident_id):
     return jsonify(incident), 200
 
 
+@app.route("/api/v1/incidents/<incident_id>/assign", methods=["POST"])
+def assign_incident(incident_id):
+    incident = db["incidents"].get(incident_id)
+    if not incident:
+        return jsonify({"error": "Incident not found"}), 404
+
+    data = request.get_json() or {}
+    commander = data.get("commander")
+    if not commander:
+        return jsonify({"error": "Missing field 'commander'"}), 400
+
+    incident["commander"] = commander
+    db["incidents"][incident_id] = incident  # update local store
+
+    return jsonify(incident), 200
+
+
 # Lancement du serveur
 if __name__ == '__main__':
     # On récupère le port depuis les variables d'environnement, avec 5000 comme valeur par défaut.
