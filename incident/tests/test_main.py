@@ -2,6 +2,7 @@ from main import db
 from main import app as flask_app
 import pytest
 import json
+from main import app as flask_app, db
 
 from main import app as flask_app, db
 
