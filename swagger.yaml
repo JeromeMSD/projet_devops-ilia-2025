@@ -1,0 +1,104 @@
+
+openapi: 3.0.3
+info:
+  title: PolyStatus - Communications API
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+paths:
+  /api/v1/public/announce:
+    post:
+      summary: Créer et publierune annonce publique liée à un incident
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicAnnouncement'
+      responses:
+        "201":
+          description: Annonce créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicAnnouncementResponse'
+        "400": { description: Requête invalide }
+
+  /api/v1/public/status:
+    get:
+      summary: Récupérer le statut public global
+      responses:
+        "200":
+          description: Liste d'incidents publics et leurs messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  derniers_incidents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PublicIncidentStatus'
+
+
+components:
+  schemas:
+    PublicAnnoucement:
+      type: object
+      required:
+        - message
+        - etat
+      properties:
+        message:
+          type: string
+          example: "Maintenance prévue sur le serveur"
+        etat:
+          type: string
+          enum: ["en cours", "résolu", "planifié"]
+          example: "en cours"
+
+    PublicAnnoucementResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Annonce bien enregistrée"
+        announce:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            message:
+              type: string
+              example: "Maintenance prévue sur le serveur principal"
+            etat:
+              type: string
+              example: "en cours"
+            date:
+              type: string
+              format: date
+              example: "2025-11-13"
+
+    PublicIncidentStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        titre:
+          type: string
+          example: "Panne sur le serveur"
+        description:
+          type: string
+          example: "Problème technique - Maintenance requise"
+        etat:
+            type: string
+            example: "en cours"
+        date:
+            type: string
+            format: date-time
+            example: "2025-11-13T10:15:00Z"
