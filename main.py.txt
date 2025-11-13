@@ -1,0 +1,52 @@
+# main.py
+import asyncio
+from fastapi import FastAPI
+
+from .database import Base, engine
+from .api import router as csp_router
+from .ingestion import DataIngestor
+from .validation import validate_batch
+from .processing import enrich_records
+
+app = FastAPI(title="CSP Ingestor Service")
+
+# Création des tables au démarrage
+Base.metadata.create_all(bind=engine)
+
+app.include_router(csp_router)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """
+    Exemple : au démarrage, on va chercher des données, on les valide,
+    on les enrichit, puis on pourrait les envoyer à l'API interne / DB.
+    Ici c’est juste un exemple de pipeline.
+    """
+    print("[STARTUP] CSP-INGESTOR ready")
+
+
+# Endpoint de démonstration du pipeline complet
+@app.get("/demo-run")
+async def demo_run():
+    ingestor = DataIngestor("https://example.com/fake-csp-endpoint")
+
+    # 1) Ingestion
+    try:
+        raw_data = await ingestor.fetch_data()
+    except Exception as e:
+        return {"status": "error", "step": "ingestion", "detail": str(e)}
+
+    # 2) Validation
+    valid_data = validate_batch(raw_data)
+
+    # 3) Processing
+    processed_data = enrich_records(valid_data)
+
+    return {
+        "status": "ok",
+        "raw_count": len(raw_data),
+        "valid_count": len(valid_data),
+        "processed_sample": processed_data[:3],
+    }
+

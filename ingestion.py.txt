@@ -1,0 +1,22 @@
+# ingestion.py
+import httpx
+from typing import Any, Dict, List, Optional
+
+
+class DataIngestor:
+    def __init__(self, source_url: str, timeout: float = 5.0):
+        self.source_url = source_url
+        self.timeout = timeout
+
+    async def fetch_data(self, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """Récupère les données brutes depuis une API externe."""
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.get(self.source_url, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+        # On s’assure d’avoir une liste d’objets
+        if isinstance(data, dict):
+            data = [data]
+
+        return data
