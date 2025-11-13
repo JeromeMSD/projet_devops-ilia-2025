@@ -86,7 +86,8 @@ def get_incidents():  # Lister tous les incidents, gérer les filtres
 
     return jsonify(incidents_list), 200
 
-@app.route('/api/v1/incidents/<id>/timeline', methods=['POST'])
+
+@app.route('/api/v1/incidents/<id>/timeline', methods=['PUT'])
 def add_timeline_event(id):
     incident = db["incidents"].get(id)
     if not incident:
@@ -100,11 +101,13 @@ def add_timeline_event(id):
         incident["timeline"] = []
 
     # Ajouter l'événement à la timeline
-    incident["timeline"].append({"type": data["type"], "message": data["message"]})
+    incident["timeline"].append(
+        {"type": data["type"], "message": data["message"]})
     db["incidents"][id] = incident
     return jsonify(incident), 200
 
-@app.route('/api/v1/incidents/<id>/postmortem', methods=['POST'])
+
+@app.route('/api/v1/incidents/<id>/postmortem', methods=['PUT'])
 def add_postmortem(id):
     incident = db["incidents"].get(id)
     if not incident:
@@ -124,6 +127,7 @@ def add_postmortem(id):
     db["incidents"][id] = incident
     return jsonify(incident), 200
 
+
 @app.route("/api/v1/incidents/<incident_id>", methods=["GET"])
 def get_incident_by_id(incident_id):
     incident = db["incidents"].get(incident_id)
@@ -132,7 +136,7 @@ def get_incident_by_id(incident_id):
     return jsonify(incident), 200
 
 
-@app.route('/api/v1/incidents/<id>/status', methods=['POST'])
+@app.route('/api/v1/incidents/<id>/status', methods=['PUT'])
 def update_incident_status(id):
     incident = db["incidents"].get(id)
     if not incident:
@@ -147,7 +151,9 @@ def update_incident_status(id):
 
     incident["status"] = data["status"]
     db["incidents"][id] = incident
-@app.route("/api/v1/incidents/<incident_id>/assign", methods=["POST"])
+
+
+@app.route("/api/v1/incidents/<incident_id>/assign", methods=["PUT"])
 def assign_incident(incident_id):
     incident = db["incidents"].get(incident_id)
     if not incident:
