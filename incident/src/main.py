@@ -86,6 +86,23 @@ def get_incidents():  # Lister tous les incidents, gérer les filtres
 
     return jsonify(incidents_list), 200
 
+@app.route('/api/v1/incidents/<id>/timeline', methods=['POST'])
+def add_timeline_event(id):
+    incident = db["incidents"].get(id)
+    if not incident:
+        return jsonify({"error": "Incident not found"}), 404
+
+    data = request.get_json()
+    if not data or "type" not in data or "message" not in data:
+        return jsonify({"error": "Missing type or message"}), 400
+
+    if "timeline" not in incident:
+        incident["timeline"] = []
+
+    # Ajouter l'événement à la timeline
+    incident["timeline"].append({"type": data["type"], "message": data["message"]})
+    db["incidents"][id] = incident
+    return jsonify(incident), 200
 
 @app.route("/api/v1/incidents/<incident_id>", methods=["GET"])
 def get_incident_by_id(incident_id):
