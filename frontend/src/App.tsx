@@ -3,6 +3,7 @@ import { Home } from './routes/Home';
 import { Navbar } from './components/Navbar';
 import { NotFound } from './routes/NotFound';
 import { About } from './routes/About';
+import IncidentCreatePage from './routes/IncidentCreatePage';
 
 export default function App() {
     return (
