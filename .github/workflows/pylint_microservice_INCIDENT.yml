@@ -1,4 +1,4 @@
-name: Pylint_Microservice_INCIDENT
+name: Pylint Microservice INCIDENT
 
 on: [pull_request]
 
