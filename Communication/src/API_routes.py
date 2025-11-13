@@ -65,6 +65,30 @@ def get_public_status():
         "data": INCIDENTS
     }), 200
 
+@app.route("/api/v1/email", methods=["POST"])
+def send_email():
+    """
+    Route 3: Simule l'envoi d'un email.
+    Accepte un JSON avec 'to', 'subject', et 'body'.
+    """
+    data = request.get_json()
+
+    if not data or "to" not in data or "subject" not in data or "body" not in data:
+        return jsonify({"erreur": "Données manquantes: 'to', 'subject', 'body' requis"}), 400
+
+    to_email = data["to"]
+    subject = data["subject"]
+    body = data["body"]
+
+    print("="*30)
+    print(f"SIMULATION D'ENVOI D'EMAIL")
+    print(f"À: {to_email}")
+    print(f"Sujet: {subject}")
+    print("="*30)
+    return jsonify({
+        "message": "Email simulé envoyé avec succès",
+        "email_data": data
+    }), 200 
 
 app.run()
 
