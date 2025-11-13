@@ -1,3 +1,4 @@
+#Ce fichier a été réalisé par Mahdi HOBALLAH qui a recontré un problème d'accès à ce dépôt Github
 
 FROM python:3.12-slim AS base
 
@@ -19,12 +20,11 @@ COPY src/ ./src
 
 # ============================
 # Expose API port
-# Change 8000 if needed
 # ============================
-EXPOSE 8000
+EXPOSE 8080
 
 # ============================
 # Application start command
-# If using FastAPI: replace CMD line
 # ============================
 CMD ["python", "src/main.py"]
+
