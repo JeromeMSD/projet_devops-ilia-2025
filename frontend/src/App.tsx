@@ -3,6 +3,7 @@ import { Home } from './routes/Home';
 import { Navbar } from './components/Navbar';
 import { NotFound } from './routes/NotFound';
 import { About } from './routes/About';
+import IncidentsPage from './routes/IncidentsPage';
 
 export default function App() {
     return (
@@ -14,6 +15,7 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={<Home/>}/>
                     <Route path="/about" element={<About/>}/>
+                    <Route path="/incidents" element={<IncidentsPage/>}/>
                     {/* catch-all for unknown routes */}
                     <Route path="*" element={<NotFound/>}/>
                 </Routes>
