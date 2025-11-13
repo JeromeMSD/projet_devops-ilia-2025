@@ -9,20 +9,29 @@ app = Flask(__name__)
 
 # Stockage temporaire (avant Redis), comme suggéré dans le sujet, on utilise un dictionnaire pour simuler notre base de données au début.
 
-db = {
-    "incidents": {}
-}
-
 # Routes du microservice 'incidents'
-
 
 @app.route('/api/v1/incidents/health', methods=['GET'])
 def health_check():
-    return jsonify({
-        "status": "ok",
-        "service": "incidents"
-    }), 200
-
+    try:
+        if r.ping():
+            return jsonify({
+                "status": "ok",
+                "service": "incidents",
+                "redis": "connected"
+            }), 200
+        else:
+            return jsonify({
+                "status": "error",
+                "service": "incidents",
+                "redis": "not responding"
+            }), 500
+    except redis.exceptions.ConnectionError as e:
+        return jsonify({
+            "status": "error",
+            "service": "incidents",
+            "redis": f"connection error: {e}"
+        }), 500
 
 @app.route('/api/v1/incidents', methods=['POST'])
 def create_incident():  # Crée un nouvel incident
@@ -58,40 +67,38 @@ def create_incident():  # Crée un nouvel incident
 
 
 @app.route('/api/v1/incidents', methods=['GET'])
-def get_incidents():  # Lister tous les incidents, gérer les filtres
-
-    # Récupérer les filtres de l'URL (query parameters)
+def get_incidents():
+    """
+    Récupère tous les incidents depuis Redis et applique les filtres
+    'commander' et 'status' si présents dans les query parameters.
+    """
     filters = request.args
 
-    # Commencer avec la liste complète (On fait une copie pour ne pas modifier l'original)
-    incidents_list = list(db["incidents"].values())
+    # Récupérer toutes les clés d'incidents
+    keys = r.keys("INC:*")
+    incidents_list = []
 
-    # On va appliquer les filtres un par un
+    for key in keys:
+        obj = loadJSONFile(key.split(":")[1])  # Récupère l'objet depuis Redis
+        if obj:
+            incidents_list.append(obj)
 
-    # Filtre commander
+    # Appliquer les filtres
     if 'commander' in filters:
         commander_id = filters.get('commander')
-        new_filtered_list = []
-        for inc in incidents_list:
-            if inc.get('commander') == commander_id:
-                new_filtered_list.append(inc)
-        incidents_list = new_filtered_list
+        incidents_list = [inc for inc in incidents_list if inc.get('commander') == commander_id]
 
-    # Filtre status
     if 'status' in filters:
         status = filters.get('status')
-        new_filtered_list = []
-        for inc in incidents_list:
-            if inc.get('status') == status:
-                new_filtered_list.append(inc)
-        incidents_list = new_filtered_list
+        incidents_list = [inc for inc in incidents_list if inc.get('status') == status]
 
     return jsonify(incidents_list), 200
 
 
+
 @app.route("/api/v1/incidents/<incident_id>", methods=["GET"])
 def get_incident_by_id(incident_id):
-    incident = db["incidents"].get(incident_id)
+    incident = loadJSONFile(id)
     if not incident:
         return jsonify({"error": "Incident not found"}), 404
     return loadJSONFile(id), 200
