@@ -53,6 +53,7 @@ def create_incident():  # Crée un nouvel incident
     db["incidents"][new_id] = new_incident
 
     # Retourne l'incident créé avec un statut 201
+    saveJSONFile(new_incident)
     return jsonify(new_incident), 201
 
 
@@ -93,7 +94,7 @@ def get_incident_by_id(incident_id):
     incident = db["incidents"].get(incident_id)
     if not incident:
         return jsonify({"error": "Incident not found"}), 404
-    return jsonify(incident), 200
+    return loadJSONFile(id), 200
 
 
 # Lancement du serveur
@@ -102,3 +103,4 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     # 0.0.0.0 = accessible depuis l'extérieur du conteneur, debug=True = recharge auto quand on sauve
     app.run(host='0.0.0.0', port=port, debug=True)
+

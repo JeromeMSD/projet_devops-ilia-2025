@@ -43,7 +43,7 @@ def saveJSONFile(obj):
         r.set(key, json_data)
         
         print(f"Objet enregistré dans Redis avec la clé {key}")
-        return key
+        return obj
     
     except Exception as e:
         print(f"Erreur lors de la sauvegarde : {e}")
@@ -72,5 +72,5 @@ def loadJSONFile(id):
         return obj
     
     except Exception as e:
-        print(f"❌ Erreur lors de la lecture : {e}")
+        print(f"Erreur lors de la lecture : {e}")
         return None
