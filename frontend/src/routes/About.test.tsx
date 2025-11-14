@@ -1,0 +1,17 @@
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { About } from './About.tsx';
+
+
+describe('About page', () => {
+    it('renders main title', () => {
+        render(<About />);
+        expect(screen.getByText(/bienvenue sur le dashboard/i)).toBeInTheDocument();
+    });
+
+    it('renders feature list', () => {
+        render(<About />);
+        expect(screen.getByText(/visualiser l'état en temps réel/i)).toBeInTheDocument();
+        expect(screen.getByText(/accéder rapidement aux pages détaillées/i)).toBeInTheDocument();
+    });
+});
