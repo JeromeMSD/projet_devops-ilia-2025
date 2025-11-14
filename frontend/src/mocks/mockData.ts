@@ -9,6 +9,22 @@ export interface MockIncident {
   commander: string;
 }
 
+export interface MockUser {
+    user_id: string;
+    username: string;
+    email: string;
+    role: 'user' | 'sre' | 'admin';
+    created_at: string;
+}
+
+export const mockUser: MockUser = {
+    user_id: "user-123-abc",
+    username: "Sebastien Lacroix",
+    email: "seb.lacroix@test.com",
+    role: "sre",
+    created_at: "2025-01-01"
+};
+
 export const mockIncidents: MockIncident[] = [
   {
     id: "INC-001",
