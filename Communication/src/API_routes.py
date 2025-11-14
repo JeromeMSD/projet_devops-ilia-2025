@@ -37,7 +37,7 @@ def CreateAnnouncement():
     }),201
 
 # route get status
-@app.route("/api/v1/status", methods=["GET"])
+@app.route("/api/v1/public/status", methods=["GET"])
 def get_public_status():
 
     list_incidents = redis_client.lrange("incidents", 0, -1)
@@ -92,6 +92,7 @@ def send_email():
     }), 200 
 
 app.run()
+
 
 
 
