@@ -5,7 +5,6 @@ import { Home } from '@/routes/Home';
 import { About } from '@/routes/About';
 import { LoginPage } from '@/routes/LoginPage';
 import { NotFound } from '@/routes/NotFound';
-import { Dashboard } from '@/routes/Dashboard';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
 import ProfilePage from '@/routes/ProfilePage.tsx';
 import DashboardPage from '@/routes/DashboardPage';
