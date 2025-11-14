@@ -38,41 +38,39 @@ def add_provider(provider: ProviderCreate):
 # Endpoint: Refresh events from provider
 # -------------------------
 @app.post("/api/v1/csp/refresh")
-def refresh_provider(provider: str):
-    provider = provider.lower()
+async def refresh_provider(provider: str):
+    data = await fetch_provider_data(provider)  # however you get the JSON
 
-    raw_provider = r.hget("csp:providers", provider)
-    if not raw_provider:
-        return {"error": "Provider not found"}
+    # Normalize the structure
+    if isinstance(data, dict) and "components" in data:
+        components = data["components"]
+    elif isinstance(data, list):
+        components = data
+    else:
+        # fallback for unexpected structures
+        components = []
 
-    provider_data = json.loads(raw_provider)
-    feed_url = provider_data["feed_url"]
-    ptype = provider_data["type"]
+    refreshed_events = []
 
-    # --- RESET EVENTS FOR THIS PROVIDER ---
-    r.delete(f"csp:events:{provider}")
+    for comp in components:
+        # Each comp could have different field names depending on provider
+        # We try to normalize them
+        service_name = comp.get("name") or comp.get("service") or "Unknown Service"
+        status = comp.get("status") or "unknown"
 
-    # --- FETCH DATA ---
-    import requests
-    resp = requests.get(feed_url)
-    data = resp.json()
-
-    # --- EXTRACT EVENTS ---
-    events = []
-    for comp in data["components"]:
-        events.append({
+        event = {
             "provider": provider,
-            "service": comp["name"],
-            "status": comp["status"]
-        })
+            "service": service_name,
+            "status": status
+        }
+        # store in Redis or wherever
+        store_event(event)
+        refreshed_events.append(event)
 
-    # --- STORE CLEAN EVENTS ---
-    for e in events:
-        r.rpush(f"csp:events:{provider}", json.dumps(e))
-
-    return {"message": f"Refreshed {len(events)} events", "provider": provider}
-
-
+    return {
+        "message": f"Refreshed {len(refreshed_events)} events",
+        "events": refreshed_events
+    }
 # -------------------------
 # Endpoint: Get events
 # -------------------------
@@ -103,3 +101,39 @@ def get_events(active: bool = False):
 #   return events
 
 
+
+
+# -------------------------
+# Helper functions
+# -------------------------
+import httpx
+
+async def fetch_provider_data(provider: str):
+    """
+    Fetch the JSON feed for the given provider.
+    Looks up provider in Redis first to get feed_url.
+    """
+    feed_json = r.hget("csp:providers", provider.lower())
+    if not feed_json:
+        raise HTTPException(status_code=404, detail=f"Provider '{provider}' not found")
+    
+    feed_info = json.loads(feed_json)
+    feed_url = feed_info.get("feed_url")
+    if not feed_url:
+        raise HTTPException(status_code=400, detail=f"No feed URL found for provider '{provider}'")
+    
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(feed_url)
+        resp.raise_for_status()
+        return resp.json()
+
+
+def store_event(event: dict):
+    """
+    Store an event in Redis under key 'csp:events:<provider>'.
+    Each provider has its own list.
+    """
+    provider = event.get("provider", "unknown").lower()
+    key = f"csp:events:{provider}"
+    # Push as JSON string
+    r.rpush(key, json.dumps(event))
