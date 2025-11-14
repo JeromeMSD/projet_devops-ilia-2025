@@ -23,7 +23,7 @@ paths:
                 $ref: '#/components/schemas/PublicAnnoucementResponse'
         "400": { description: Requête invalide }
 
-/api/status:
+/api/v1/public/status:
   get:
     summary: Récupérer le statut public global
     responses:
