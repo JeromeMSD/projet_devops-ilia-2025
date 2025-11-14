@@ -67,6 +67,21 @@ paths:
           description: Le flag a été mis à jour avec succès.
         "400":
           description: Requête invalide (JSON manquant ou malformé).
+  /admin/toggle/{flag_name}:
+    post:
+      summary: Activer ou désactiver un feature flag existant.
+      parameters:
+        - in: path
+          name: flag_name
+          required: true
+          schema:
+            type: string
+            example: "new-feature"
+      responses:
+        "200":
+          description: Le flag a été activé ou désactivé avec succès.
+        "404":
+          description: Le flag spécifié n'a pas été trouvé.
 
 components:
   schemas:
