@@ -1,5 +1,20 @@
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+import type { AuthUser } from '@/auth/types.ts';
 import ProfilePage from './ProfilePage';
+
+const mockAuthUser: AuthUser = {
+    id_user: 'user-123-abc',
+    firstname: 'Sebastien',
+    lastname: 'Lacroix',
+    email: 'seb.lacroix@test.com',
+    role: 'SRE',
+    created_at: '2025-01-01T00:00:00.000Z',
+};
+
+vi.mock('react-auth-kit/hooks/useAuthUser', () => ({
+    default: () => mockAuthUser,
+}));
 
 vi.mock('../mocks/mockData', () => ({
     mockUser: {
@@ -22,7 +37,7 @@ test('afficher le nom complet de l\'utilisateur', () => {
 test('afficher l\'email et le rôle de l\'utilisateur', () => {
     render(<ProfilePage/>);
     const emailElement = screen.getByText(/seb.lacroix@test.com/i);
-    const roleElement = screen.getByText('sre');
+    const roleElement = screen.getByText(/sre/i);
     expect(emailElement).toBeInTheDocument();
     expect(roleElement).toBeInTheDocument();
 });

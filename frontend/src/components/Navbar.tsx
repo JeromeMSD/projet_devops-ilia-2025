@@ -5,6 +5,7 @@ import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 import type { AuthUser } from '@/auth/types';
 import { useLogout } from '@/auth/useLogout';
 import { Spinner } from '@/components/ui/spinner.tsx';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
 
 export function Navbar() {
     const navigate = useNavigate();
@@ -14,6 +15,13 @@ export function Navbar() {
     const displayName = authUser
         ? [authUser.firstname, authUser.lastname].filter(Boolean).join(' ').trim() || authUser.email
         : '';
+    const initials = authUser
+        ? [authUser.firstname, authUser.lastname]
+            .filter(Boolean)
+            .map((name) => name[0].toUpperCase())
+            .join('')
+        : '';
+    const avatarLabel = displayName ? `Profil de ${displayName}` : 'Profil utilisateur';
 
     const linkClasses = ({ isActive }: { isActive: boolean }) =>
         [
@@ -31,6 +39,10 @@ export function Navbar() {
         });
     };
 
+    const handleProfileNavigation = () => {
+        navigate('/me');
+    };
+
     return (
         <header className="sticky top-0 z-10 border-b border-slate-200/70 bg-white/80 text-slate-800 backdrop-blur">
             <div
@@ -43,15 +55,6 @@ export function Navbar() {
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                    {isAuthenticated && authUser ? (
-                        <div className="text-right text-xs uppercase tracking-[0.2em] text-slate-500">
-                            Connecté en tant que
-                            <p className="text-base font-semibold normal-case tracking-normal text-slate-900">
-                                {displayName}
-                            </p>
-                        </div>
-                    ) : null}
-
                     <nav className="flex items-center gap-2">
                         <NavLink to="/" className={linkClasses} end>
                             Home
@@ -64,6 +67,20 @@ export function Navbar() {
                                 <NavLink to="/dashboard" className={linkClasses}>
                                     Dashboard
                                 </NavLink>
+                                {authUser ? (
+                                    <button
+                                        type="button"
+                                        onClick={handleProfileNavigation}
+                                        aria-label={avatarLabel}
+                                        className="inline-flex items-center justify-center rounded-full border border-transparent bg-slate-100 p-0.5 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-slate-800/40"
+                                    >
+                                        <Avatar className="size-8">
+                                            <AvatarFallback className="text-xs font-semibold uppercase">
+                                                {initials || '?'}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </button>
+                                ) : null}
                                 <div className="flex flex-col items-stretch">
                                     <button
                                         type="button"
@@ -71,7 +88,7 @@ export function Navbar() {
                                         disabled={logout.isPending}
                                         className="inline-flex items-center rounded-full border border-transparent bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-800/40"
                                     >
-                                        {logout.isPending && <Spinner/>}
+                                        {logout.isPending && <Spinner />}
                                         {logout.isPending ? 'Déconnexion...' : 'Déconnexion'}
                                     </button>
                                     {logout.error instanceof Error && (

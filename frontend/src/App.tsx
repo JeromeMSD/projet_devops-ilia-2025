@@ -21,23 +21,15 @@ export default function App() {
 
             <main className="flex-1 flex justify-center items-center px-4 py-10 md:px-8">
                 <Routes>
-                    <Route path="/" element={<Home/>}/>
-                    <Route path="/me" element={<ProfilePage />} />
+                    <Route path="/" element={<Home />} />
+                    <Route path="/me" element={(<ProtectedRoute><ProfilePage /></ProtectedRoute>)} />
                     <Route path="/about" element={<About />} />
-                    <Route path="/incidents" element={<IncidentsPage/>}/>
-                    <Route path="/login" element={<LoginPage/>}/>
-                    <Route path="/register" element={<RegisterPage/>}/>
-                    <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
-                    <Route path="/reset-password" element={<ResetPasswordPage/>}/>
-                    <Route
-                        path="/dashboard"
-                        element={(
-                            <ProtectedRoute>
-                                <DashboardPage />
-                            </ProtectedRoute>
-                        )}
-                    />
-
+                    <Route path="/incidents" element={<IncidentsPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route path="/dashboard" element={(<ProtectedRoute><DashboardPage /></ProtectedRoute>)} />
                     {/* catch-all for unknown routes */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>

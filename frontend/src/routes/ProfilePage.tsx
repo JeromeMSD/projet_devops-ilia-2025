@@ -1,12 +1,25 @@
-import { mockUser, mockIncidents } from '../mocks/mockData';
+import { mockIncidents } from '../mocks/mockData';
+import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
+import type { AuthUser } from '@/auth/types.ts';
 
 function ProfilePage() {
+    const user = useAuthUser<AuthUser | null>();
+
+    if (!user) {
+        return (
+            <section
+                className="rounded-2xl border border-dashed p-6 text-center text-sm border-amber-400 bg-amber-50 text-amber-900">
+                <p>Impossible de récupérer vos informations utilisateur.</p>
+            </section>
+        );
+    }
+
     return (
         <div className="p-10 max-w-4xl mx-auto space-y-8 min-h-screen">
 
             {/* Titre Principal */}
             <h1 className="text-4xl font-extrabold text-gray-800 border-b pb-4">
-                Mon Profil SRE
+                Mon Profil
             </h1>
 
             {/* Section 1: Carte de l'Utilisateur (Simule un composant Card/Avatar) */}
@@ -15,22 +28,22 @@ function ProfilePage() {
                 {/* Avatar / Initiale (avec des classes simulant un cercle) */}
                 <div
                     className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 text-white text-2xl font-bold">
-                    {mockUser.username.charAt(0)}
+                    {user.firstname.charAt(0) + user.lastname.charAt(0)}
                 </div>
 
                 {/* Détails du Profil */}
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">
-                        {mockUser.username}
+                        {`${user.firstname} ${user.lastname}`}
                     </h2>
                     <p className="text-md text-gray-500">
-                        {mockUser.email}
+                        {user.email}
                     </p>
 
                     {/* Rôle (Simule un Badge) */}
                     <span className="mt-2 inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full tracking-wide 
                                     bg-red-500 text-white uppercase shadow-md">
-                        {mockUser.role}
+                        {user.role}
                     </span>
                 </div>
             </div>
