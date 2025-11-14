@@ -1,4 +1,3 @@
-
 openapi: 3.0.3
 info:
   title: PolyStatus - Communications API
@@ -8,7 +7,7 @@ servers:
 paths:
   /api/v1/public/announce:
     post:
-      summary: Créer et publierune annonce publique liée à un incident
+      summary: Créer et publier une annonce publique liée à un incident
       requestBody:
         required: true
         content:
@@ -23,6 +22,50 @@ paths:
               schema:
                 $ref: '#/components/schemas/PublicAnnoucementResponse'
         "400": { description: Requête invalide }
+
+/api/status:
+  get:
+    summary: Récupérer le statut public global
+    responses:
+      "200":
+        description: Liste des incidents publics récents ou en cours
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: Statut de la requête
+                  example: "success"
+                count:
+                  type: integer
+                  description: Nombre d'incidents renvoyés
+                  example: 2
+                data:
+                  type: array
+                  description: Liste des incidents
+                  items:
+                    $ref: "#/components/schemas/PublicIncidentStatus"
+
+  /api/v1/webhooks:
+    post:
+      summary: Enregistrer un webhook pour un type d'événement spécifique
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Webhook'
+      responses:
+        "201":
+          description: Webhook enregistré avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        "400":
+          description: Requête invalide
 
   /api/v1/public/status:
     get:
@@ -114,12 +157,49 @@ components:
           type: string
           example: "Problème technique - Maintenance requise"
         etat:
-            type: string
-            example: "en cours"
+          type: string
+          example: "en cours"
         date:
-            type: string
-            format: date-time
-            example: "2025-11-13T10:15:00Z"
+          type: string
+          format: date-time
+          example: "2025-11-13T10:15:00Z"
+
+    Webhook:
+      type: object
+      required:
+        - url
+        - event_type
+      properties:
+        url:
+          type: string
+          format: uri
+          example: "http://example.com/webhook"
+        event_type:
+          type: string
+          example: "incident"
+
+    WebhookResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Webhook bien enregistré"
+        webhook:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            url:
+              type: string
+              example: "http://example.com/webhook"
+            event_type:
+              type: string
+              example: "incident"
+            date:
+              type: string
+              format: date-time
+              example: "2025-11-13T21:45:00Z"
 
     EmailRequest:
       type: object
