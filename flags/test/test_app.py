@@ -1,7 +1,7 @@
 import json
 import pytest
-from server import app
-from flags.app import feature_flags as app_feature_flags
+from src.server import app
+from src.app import feature_flags as app_feature_flags
 
 @pytest.fixture
 def client():

@@ -14,7 +14,7 @@ Polytech Dijon - ILIA - Projet DevOps 2025
 ## Creation dockerfile
 
 ```bash
-docker build -t feature-flags-app -f flags/Dockerfile .
+docker build -t feature-flags-app .
 ```
 
 ### lancement  docker
@@ -27,15 +27,14 @@ docker run -d -p 5000:5000 feature-flags-app
 ## Information commande d'instalation pour le faire manuellement sans Docker
 
 ```bash
-pip install -r flags/requirements.txt
+pip install -r requirements.txt
 ```
 
 -----
 
 ## Pour tester il faut faire python pour lancer le serveur
-
 ```bash
-python server.py
+python -m src.server
 ```
 
 -----
@@ -70,5 +69,5 @@ Invoke-WebRequest -Uri http://127.0.0.1:5000/admin/flags/new-login-page -Method 
 test unitaire :
 
 ```bash
-pytest flags/test_app.py
+pytest test/test_app.py
 ```
