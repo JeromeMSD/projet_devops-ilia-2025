@@ -4,12 +4,12 @@ Ce microservice gère toutes les communications sortantes de la plateforme PolyS
 
 ## Contributeurs (Microservice Communication)
 
-| Nom      | Prénom     | Pseudo GitHub                           | Rôles                          |
+| Prénom      | Nom     | Pseudo GitHub                           | Rôles                          |
 |----------|------------|----------------------------------------|--------------------------------|
-| Yasmine  | [Nom]      | [@pseudo](#)                            | []                             |
-| Cyrine   | [Nom]      | [@pseudo](#)                            | []                             |
-| Mahdi    | [Nom]      | [@pseudo](#)                            | Docker                         |
-| Mezazem | Esteban    | [ESTEBAN237](https://github.com/ESTEBAN237) | Route Webhook                             |
+| Yasmine  | MOUKHLISS      | [sudo-yasminem](https://github.com/sudo-yasminem)  | API route annonces, swagger, structure      |
+| Cyrine   | EL ARAMOUNY     | [CyrineElAramouny](https://github.com/CyrineElAramouny) | API route status, swagger      |
+| Mahdi    | HOBBALLAH      | [@pseudo](#)                            | Docker                         |
+| Esteban | MEZAZEM    | [ESTEBAN237](https://github.com/ESTEBAN237) | Route Webhook                             |
 | Oumnia   | MIMOUNI    | [OumniaMimouni](https://github.com/OumniaMimouni) | Route Email (TDD), Actions analyse Trivy |
 
 ## Prérequis
