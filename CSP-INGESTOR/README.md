@@ -1,4 +1,4 @@
-# 🌩️ PolyStatus - API d'ingestion CSP
+# PolyStatus - API d'ingestion CSP
 
 **PolyStatus** est un microservice léger permettant de surveiller les statuts des fournisseurs de services cloud.  
 Il ingère leurs flux JSON, stocke les événements dans Redis et expose une API REST facile à utiliser pour les consulter.
