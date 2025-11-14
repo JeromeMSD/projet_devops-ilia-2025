@@ -1,4 +1,3 @@
-
 export type ServiceStatus = 'operational' | 'partial' | 'down';
 
 export type Service = {
@@ -6,8 +5,8 @@ export type Service = {
     name: string;
     description: string;
     status: ServiceStatus;
-    icon: string; // key used to map to an icon component
-    href?: string; // optional route to navigate to
+    icon: string;
+    href?: string;
 };
 
 export const mockServices: Service[] = [
@@ -52,3 +51,9 @@ export const mockServices: Service[] = [
         href: '/flags',
     },
 ];
+
+// ✅ Ajout du mockUser pour le ProfilePage
+export const mockUser = {
+    firstname: 'Sebastien',
+    lastname: 'Lacroix',
+};

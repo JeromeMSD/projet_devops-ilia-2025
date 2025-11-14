@@ -1,7 +1,11 @@
+import React from 'react';
+import { mockUser } from '../utils/mockData';
+
 function ProfilePage() {
     return (
         <div>
-            {/* 1e loi devops, le test va échouer */}
+            {/* Affichage du nom complet de l'utilisateur */}
+            <h1>{mockUser.firstname} {mockUser.lastname}</h1>
         </div>
     );
 }

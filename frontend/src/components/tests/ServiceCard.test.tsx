@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import type { ServiceCard } from '../ServiceCard';
+import { MemoryRouter } from 'react-router-dom';
+import ServiceCard from '../ServiceCard';
 import type { Service } from '../../utils/mockData';
 
 const mockService: Service = {
@@ -13,19 +14,31 @@ const mockService: Service = {
 
 describe('ServiceCard', () => {
     it('renders service name and description', () => {
-        render(<ServiceCard service={mockService} />);
+        render(
+            <MemoryRouter>
+                <ServiceCard service={mockService} />
+            </MemoryRouter>
+        );
         expect(screen.getByText('Test Service')).toBeInTheDocument();
         expect(screen.getByText('Un service pour tester')).toBeInTheDocument();
     });
 
     it('contains link if href is provided', () => {
-        render(<ServiceCard service={mockService} />);
+        render(
+            <MemoryRouter>
+                <ServiceCard service={mockService} />
+            </MemoryRouter>
+        );
         const link = screen.getByRole('link');
         expect(link).toHaveAttribute('href', '/test');
     });
 
     it('displays status correctly', () => {
-        render(<ServiceCard service={mockService} />);
+        render(
+            <MemoryRouter>
+                <ServiceCard service={mockService} />
+            </MemoryRouter>
+        );
         expect(screen.getByText(/operational/i)).toBeInTheDocument();
     });
 });

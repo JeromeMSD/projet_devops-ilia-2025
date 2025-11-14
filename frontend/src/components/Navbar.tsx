@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import { NavLink } from 'react-router-dom';
 
 export function Navbar() {
     const linkClasses = ({ isActive }: { isActive: boolean }) =>

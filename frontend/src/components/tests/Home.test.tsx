@@ -1,10 +1,16 @@
 import { render, screen } from '@testing-library/react';
-import { HomePage } from '../../pages/HomePage';
+import { MemoryRouter } from 'react-router-dom';
+import { Home } from '../../routes/Home';
 import { mockServices } from '../../utils/mockData';
 
 describe('Home page', () => {
     it('renders all services', () => {
-        render(<HomePage />);
+        render(
+            <MemoryRouter>
+                <Home />
+            </MemoryRouter>
+        );
+
         mockServices.forEach(service => {
             expect(screen.getByText(service.name)).toBeInTheDocument();
         });
