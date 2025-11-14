@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Backoffice</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body> 
+    <div class="container">
+        <h1>Gestion des Feature Flags</h1>
+        <div class="flags-list">
+            {% for name, config in flags.items() %}
+            <div class="flag-card">
+                <div class="flag-info">
+                    <span class="flag-name">{{ name }}</span>
+                    <span class="flag-description">{{ config.description }}</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" class="flag-toggle" data-flag-name="{{ name }}" {% if config.enabled %}checked{% endif %}>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggles = document.querySelectorAll('.flag-toggle');
+
+            toggles.forEach(toggle => {
+                toggle.addEventListener('change', function() {
+                    const flagName = this.dataset.flagName;
+                    
+                    // Envoie une requête POST à l'API pour basculer le flag
+                    fetch(`/admin/toggle/${flagName}`, {
+                        method: 'POST',
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.error('Erreur lors de la mise à jour du flag.');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
