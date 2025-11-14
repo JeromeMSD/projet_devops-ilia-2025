@@ -11,7 +11,7 @@ docker run -d -p 5000:5000 feature-flags-app
 ## Information commande d'instalation pour le faire manuellement sans Docker
 
 ```bash
-pip install pytest
+pip install -r flags/requirements.txt
 ```
 
 -----
@@ -19,11 +19,13 @@ pip install pytest
 ## Pour tester il faut faire python pour lancer le serveur
 
 ```bash
-python flags/app.py
+python server.py
 ```
 
 -----
-#information Général
+
+# information Général
+
 ## pour voir les differents roles présent:
 
 [http://127.0.0.1:5000/admin/flags](http://127.0.0.1:5000/admin/flags)
@@ -32,11 +34,18 @@ python flags/app.py
 
 [http://127.0.0.1:5000/flags?role=admin](http://127.0.0.1:5000/flags?role=admin)
 
+## pour trouver le backoffice
+
+[http://127.0.0.1:5000/backoffice](http://127.0.0.1:5000/backoffice)
+
+-----
+
 ## exemple de requete pour rajouter un nouveau flag dans les deux presents pour le moment en la metant dans un autre terminal
 
 ```bash
 Invoke-WebRequest -Uri http://127.0.0.1:5000/admin/flags/new-login-page -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"enabled": true, "description": "Nouvelle page de connexion", "roles": ["sre"]}'
 ```
+
 
 -----
 
