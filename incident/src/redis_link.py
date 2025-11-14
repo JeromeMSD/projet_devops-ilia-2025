@@ -3,7 +3,7 @@ import json
 
 # Connexion à Redis
 try:
-    r = redis.Redis(host='redis', port=6379, decode_responses=True)
+    r = redis.Redis(host='localhost', port=6379, decode_responses=True)
     r.ping()
     print("Connexion à Redis réussie !")
 except redis.exceptions.ConnectionError:
