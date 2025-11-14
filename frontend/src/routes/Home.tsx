@@ -1,5 +1,4 @@
-// src/routes/Home.tsx
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import ServiceCard from '../components/ServiceCard';
 import { mockServices } from '../utils/mockData';
 

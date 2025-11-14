@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { Home } from '../../routes/Home';
-import { mockServices } from '../../utils/mockData';
+import { MemoryRouter } from 'react-router';
+import { Home } from './Home.tsx';
+import { mockServices } from '../utils/mockData.ts';
 
 describe('Home page', () => {
     it('renders all services', () => {
         render(
             <MemoryRouter>
                 <Home />
-            </MemoryRouter>
+            </MemoryRouter>,
         );
 
         mockServices.forEach(service => {

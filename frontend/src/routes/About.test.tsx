@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { About } from '../../routes/About';
+import { About } from './About.tsx';
 
 
 describe('About page', () => {

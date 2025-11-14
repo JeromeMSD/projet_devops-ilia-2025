@@ -3,7 +3,7 @@ import type { SVGProps } from 'react';
 import { User, AlertTriangle, Megaphone, Cloud, Flag } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import type { Service } from '../utils/mockData';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 const iconMap: Record<string, React.ComponentType<SVGProps<SVGSVGElement>>> = {
     User,
