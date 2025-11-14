@@ -27,7 +27,7 @@ def CreateAnnouncement():
         "date":datetime.now().date().isoformat()
     }
 
-    redis_client.lpush("annonces", str(announce1))
+    redis_client.lpush("annonces", json.dumps(announce1))
 
     #Retourne l'annonce et la confirmation en json
     return jsonify({
@@ -67,4 +67,5 @@ def get_public_status():
 
 
 app.run()
+
 
