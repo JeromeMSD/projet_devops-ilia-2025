@@ -6,8 +6,10 @@ app = Flask(__name__)
 # Enregistre le Blueprint contenant toutes les routes de l'API de flags.
 app.register_blueprint(flags_bp)
 
-@app.route("/backoffice")
-def backoffice():
+@app.route("/backoffice/role=<role>")
+def backoffice(role):
+    if role != "admin" and role != "sre":
+        return "Accès refusé", 403 
     return render_template("backoffice.html", flags=feature_flags)
 
 if __name__ == '__main__':

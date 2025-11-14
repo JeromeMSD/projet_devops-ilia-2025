@@ -36,7 +36,9 @@ python server.py
 
 ## pour trouver le backoffice
 
-[http://127.0.0.1:5000/backoffice](http://127.0.0.1:5000/backoffice)
+[http://127.0.0.1:5000/backoffice/role=admin](http://127.0.0.1:5000/backoffice/role=admin)
+[http://127.0.0.1:5000/backoffice/role=sre](http://127.0.0.1:5000/backoffice/role=sre)
+[http://127.0.0.1:5000/backoffice/role=user](http://127.0.0.1:5000/backoffice/role=user)
 
 -----
 
