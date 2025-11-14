@@ -10,6 +10,8 @@ RUN npm run build
 
 FROM nginx:1.27-alpine AS runtime
 
+RUN apk update && apk upgrade --no-cache
+
 RUN addgroup -S app && adduser -S app -G app
 
 COPY --from=builder /app/dist /usr/share/nginx/html
