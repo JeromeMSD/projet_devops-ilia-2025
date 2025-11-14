@@ -1,0 +1,44 @@
+name: CSP-INGESTOR Build & Test
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'CSP-INGESTOR/**'
+      - '.github/workflows/CSP_INGESTOR-build.yml'
+
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'CSP-INGESTOR/**'
+      - '.github/workflows/CSP_INGESTOR-build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build & Test CSP-INGESTOR
+
+    strategy:
+      matrix:
+        python-version: [3.11]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          cd CSP-INGESTOR
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run tests
+        run: |
+          cd CSP-INGESTOR
+          pytest -v --maxfail=1 --disable-warnings
