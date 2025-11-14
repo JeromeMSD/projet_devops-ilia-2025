@@ -28,7 +28,7 @@ export default function App() {
                     />
 
                     <Route path="/about" element={<About/>}/>
-                    {/* catch-all for unknown routes */}
+                    <Route path="/me" element={<ProfilePage/>}/>
                     <Route path="*" element={<NotFound/>}/>
                 </Routes>
             </main>
