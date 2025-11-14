@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import DashboardPage from './DashboardPage';
 import { vi } from 'vitest';
+import { MemoryRouter } from 'react-router';
 
 vi.mock('react-auth-kit/hooks/useAuthUser', () => ({
     default: () => ({
@@ -28,7 +29,11 @@ vi.mock('../mocks/mockData', () => ({
     ],
 }));
 test('doit afficher le résumé des incidents critiques (2)', () => {
-    render(<DashboardPage />);
+    render(
+        <MemoryRouter>
+            <DashboardPage />
+        </MemoryRouter>,
+    );
     const summaryLabel = screen.getByText(/Incidents Critiques en Cours/i);
     const summaryContainer = summaryLabel.closest('div');
     expect(summaryContainer).not.toBeNull();
@@ -36,7 +41,11 @@ test('doit afficher le résumé des incidents critiques (2)', () => {
     expect(summaryCount).toBeInTheDocument();
 });
 test('doit afficher uniquement les incidents assignés à l\'utilisateur (2)', () => {
-    render(<DashboardPage />);
+    render(
+        <MemoryRouter>
+            <DashboardPage />
+        </MemoryRouter>,
+    );
     const assignedIncident1 = screen.getByText(/Serveur critique/i);
     const assignedIncident2 = screen.getByText(/Bug majeur/i);
     const unassignedIncident = screen.queryByText(/Fichier critique/i);

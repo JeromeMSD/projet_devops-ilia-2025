@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
+
+const severityOptions = [
+    { value: 1, label: 'Critique' },
+    { value: 2, label: 'Majeure' },
+    { value: 3, label: 'Mineure' },
+];
 
 function IncidentCreatePage() {
     const [title, setTitle] = useState('');
-    const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const incidentData = {
-        title: title,
-      sev: 2 
-    };
-    try {
-        await fetch('http://localhost:8081/api/incidents', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(incidentData)
-        });
-        console.log('Incident signalé avec succès !');
-        setTitle('');
+    const [severity, setSeverity] = useState(2);
 
-    } catch (error) {
-        console.error("Erreur lors de la soumission de l'incident:", error);
-    }
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        const incidentData = {
+            title,
+            sev: severity,
+        };
+
+        try {
+            await fetch('http://localhost:8081/api/incidents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(incidentData),
+            });
+
+            toast.success('Incident signalé avec succès !');
+            setTitle('');
+            setSeverity(2);
+        } catch (error) {
+            console.error("Erreur lors de la soumission de l'incident:", error);
+            toast.error('Impossible de signaler l’incident pour le moment.');
+        }
     };
 
     return (
@@ -50,6 +63,27 @@ function IncidentCreatePage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                 />
+            </div>
+
+            <div>
+                <label
+                    htmlFor="severity"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                    Sévérité
+                </label>
+                <select
+                    id="severity"
+                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
+                    value={severity}
+                    onChange={(e) => setSeverity(Number(e.target.value))}
+                >
+                    {severityOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div className="pt-4">
