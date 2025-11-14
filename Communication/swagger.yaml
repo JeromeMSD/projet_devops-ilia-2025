@@ -182,3 +182,28 @@ components:
               type: string
               format: date-time
               example: "2025-11-13T21:45:00Z"
+    EmailRequest:
+      type: object
+      required:
+        - to
+        - subject
+        - body
+      properties:
+        to:
+          type: string
+          example: "utilisateur@example.com"
+        subject:
+          type: string
+          example: "Notification d'incident"
+        body:
+          type: string
+          example: "Le service X est en panne."
+
+    EmailResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Email simulé envoyé avec succès"
+        email_data:
+          $ref: '#/components/schemas/EmailRequest'
