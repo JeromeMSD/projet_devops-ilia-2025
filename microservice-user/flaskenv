@@ -1,0 +1,6 @@
+FLASK_APP=src.main:create_app
+FLASK_ENV=development
+FLASK_DEBUG=True
+
+FLASK_RUN_PORT=5010
+FLASK_RUN_HOST=0.0.0.0

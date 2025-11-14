@@ -1,0 +1,95 @@
+name: Trivy Security Scan - Microservice User
+
+on:
+  workflow_dispatch:
+    inputs:
+      severity:
+        description: 'Niveau de sévérité du scan'
+        required: false
+        default: 'CRITICAL,HIGH'
+        type: choice
+        options:
+          - 'CRITICAL'
+          - 'CRITICAL,HIGH'
+          - 'CRITICAL,HIGH,MEDIUM'
+          - 'CRITICAL,HIGH,MEDIUM,LOW'
+
+jobs:
+  trivy-scan:
+    name: Scan de sécurité avec Trivy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        working-directory: ./microservice-user
+        run: |
+          docker build -t user-microservice:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'user-microservice:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: ${{ github.event.inputs.severity || 'CRITICAL,HIGH' }}
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Trivy vulnerability scanner (Table format)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'user-microservice:${{ github.sha }}'
+          format: 'table'
+          severity: ${{ github.event.inputs.severity || 'CRITICAL,HIGH' }}
+
+      - name: Generate HTML report
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'user-microservice:${{ github.sha }}'
+          format: 'template'
+          template: '@/contrib/html.tpl'
+          output: 'trivy-report.html'
+          severity: ${{ github.event.inputs.severity || 'CRITICAL,HIGH' }}
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-security-report-${{ github.sha }}
+          path: trivy-report.html
+          retention-days: 30
+
+      - name: Generate JSON report
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'user-microservice:${{ github.sha }}'
+          format: 'json'
+          output: 'trivy-report.json'
+          severity: ${{ github.event.inputs.severity || 'CRITICAL,HIGH' }}
+
+      - name: Upload JSON report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-json-report-${{ github.sha }}
+          path: trivy-report.json
+          retention-days: 30
+
+      - name: Check for critical vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'user-microservice:${{ github.sha }}'
+          format: 'json'
+          severity: 'CRITICAL'
+          exit-code: '1'
+          ignore-unfixed: true
