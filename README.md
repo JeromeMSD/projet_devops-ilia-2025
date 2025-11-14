@@ -2,7 +2,7 @@
 
 Polytech Dijon - ILIA - Projet DevOps 2025
 
-##Information lancement avec docker
+## Information lancement avec docker
 ```bash
 docker run -d -p 5000:5000 feature-flags-app
 ```
