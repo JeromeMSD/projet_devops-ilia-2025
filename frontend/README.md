@@ -7,6 +7,7 @@ Le frontend utilise React avec Vite.
 Pour lancer le frontend, il faut lancer les commandes suivantes :
 
 ```shell
+npm install
 npm i
 npm run dev
 ```
@@ -17,6 +18,12 @@ Vous pouvez aussi lancer le frontend avec Docker :
 
 ```shell
 npm run docker
+```
+
+Ou lancer le service défini dans `docker-compose.yml` :
+
+```shell
+docker compose up --build
 ```
 
 L'application sera disponible sur le port 3000.
