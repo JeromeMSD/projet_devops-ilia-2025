@@ -63,7 +63,7 @@ def get_public_status():
         "status": "success",
         "count": len(INCIDENTS),
         "data": INCIDENTS
-    }), 200
+    }), 200 
 
 @app.route("/api/v1/email", methods=["POST"])
 def send_email():
