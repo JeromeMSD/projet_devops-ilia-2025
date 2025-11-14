@@ -6,3 +6,8 @@ requests==2.31.0
 python-dotenv==1.1.0
 # aioredis==2.0.1   
 # optional if you want async Redis, perso not doing this XD
+pytest
+pytest-asyncio
+httpx
+fakeredis          # mock redis
+requests-mock      # mock external API calls
