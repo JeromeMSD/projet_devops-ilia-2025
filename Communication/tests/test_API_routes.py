@@ -38,3 +38,32 @@ def test_send_email_route(client):
     data = response.get_json()
     assert "message" in data
     assert data["message"] == "Email simulé envoyé avec succès"
+    
+    
+def test_CreateAnnoucement():
+    
+    test_message = {
+        "message":"Test annonce API"
+        "etat": "en cours"
+    }
+
+    response = client.post(
+        "api/v1/public/announce",
+        data = json.dumps(test_message),
+        content_type="application/json"
+    )
+
+    assert response.status_code == 201
+
+    data = response.get_json()
+
+    assert "message" in data
+    assert data["message"] == "Annonce bien enregistrée"
+    assert "announce in data"
+
+    annonces = redis_client.lrange("annonces",0,-1)
+    assert len(annonces) == 1
+    annonces2= json.dumps(annonces[0])
+
+    assert annonces2["message"] == message["message"]
+    assert annonces2["etat"] == message["etat"]
