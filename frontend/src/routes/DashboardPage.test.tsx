@@ -4,10 +4,11 @@ import { vi } from 'vitest';
 
 vi.mock('react-auth-kit/hooks/useAuthUser', () => ({
     default: () => ({
-        user_id: 'user-123-abc',
-        username: 'Oumnia SRE',
+        id_user: 'user-123-abc',
+        firstname: 'Oumnia',
+        lastname: 'SRE',
         email: 'oumnia@sre.com',
-        role: 'sre',
+        role: 'SRE',
         created_at: '2024-01-01T00:00:00.000Z',
     }),
 }));
