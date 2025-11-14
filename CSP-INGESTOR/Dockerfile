@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # 5️: Copy the application code
 COPY src/ ./src/
-COPY swagger.yaml ./
+COPY swagger.yaml ./swagger.yaml
 
 # (Optional) Copy data files if needed during runtime
 # COPY data/ ./data/
@@ -28,4 +28,6 @@ ENV APP_ENV=production
 ENV SERVICE_NAME=CSP-INGESTOR
 
 # 7️: Run your service (adjust if you use a framework)
-CMD ["python", "src/main.py"]
+# CMD ["python", "src/main.py"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8083"]
+
