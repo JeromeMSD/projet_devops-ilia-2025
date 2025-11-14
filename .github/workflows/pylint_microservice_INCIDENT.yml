@@ -1,6 +1,8 @@
-name: Pylint
+name: Pylint Microservice INCIDENT
 
-on: [pull_request]
+on: 
+  pull_request:
+    branches: -Microservice-INCIDENT
 
 jobs:
   build:

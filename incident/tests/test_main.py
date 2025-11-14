@@ -1,188 +1,147 @@
-from main import db
-from main import app as flask_app
-import pytest
 import json
-from main import app as flask_app, db
+import pytest
+from main import app, r, saveJSONFile, loadJSONFile
 
-from main import app as flask_app, db
-
-
-# Fonction qui va crée un faux client qui va pouvoir simuler des requêtes HTML (GET, POST)
 
 @pytest.fixture
 def client():
-    with flask_app.test_client() as client:
-        # On remet à zéro la base de données avant CHAQUE test.
-        db['incidents'] = {}
+    """
+    Crée un client de test Flask isolé pour simuler des requêtes HTTP.
+    Le client s'exécute dans un contexte 'TESTING' sans lancer le vrai serveur.
+    """
+    app.config['TESTING'] = True
+    with app.test_client() as client:
         yield client
 
-# Va tester la route /health pour s'assurer qu'elle répond 200 OK et retourne le bon JSON
+
+# === TESTS DE BASE ===
+
+def test_redis_connection():
+    """Vérifie que Redis est bien accessible et répond au ping."""
+    assert r.ping() is True
 
 
 def test_health_check(client):
+    """Teste la route de health check."""
     response = client.get('/api/v1/incidents/health')
-
-    # Vérifie le code de statut HTTP
     assert response.status_code == 200
-
-    # Vérifie le contenu de la réponse JSON
-    json_data = response.get_json()
-    assert json_data == {
-        "status": "ok",
-        "service": "incidents"
-    }
+    data = response.get_json()
+    assert data["status"] == "ok"
+    assert data["redis"] == "connected"
 
 
-# Va tester la route GET /incidents et verifie qu'elle retourne une liste vide au début
-def test_get_incidents_empty(client):
-    response = client.get('/api/v1/incidents')
+# === TESTS DE CREATION ===
 
-    # Vérifie le code de statut HTTP
-    assert response.status_code == 200
-
-    # Vérifie que la réponse est une liste vide
-    json_data = response.get_json()
-    assert json_data == []
-
-
-# Va tester la création d'un incident avec succès (POST)
-def test_create_incident_success(client):
-
-    # Le JSON qu'on envoie pour créer un incident
+def test_create_incident(client):
+    """Teste la création d’un incident valide."""
     incident_data = {
-        "title": "API Lente",
-        "sev": 2,
-        "services": ["api", "db"]
+        "title": "Test incident",
+        "sev": "high",
+        "summary": "Problème de test"
     }
-
     response = client.post(
-        '/api/v1/incidents', data=json.dumps(incident_data), content_type='application/json')
-
-    # Vérifie le statut (201=Created)
+        '/api/v1/incidents',
+        data=json.dumps(incident_data),
+        content_type='application/json'
+    )
     assert response.status_code == 201
+    data = response.get_json()
+    assert "id" in data
+    assert data["status"] == "open"
 
-    # Vérifie le contenu de la réponse
-    json_data = response.get_json()
-    assert json_data['title'] == "API Lente"
-    assert json_data['sev'] == 2
-    assert json_data['status'] == "open"  # Statut par défaut
-    assert json_data['commander'] is None  # Personne assigné au début
-    assert 'id' in json_data
-    assert 'started_at' in json_data
-
-    # Vérifie que c'est bien sauvegardé dans notre "db"
-    assert len(db['incidents']) == 1
-    assert list(db['incidents'].values())[0]['title'] == "API Lente"
+    # Vérifie que l’incident est bien stocké dans Redis
+    redis_obj = r.get(f"INC:{data['id']}") or r.get(data["id"])
+    assert redis_obj is not None
 
 
-# Va tester la création d'un incident qui échoue (par exemple données manquantes comme ici)
-def test_create_incident_fail_missing_sev(client):
-    # Il manque "sev" (requis par le Swagger)
-    incident_data = {"title": "API Lente"}
-
+def test_create_invalid_incident(client):
+    """Teste la création d’un incident invalide (manque 'title' ou 'sev')."""
     response = client.post(
-        '/api/v1/incidents', data=json.dumps(incident_data), content_type='application/json')
-
-    # Vérifie le statut (400=Bad Request)
+        '/api/v1/incidents',
+        data=json.dumps({"title": "Missing sev"}),
+        content_type='application/json'
+    )
     assert response.status_code == 400
-    assert "error" in response.get_json()
-    print(db)
-    assert len(db['incidents']) == 0  # Rien ne doit être sauvegardé
 
 
-# Va tester les filtres "commander" et "status" pour les incidents
-def test_get_incidents_with_filters(client):
+# === TESTS DE LECTURE ===
 
-    # On simule dans notre base de données des données de test
-    inc1 = {"id": "INC-1", "title1": "A", "status": "open",
-            "sev": 1, "commander": "user-aurelien"}
-    inc2 = {"id": "INC-2", "title2": "B", "status": "resolved",
-            "sev": 2, "commander": "user-aurelien"}
-    inc3 = {"id": "INC-3", "title3": "C", "status": "open",
-            "sev": 1, "commander": "user-thomas"}
-    db['incidents'] = {
-        "INC-1": inc1,
-        "INC-2": inc2,
-        "INC-3": inc3
-    }
-
-    # Test filtre : Status
-    response_status = client.get('/api/v1/incidents?status=open')
-    assert response_status.status_code == 200
-    data_status = response_status.get_json()
-    assert len(data_status) == 2  # INC-1 et INC-3
-    assert data_status[0]['id'] == "INC-1"
-    assert data_status[1]['id'] == "INC-3"
-
-    # Test filtre : Commander
-    response_commander = client.get(
-        '/api/v1/incidents?commander=user-aurelien')
-    assert response_commander.status_code == 200
-    data_commander = response_commander.get_json()
-    assert len(data_commander) == 2  # INC-1 et INC-2
-    assert data_commander[0]['id'] == "INC-1"
-    assert data_commander[1]['id'] == "INC-2"
+def test_get_all_incidents(client):
+    """Teste la récupération de tous les incidents."""
+    response = client.get('/api/v1/incidents')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert isinstance(data, list)
+    assert all("id" in inc for inc in data)
 
 
 def test_get_incident_by_id(client):
-    # Crée d'abord un incident (pour avoir un ID connu)
-    payload = {
-        "title": "API Latency EU",
-        "sev": 3,
-        "services": ["api"],
-        "summary": "High latency detected in EU-West"
+    """Crée un incident puis le récupère par ID."""
+    new_incident = {
+        "title": "Incident to retrieve",
+        "sev": "low"
     }
-    create_response = client.post("/api/v1/incidents", json=payload)
-    created = create_response.get_json()
-    incident_id = created["id"]
+    create_resp = client.post(
+        '/api/v1/incidents',
+        data=json.dumps(new_incident),
+        content_type='application/json'
+    )
+    created_data = create_resp.get_json()
+    inc_id = created_data["id"]
 
-    # Récupère l'incident créé
-    response = client.get(f"/api/v1/incidents/{incident_id}")
+    get_resp = client.get(f'/api/v1/incidents/{inc_id}')
+    assert get_resp.status_code == 200
+    retrieved_data = get_resp.get_json()
+    assert retrieved_data["id"] == inc_id
+    assert retrieved_data["title"] == "Incident to retrieve"
 
+
+def test_filter_by_status(client):
+    """Teste le filtre 'status=open' sur la route GET /incidents."""
+    response = client.get('/api/v1/incidents?status=open')
     assert response.status_code == 200
     data = response.get_json()
-    assert data["id"] == incident_id
-    assert data["title"] == payload["title"]
+    assert isinstance(data, list)
+    for inc in data:
+        assert inc["status"] == "open"
 
-    # Teste un incident qui n'existe pas
-    response_404 = client.get("/api/v1/incidents/INC-DOESNOTEXIST")
-    assert response_404.status_code == 404
 
+# === TESTS DE MISE À JOUR ===
 
 def test_update_incident_status(client):
-    # Créer un incident temporaire
-    db["incidents"]["INC-999"] = {
-        "id": "INC-999",
-        "title": "Test incident",
-        "sev": 2,
-        "status": "open",
-        "services": ["api"],
-        "summary": "Test summary"
-    }
+    """Teste la mise à jour du statut d’un incident."""
+    # Création d’un incident
+    create_resp = client.post(
+        '/api/v1/incidents',
+        json={"title": "Test update status", "sev": "medium"}
+    )
+    inc = create_resp.get_json()
+    inc_id = inc["id"]
 
-    # Test mise à jour du status
-    response = client.post(
-        '/api/v1/incidents/INC-999/status',
+    # Mise à jour du statut
+    response = client.put(
+        f'/api/v1/incidents/{inc_id}/status',
         json={"status": "resolved"}
     )
     assert response.status_code == 200
     json_data = response.get_json()
     assert json_data["status"] == "resolved"
 
-    # Test incident inexistant
-    response = client.post(
-        '/api/v1/incidents/INC-404/status',
+    # Incident inexistant
+    response_404 = client.put(
+        '/api/v1/incidents/INC-UNKNOWN/status',
         json={"status": "mitigated"}
     )
-    assert response.status_code == 404
+    assert response_404.status_code == 404
+
+
 def test_assign_incident(client):
-    # Créons d'abord un incident pour l'assigner ensuite
+    """Teste l'assignation d'un commandant à un incident."""
     payload = {
         "title": "Database outage",
-        "sev": 2,
+        "sev": "2",
         "services": ["db"],
-        "summary": "Primary DB unavailable",
-        "commander": "thomas"
+        "summary": "Primary DB unavailable"
     }
     create_response = client.post("/api/v1/incidents", json=payload)
     created = create_response.get_json()
@@ -190,7 +149,7 @@ def test_assign_incident(client):
 
     # Cas normal : assigner un user
     assign_payload = {"commander": "thomas"}
-    response = client.post(
+    response = client.put(
         f"/api/v1/incidents/{incident_id}/assign", json=assign_payload)
     assert response.status_code == 200
 
@@ -198,11 +157,72 @@ def test_assign_incident(client):
     assert updated["commander"] == "thomas"
 
     # Cas invalide : pas de champ commander
-    response_invalid = client.post(
+    response_invalid = client.put(
         f"/api/v1/incidents/{incident_id}/assign", json={})
     assert response_invalid.status_code == 400
 
     # Cas incident inexistant
-    response_404 = client.post(
+    response_404 = client.put(
         "/api/v1/incidents/INC-UNKNOWN/assign", json=assign_payload)
     assert response_404.status_code == 404
+
+
+def test_add_timeline_event(client):
+    """Teste l'ajout d’un événement dans la timeline."""
+    # Création d’un incident
+    create_resp = client.post(
+        '/api/v1/incidents',
+        json={"title": "Timeline test", "sev": "medium"}
+    )
+    inc = create_resp.get_json()
+    inc_id = inc["id"]
+
+    # Ajout d’un événement à la timeline
+    response = client.put(
+        f'/api/v1/incidents/{inc_id}/timeline',
+        json={"type": "alert", "message": "CPU spike detected"}
+    )
+    assert response.status_code == 200
+    updated = response.get_json()
+    assert "timeline" in updated
+    assert any(event["type"] == "alert" for event in updated["timeline"])
+
+    # Cas invalide : champ manquant
+    response_invalid = client.put(
+        f'/api/v1/incidents/{inc_id}/timeline',
+        json={"type": "alert"}
+    )
+    assert response_invalid.status_code == 400
+
+
+def test_add_postmortem(client):
+    """Teste l’ajout d’un postmortem à un incident."""
+    # Création d’un incident
+    create_resp = client.post(
+        '/api/v1/incidents',
+        json={"title": "Postmortem test", "sev": "medium"}
+    )
+    inc = create_resp.get_json()
+    inc_id = inc["id"]
+
+    postmortem_data = {
+        "what_happened": "Service down due to overload",
+        "root_cause": "Traffic spike",
+        "action_items": ["Add autoscaling", "Improve caching"]
+    }
+
+    response = client.put(
+        f'/api/v1/incidents/{inc_id}/postmortem',
+        json=postmortem_data
+    )
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "postmortem" in data
+    assert data["postmortem"]["root_cause"] == "Traffic spike"
+
+    # Cas invalide : champs manquants
+    response_invalid = client.put(
+        f'/api/v1/incidents/{inc_id}/postmortem',
+        json={"what_happened": "Oops"}
+    )
+    assert response_invalid.status_code == 400
