@@ -445,6 +445,134 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/User'
+<<<<<<< HEAD
+        '401':
+          description: Unauthorized - token missing or invalid
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Authenticate user and receive JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: john_doe
+                password:
+                  type: string
+                  format: password
+                  example: securePassword123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Invalid credentials
+
+  /api/v1/users/{user_id}:
+    get:
+      tags:
+        paths:
+  /users/{user_id}:
+    get:
+      summary: Get user by ID
+      description: Retrieve user details by user ID (requires authentication)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []  
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The unique identifier of the user
+          schema:
+            type: string
+          example: USR-1699876543
+      responses:
+        '200':
+          description: User details successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized - invalid or missing token
+        '404':
+          description: User not found
+
+    put:
+      tags:
+        - Users
+      summary: Update user
+      description: Update user details (users can update their own info, admins can update any user)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: USR-1699876543
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: newemail@example.com
+                password:
+                  type: string
+                  format: password
+                  example: newPassword123
+                role:
+                  type: string
+                  enum: [user, sre, admin]
+                  example: sre
+                  description: Only admins can change roles
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User updated successfully
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+=======
           examples:
             tous_les_utilisateurs:
               summary: Tous les utilisateurs
@@ -480,6 +608,7 @@ paths:
                     email: "super.admin@example.com"
                     role: "ADMIN"
                     created_at: "2025-11-10T12:00:00Z"
+>>>>>>> origin/Microservice-USER
         '403':
           description: Accès refusé (token invalide ou permissions insuffisantes)
           content:
