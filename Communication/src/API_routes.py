@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 
 #Route test
-@app.route("api/v1/test", methods=['GET'])
+@app.route("/api/v1/test", methods=['GET'])
 def test():
     test1 = {"id":1, "name":"Aude", "Lastname":"Javel"}
     return jsonify(test1)
@@ -63,9 +63,37 @@ def get_public_status():
         "status": "success",
         "count": len(INCIDENTS),
         "data": INCIDENTS
-    }), 200
+    }), 200 
 
+@app.route("/api/v1/email", methods=["POST"])
+def send_email():
+    """
+    Route 3: Simule l'envoi d'un email.
+    Accepte un JSON avec 'to', 'subject', et 'body'.
+    """
+    data = request.get_json()
+
+    if not data or "to" not in data or "subject" not in data or "body" not in data:
+        return jsonify({"erreur": "Données manquantes: 'to', 'subject', 'body' requis"}), 400
+
+    to_email = data["to"]
+    subject = data["subject"]
+    body = data["body"]
+
+    print("="*30)
+    print(f"SIMULATION D'ENVOI D'EMAIL")
+    print(f"À: {to_email}")
+    print(f"Sujet: {subject}")
+    print("="*30)
+    return jsonify({
+        "message": "Email simulé envoyé avec succès",
+        "email_data": data
+    }), 200 
 
 app.run()
+
+
+
+
 
 
