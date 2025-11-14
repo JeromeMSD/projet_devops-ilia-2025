@@ -20,7 +20,7 @@ function DashboardPage() {
     const criticalCount = criticalIncidents.length;
 
     const assignedIncidents = mockIncidents.filter(
-        (incident: MockIncident) => incident.assignee_id === user.user_id,
+        (incident: MockIncident) => incident.assignee_id === user.id_user,
     );
     return (
         // Conteneur centré
