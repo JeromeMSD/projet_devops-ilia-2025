@@ -108,3 +108,19 @@ def test_update_existing_flag(client):
     data = response.get_json()
     assert data['description'] == "Description mise à jour."
     assert "dev" in data['roles']
+
+def test_toggle_flag(client):
+    #Teste l'activation/désactivation d'un flag existant.
+    # D'abord, s'assurer que le flag 'beta-feature' est désactivé
+    response = client.get('/admin/flags')
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data['beta-feature']['enabled'] is False
+
+    # Activer le flag
+    response_toggle = client.post('/admin/toggle/beta-feature')
+    assert response_toggle.status_code == 200
+    data_toggle = response_toggle.get_json()
+
+    #verification de l'etat du flag
+    assert data_toggle['enabled'] is True
