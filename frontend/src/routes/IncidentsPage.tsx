@@ -132,14 +132,13 @@ function IncidentsPage() {
           </div>
         ) : (
           paginatedIncidents.map((incident) => (
-            <a
-              key={incident.id}
-              // Prépare la route pour la page de détail (ex: /incidents/INC-123)
-              href={`/incidents/${incident.id}`} 
-              className="block border rounded p-4 shadow hover:shadow-lg transition hover:bg-gray-50 cursor-pointer"
+          <div
+            key={incident.id}
+            // href={`/incidents/${incident.id}`} // Lien désactivé temporairement
+            className="block border rounded p-4 shadow hover:shadow-lg transition bg-white"
             >
               <div className="flex justify-between items-center mb-2">
-                <h2 className="text-xl font-semibold text-blue-700 hover:underline">
+                <h2 className="text-xl font-semibold text-slate-900">
                   {incident.title}
                   {/* Affichage de l'ID pour plus de clarté */}
                   <span className="text-gray-400 font-light text-lg ml-2">({incident.id})</span>
@@ -167,7 +166,7 @@ function IncidentsPage() {
                 <span>Commandant : {incident.commander}</span>
                 <span>Date : {formatIncidentDate(incident.started_at)}</span>
               </p>
-            </a>
+            </div>
           ))
         )}
       </div>
