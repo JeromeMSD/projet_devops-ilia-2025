@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import redis
 import json
@@ -40,42 +41,65 @@ def add_provider(provider: ProviderCreate):
 def refresh_provider(provider: str):
     provider = provider.lower()
 
-    raw = r.hget("csp:providers", provider)
-    if raw is None:
-        raise HTTPException(status_code=404, detail="Provider not found")
+    raw_provider = r.hget("csp:providers", provider)
+    if not raw_provider:
+        return {"error": "Provider not found"}
 
-    cfg = json.loads(raw)
+    provider_data = json.loads(raw_provider)
+    feed_url = provider_data["feed_url"]
+    ptype = provider_data["type"]
 
-    try:
-        resp = requests.get(cfg["feed_url"], timeout=10)
-        data = resp.json()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch feed: {e}")
+    # --- RESET EVENTS FOR THIS PROVIDER ---
+    r.delete(f"csp:events:{provider}")
 
-    # Extract some sample fields (depends on actual Cloudflare API)
+    # --- FETCH DATA ---
+    import requests
+    resp = requests.get(feed_url)
+    data = resp.json()
+
+    # --- EXTRACT EVENTS ---
     events = []
-    for component in data.get("components", []):
+    for comp in data["components"]:
         events.append({
             "provider": provider,
-            "service": component.get("name"),
-            "status": component.get("status")
+            "service": comp["name"],
+            "status": comp["status"]
         })
 
-    # Store events in redis LIST
-    r.delete(f"csp:events:{provider}")
-    for ev in events:
-        r.rpush(f"csp:events:{provider}", json.dumps(ev))
+    # --- STORE CLEAN EVENTS ---
+    for e in events:
+        r.rpush(f"csp:events:{provider}", json.dumps(e))
 
-    return {"message": f"Refreshed {len(events)} events", "events": events}
+    return {"message": f"Refreshed {len(events)} events", "provider": provider}
+
 
 # -------------------------
 # Endpoint: Get events
 # -------------------------
 @app.get("/api/v1/csp/events")
-def list_events():
-    all_events = []
+def get_events(active: bool = False):
+# Return all CSP events across providers. 
+# If active=true, only non-operational statuses are returned.
+    
+    events = []
+
+    # Find all keys containing events
     keys = r.keys("csp:events:*")
-    for k in keys:
-        for raw in r.lrange(k, 0, -1):
-            all_events.append(json.loads(raw))
-    return all_events
+
+    for key in keys:
+        provider = key.split(":")[-1]  # extract provider name
+        raw_list = r.lrange(key, 0, -1)
+
+        for item in raw_list:
+            event = json.loads(item)
+
+            if active:
+                # Filter only 'bad' statuses
+                if event["status"] == "operational":
+                    continue
+
+            events.append(event)
+    return JSONResponse(content=events, indent=2)
+#   return events
+
+
