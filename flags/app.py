@@ -1,6 +1,6 @@
-from flask import Flask, request, jsonify
+from flask import request, jsonify, Blueprint
 
-app = Flask(__name__)
+flags_bp = Blueprint('flags', __name__)
 
 feature_flags = {
     "dashboard": {
@@ -15,7 +15,7 @@ feature_flags = {
     }
 }
 
-@app.route('/flags', methods=['GET'])
+@flags_bp.route('/flags', methods=['GET'])
 def get_flags_for_user():
 
 
@@ -36,12 +36,12 @@ def get_flags_for_user():
 
     return jsonify(applicable_flags)
 
-@app.route('/admin/flags', methods=['GET'])
+@flags_bp.route('/admin/flags', methods=['GET'])
 def get_all_flags():
     """Retourne la liste complète de tous les feature flags et leur configuration."""
     return jsonify(feature_flags)
 
-@app.route('/admin/flags/<string:flag_name>', methods=['POST'])
+@flags_bp.route('/admin/flags/<string:flag_name>', methods=['POST'])
 def create_or_update_flag(flag_name):
 
     #Crée un feature flag s'il n'existe pas (HTTP 201) ou le met à jour complètement s'il existe (HTTP 200).
@@ -64,7 +64,7 @@ def create_or_update_flag(flag_name):
     
     return jsonify(feature_flags[flag_name]), http_status
 
-@app.route('/admin/toggle/<string:flag_name>', methods=['POST'])
+@flags_bp.route('/admin/toggle/<string:flag_name>', methods=['POST'])
 def toggle_flag(flag_name):
     #active ou désactive un feature flag existant
     if flag_name in feature_flags:
@@ -72,6 +72,3 @@ def toggle_flag(flag_name):
         return jsonify(feature_flags[flag_name]), 200
     else:
         return jsonify({"error": "Flag not found"}), 404
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
