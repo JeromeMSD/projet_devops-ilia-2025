@@ -1,0 +1,74 @@
+services:
+  # Redis service
+  redis:
+    image: redis:7-alpine
+    container_name: user-microservice-redis
+    ports:
+      - "6385:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservice-network
+
+  # User microservice
+  user-microservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: user-microservice
+    ports:
+      - "${MICRO_SERVICE_USER_PORT:-5010}:${MICRO_SERVICE_USER_PORT:-5010}"
+    env_file:
+      - .env
+    environment:
+      # Flask configuration
+      - FLASK_APP=${FLASK_APP:-src.main:create_app}
+      - FLASK_ENV=${FLASK_ENV:-development}
+      - FLASK_DEBUG=${FLASK_DEBUG:-True}
+      - FLASK_RUN_PORT=${MICRO_SERVICE_USER_PORT:-5010}
+      - FLASK_RUN_HOST=${MICRO_SERVICE_USER_HOST:-0.0.0.0}
+
+      # Microservice configuration
+      - MICRO_SERVICE_USER_HOST=${MICRO_SERVICE_USER_HOST:-0.0.0.0}
+      - MICRO_SERVICE_USER_PORT=${MICRO_SERVICE_USER_PORT:-5010}
+
+      # Redis configuration (override for Docker)
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_DB_USERS=${REDIS_DB_USERS:-0}
+      - REDIS_TEST_DB=${REDIS_TEST_DB:-1}
+
+      # JWT configuration
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret-key}
+      - RESET_TOKEN_KEY=${RESET_TOKEN:-reset:token:}
+
+      # User keys
+      - EMAIL_KEY=${EMAIL_KEY:-email:}
+      - USER_KEY=${USER_KEY:-user:}
+
+      # API configuration
+      - BASE_API_URL=${BASE_API_URL:-/api/v1}
+      - FLASK_TESTING=${FLASK_TESTING:-false}
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./swagger.yaml:/app/swagger.yaml
+      - ./.env:/app/.env
+    networks:
+      - microservice-network
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  microservice-network:
+    driver: bridge
