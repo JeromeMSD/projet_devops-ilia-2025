@@ -12,6 +12,8 @@ import { ResetPasswordPage } from '@/routes/ResetPasswordPage';
 import ProfilePage from '@/routes/ProfilePage.tsx';
 import DashboardPage from '@/routes/DashboardPage';
 import IncidentsPage from '@/routes/IncidentsPage';
+import IncidentCreatePage from '@/routes/IncidentCreatePage.tsx';
+import { Toaster } from '@/components/ui/sonner.tsx';
 
 export default function App() {
     return (
@@ -30,10 +32,13 @@ export default function App() {
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/dashboard" element={(<ProtectedRoute><DashboardPage /></ProtectedRoute>)} />
+                    <Route path="/admin/incidents/new"
+                           element={(<ProtectedRoute><IncidentCreatePage /></ProtectedRoute>)} />
                     {/* catch-all for unknown routes */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </main>
+            <Toaster />
         </div>
     );
 }

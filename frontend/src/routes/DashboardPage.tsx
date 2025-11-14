@@ -1,6 +1,7 @@
 import { type MockIncident, mockIncidents } from '@/mocks/mockData';
 import type { AuthUser } from '@/auth/types.ts';
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
+import { Link } from 'react-router';
 
 function DashboardPage() {
     const user = useAuthUser<AuthUser | null>();
@@ -26,9 +27,17 @@ function DashboardPage() {
         // Conteneur centré
         <div className="p-10 max-w-6xl mx-auto space-y-10 min-h-screen">
 
-            <h1 className="text-4xl font-extrabold text-gray-800 border-b pb-4">
-                Tableau de Bord SRE
-            </h1>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <h1 className="text-4xl font-extrabold text-gray-800 border-b pb-4">
+                    Tableau de Bord SRE
+                </h1>
+                <Link
+                    to="/admin/incidents/new"
+                    className="inline-flex items-center justify-center rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                >
+                    Signaler un incident
+                </Link>
+            </div>
             {/* Résumé des Critiques (Simule un composant Stat Card) */}
             <div className="p-6 rounded-xl shadow-2xl bg-white border-l-8 border-red-600">
                 <p className="text-lg text-gray-500">Incidents Critiques en Cours</p>
