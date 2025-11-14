@@ -23,24 +23,30 @@ paths:
                 $ref: '#/components/schemas/PublicAnnoucementResponse'
         "400": { description: Requête invalide }
 
-  /api/v1/public/status:
-    get:
-      summary: Récupérer le statut public global
-      responses:
-        "200":
-          description: Liste d'incidents publics et leurs messages
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "ok"
-                  derniers_incidents:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/PublicIncidentStatus'
+/api/status:
+  get:
+    summary: Récupérer le statut public global
+    responses:
+      "200":
+        description: Liste des incidents publics récents ou en cours
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: Statut de la requête
+                  example: "success"
+                count:
+                  type: integer
+                  description: Nombre d'incidents renvoyés
+                  example: 2
+                data:
+                  type: array
+                  description: Liste des incidents
+                  items:
+                    $ref: "#/components/schemas/PublicIncidentStatus"
 
   /api/v1/webhooks:
     post:
