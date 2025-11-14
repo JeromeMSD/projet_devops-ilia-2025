@@ -28,6 +28,9 @@ export function Navbar() {
                         <NavLink to="/about" className={linkClasses}>
                             About
                         </NavLink>
+                            <NavLink to="/incidents" className={linkClasses}>
+                            Incidents
+                        </NavLink>
                     </nav>
                 </div>
             </div>
