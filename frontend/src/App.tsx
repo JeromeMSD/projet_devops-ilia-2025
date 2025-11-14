@@ -7,29 +7,30 @@ import { LoginPage } from '@/routes/LoginPage';
 import { NotFound } from '@/routes/NotFound';
 import { Dashboard } from '@/routes/Dashboard';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
+import ProfilePage from '@/routes/ProfilePage.tsx';
 
 export default function App() {
     return (
         <div
             className={`flex min-h-screen flex-col transition-colors duration-300 bg-gradient-to-b from-slate-50 via-white to-slate-100 text-slate-900 accent-[#2563eb]`}>
-            <Navbar/>
+            <Navbar />
 
             <main className="flex-1 flex justify-center items-center px-4 py-10 md:px-8">
                 <Routes>
-                    <Route path="/" element={<Home/>}/>
-                    <Route path="/login" element={<LoginPage/>}/>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/login" element={<LoginPage />} />
                     <Route
                         path="/dashboard"
                         element={(
                             <ProtectedRoute>
-                                <Dashboard/>
+                                <Dashboard />
                             </ProtectedRoute>
                         )}
                     />
 
-                    <Route path="/about" element={<About/>}/>
-                    <Route path="/me" element={<ProfilePage/>}/>
-                    <Route path="*" element={<NotFound/>}/>
+                    <Route path="/about" element={<About />} />
+                    <Route path="/me" element={<ProfilePage />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </main>
         </div>
