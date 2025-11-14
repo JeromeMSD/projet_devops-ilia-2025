@@ -3,9 +3,13 @@ name: CI Build Microservice INCIDENT
 
 on:
   push:
-    branches: [ "microservice-INCIDENT"]
+    branches:  
+      - Microservice-INCIDENT
+      - 'Microservice-INCIDENT/**'
   pull_request:
-    branches: [ "microservice-INCIDENT"]
+    branches: 
+     - Microservice-INCIDENT
+    - 'Microservice-INCIDENT/**'
   workflow_dispatch:  # permet aussi le déclenchement manuel
 
 jobs:

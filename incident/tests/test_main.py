@@ -1,7 +1,7 @@
 import json
 import pytest
-from redis_link import redis, r
 from main import app, saveJSONFile, loadJSONFile
+from redis_link import *
 
 @pytest.fixture
 def client():
