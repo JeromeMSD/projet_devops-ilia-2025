@@ -61,7 +61,6 @@ Suivez ces étapes pour lancer le microservice sur votre machine locale.
     ```bash
     python3 src/API_routes.py
     ```
-    *L'API est maintenant accessible à l'adresse (par défaut) : `http://localhost:5000`*
 
 ## Tests (TDD)
 
