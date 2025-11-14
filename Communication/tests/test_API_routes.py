@@ -2,6 +2,7 @@ import pytest
 import json
 import sys
 import os
+from app import app
 
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
@@ -67,3 +68,23 @@ def test_CreateAnnoucement():
 
     assert annonces2["message"] == message["message"]
     assert annonces2["etat"] == message["etat"]
+
+#vérifie que la route api/status renvoie le bon format de données
+def test_status_api_format():
+    app.config["TESTING"] = True
+    client = app.test_client()
+
+    response = client.get("/api/status")
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+    assert isinstance(data, dict)
+
+    assert "status" in data
+    assert "count" in data
+    assert "data" in data
+
+    assert isinstance(data["status"], str)
+    assert isinstance(data["count"], int)
+    assert isinstance(data["data"], list)
