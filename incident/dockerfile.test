@@ -1,0 +1,18 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Installer Redis et dépendances
+RUN apt-get update && apt-get install -y redis-server && apt-get clean && rm -rf /var/lib/apt/lists/*
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier le code source et les tests
+COPY src/ ./src/
+COPY tests/ ./tests/
+COPY start.sh .
+
+RUN chmod +x start.sh
+
+# Lancer Redis et pytest
+CMD ["bash", "-c", "redis-server --daemonize yes && sleep 1 && pytest -v tests"]
