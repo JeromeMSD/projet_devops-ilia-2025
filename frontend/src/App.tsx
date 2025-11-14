@@ -11,6 +11,7 @@ import { ForgotPasswordPage } from '@/routes/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/routes/ResetPasswordPage';
 import ProfilePage from '@/routes/ProfilePage.tsx';
 import DashboardPage from '@/routes/DashboardPage';
+import IncidentsPage from '@/routes/IncidentsPage';
 
 export default function App() {
     return (
@@ -21,6 +22,9 @@ export default function App() {
             <main className="flex-1 flex justify-center items-center px-4 py-10 md:px-8">
                 <Routes>
                     <Route path="/" element={<Home/>}/>
+                    <Route path="/me" element={<ProfilePage />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/incidents" element={<IncidentsPage/>}/>
                     <Route path="/login" element={<LoginPage/>}/>
                     <Route path="/register" element={<RegisterPage/>}/>
                     <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
@@ -34,8 +38,6 @@ export default function App() {
                         )}
                     />
 
-                    <Route path="/about" element={<About />} />
-                    <Route path="/me" element={<ProfilePage />} />
                     {/* catch-all for unknown routes */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>
