@@ -20,6 +20,12 @@ Vous pouvez aussi lancer le frontend avec Docker :
 npm run docker
 ```
 
+Ou lancer le service défini dans `docker-compose.yml` :
+
+```shell
+docker compose up --build
+```
+
 L'application sera disponible sur le port 3000.
 
 ## Lint
