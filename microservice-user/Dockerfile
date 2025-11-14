@@ -7,6 +7,11 @@ WORKDIR /app
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
+
+# hadolint ignore=DL3013
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \

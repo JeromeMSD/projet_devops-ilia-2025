@@ -4,12 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-<<<<<<< HEAD
+
 USER_KEY = os.getenv('USER_KEY', 'user:')
 EMAIL_KEY = os.getenv('EMAIL_KEY', 'email:')
 
-=======
->>>>>>> origin/Microservice-USER
 # Redis connection configuration
 REDIS_HOST = os.getenv('REDIS_HOST')
 REDIS_PORT = int(os.getenv('REDIS_PORT'))
