@@ -2,12 +2,12 @@ import pytest
 import json
 from flask import Flask
 from unittest.mock import patch
-from src.routes.find_one_user import user_bp
+from src.routes.find_one_user import one_user_bp
 
 @pytest.fixture
 def client():
     app = Flask(__name__)
-    app.register_blueprint(user_bp)
+    app.register_blueprint(one_user_bp)
     app.testing = True
     with app.test_client() as client:
         yield client
