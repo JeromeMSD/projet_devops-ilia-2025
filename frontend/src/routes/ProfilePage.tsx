@@ -41,7 +41,7 @@ function ProfilePage() {
                     </p>
 
                     {/* Rôle (Simule un Badge) */}
-                    <span className="mt-2 inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full tracking-wide 
+                    <span className="mt-2 inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full tracking-wide
                                     bg-red-500 text-white uppercase shadow-md">
                         {user.role}
                     </span>

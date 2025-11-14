@@ -32,15 +32,17 @@ describe('App', () => {
     const renderWithRouter = () =>
         render(
             <BrowserRouter>
-                <App/>
+                <App />
             </BrowserRouter>,
         );
 
-    it('shows the hero content and navigation links', () => {
+    it('shows the navigation links', () => {
         renderWithRouter();
 
-        expect(screen.getByRole('heading', { level: 1, name: /friendly react \+ vite baseline/i })).toBeInTheDocument();
         expect(screen.getByRole('link', { name: /home/i })).toBeInTheDocument();
         expect(screen.getByRole('link', { name: /about/i })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /incidents/i })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /login/i })).toBeInTheDocument();
+        expect(screen.getByRole('link', { name: /register/i })).toBeInTheDocument();
     });
 });

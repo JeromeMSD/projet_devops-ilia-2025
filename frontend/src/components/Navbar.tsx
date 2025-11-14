@@ -48,9 +48,9 @@ export function Navbar() {
             <div
                 className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <p className="text-xs uppercase tracking-[0.2em] opacity-70">Vite + Router</p>
+                    <p className="text-xs uppercase tracking-[0.2em] opacity-70">projet_devops-4A ilia-2025</p>
                     <p className="text-lg font-semibold text-[#2563eb]">
-                        Frontend Playground
+                        Polytech Dijon
                     </p>
                 </div>
 
