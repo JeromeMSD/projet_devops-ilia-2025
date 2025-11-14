@@ -2,7 +2,6 @@ import pytest
 import json
 import sys
 import os
-from app import app
 
 current_dir = os.path.dirname(__file__)
 parent_dir = os.path.dirname(current_dir)
@@ -47,7 +46,7 @@ def test_CreateAnnoucement():
     }
 
     response = client.post(
-        "api/v1/public/announce",
+        "/api/v1/public/announce",
         data = json.dumps(test_message),
         content_type="application/json"
     )
