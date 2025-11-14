@@ -2,11 +2,13 @@ export interface MockIncident {
   id: string;
   title: string;
   sev: number;
+  severity: "critique" | "majeure" | "mineure";
   services: string[];
   summary: string;
   status: "open" | "mitigated" | "resolved";
   started_at: number;
   commander: string;
+  assignee_id?: string;
 }
 
 export interface MockUser {
@@ -30,6 +32,8 @@ export const mockIncidents: MockIncident[] = [
     id: "INC-001",
     title: "Panne de la base de données principale",
     sev: 1,
+    severity: "critique",
+    assignee_id: "user-123-abc",
     services: ["db", "backend"],
     summary: "La base de données principale ne répond plus.",
     status: "open",
@@ -40,6 +44,8 @@ export const mockIncidents: MockIncident[] = [
     id: "INC-002",
     title: "Latence API Europe",
     sev: 2,
+    severity: "majeure",
+    assignee_id: "user-456-xyz",
     services: ["api"],
     summary: "Les temps de réponse API dépassaient 2s en EU-West.",
     status: "resolved",
@@ -50,6 +56,7 @@ export const mockIncidents: MockIncident[] = [
     id: "INC-003",
     title: "Problème de cache CDN",
     sev: 3,
+    severity: "mineure",
     services: ["cdn"],
     summary: "Le cache CDN renvoyait des versions obsolètes.",
     status: "mitigated",
