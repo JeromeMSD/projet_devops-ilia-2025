@@ -48,6 +48,26 @@ paths:
                   items:
                     $ref: "#/components/schemas/PublicIncidentStatus"
 
+  /api/v1/email:
+    post:
+      summary: Envoyer un email
+      description: Simule l'envoi d'un email à un destinataire.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest' 
+      responses:
+        "200":
+          description: Email simulé envoyé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailResponse' 
+        "400":
+          description: Données manquantes
+
   /api/v1/webhooks:
     post:
       summary: Enregistrer un webhook pour un type d'événement spécifique
