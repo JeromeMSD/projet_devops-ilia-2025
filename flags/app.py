@@ -20,8 +20,6 @@ def get_flags_for_user():
 
 
     #Récupère les flags applicables à un utilisateur en fonction de son rôle.
-    
-    
     # 1. Récupérer le rôle depuis les paramètres de l'URL (ex: ?role=admin)
     user_role = request.args.get('role')
     
@@ -65,6 +63,15 @@ def create_or_update_flag(flag_name):
     }
     
     return jsonify(feature_flags[flag_name]), http_status
+
+@app.route('/admin/toggle/<string:flag_name>', methods=['POST'])
+def toggle_flag(flag_name):
+    #active ou désactive un feature flag existant
+    if flag_name in feature_flags:
+        feature_flags[flag_name]["enabled"] = not feature_flags[flag_name]["enabled"]
+        return jsonify(feature_flags[flag_name]), 200
+    else:
+        return jsonify({"error": "Flag not found"}), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
