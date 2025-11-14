@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  flask_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.flask  # ton Dockerfile Flask
+    container_name: mon_flask
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests   # <=== ajoute cette ligne
+      - ./swagger.yaml:/app/swagger.yaml
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+  redis:
+    image: redis:latest
+    container_name: mon_redis
+    ports:
+      - "6379:6379"
