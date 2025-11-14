@@ -1,0 +1,33 @@
+name: 'Analyse de Sécurité (Trivy) - Microservice Communication'
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - communication
+    paths:
+      - 'Communication/**' 
+
+jobs:
+  build-and-scan:
+    name: Construire et Scanner l'image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v3
+      - name: 'Construire l'image Docker'
+        run: |
+          docker build \
+            --no-cache \
+            --tag local-image/communication:latest \
+            ./Communication # Indique le dossier où se trouve le Dockerfile
+      - name: 'Lancer Trivy Scan'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'local-image/communication:latest'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          severity: 'HIGH,CRITICAL'

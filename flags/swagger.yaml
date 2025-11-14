@@ -1,0 +1,126 @@
+openapi: 3.0.3
+info:
+  title: Feature Flags API (projet_devops-ilia-2025)
+  version: 1.0.0
+  description: |-
+    API pour la gestion des feature flags.
+    Ceci est la documentation correspondant à l'application `app.py`.
+servers:
+  - url: http://localhost:5000
+paths:
+  /backoffice/role={role}:
+    get:
+      summary: Affiche la page de gestion des feature flags (Backoffice)
+      parameters:
+        - in: path
+          name: role
+          required: true
+          schema:
+            type: string
+            enum: [admin, sre]
+          description: Le rôle de l'utilisateur pour accéder au backoffice.
+      responses:
+        '200':
+          description: La page HTML du backoffice.
+          content:
+            text/html:
+              schema:
+                type: string
+        '403':
+          description: Accès refusé si le rôle n'est pas 'admin' ou 'sre'.
+
+  /flags:
+    get:
+      summary: Récupérer les flags applicables pour un rôle
+      parameters:
+        - in: query
+          name: role
+          required: false
+          schema:
+            type: string
+            example: "admin"
+      responses:
+        "200":
+          description: Un objet JSON où les clés sont les noms des flags et les valeurs des booléens.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: boolean
+                example:
+                  dashboard: true
+                  "beta-feature": false
+
+  /admin/flags:
+    get:
+      summary: Récupérer la configuration de tous les flags
+      responses:
+        "200":
+          description: La liste complète des flags et leur configuration.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/FlagConfiguration'
+
+  /admin/flags/{flag_name}:
+    post:
+      summary: Créer ou mettre à jour un feature flag.
+      parameters:
+        - in: path
+          name: flag_name
+          required: true
+          schema:
+            type: string
+            example: "new-feature"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlagInput'
+      responses:
+        "201":
+          description: Le flag a été créé avec succès.
+        "200":
+          description: Le flag a été mis à jour avec succès.
+        "400":
+          description: Requête invalide (JSON manquant ou malformé).
+  /admin/toggle/{flag_name}:
+    post:
+      summary: Activer ou désactiver un feature flag existant.
+      parameters:
+        - in: path
+          name: flag_name
+          required: true
+          schema:
+            type: string
+            example: "new-feature"
+      responses:
+        "200":
+          description: Le flag a été activé ou désactivé avec succès.
+        "404":
+          description: Le flag spécifié n'a pas été trouvé.
+
+components:
+  schemas:
+    FlagConfiguration:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        description:
+          type: string
+          example: "Description du flag."
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["admin", "sre"]
+    FlagInput:
+      description: "Structure de données pour la création/mise à jour d'un flag."
+      allOf:
+        - $ref: '#/components/schemas/FlagConfiguration'
