@@ -3,6 +3,15 @@
 Polytech Dijon - ILIA - Projet DevOps 2025
 
 ## Information lancement avec docker
+
+## Creation dockerfile
+
+```bash
+docker build -t feature-flags-app -f flags/Dockerfile .
+```
+
+### lancement  docker
+
 ```bash
 docker run -d -p 5000:5000 feature-flags-app
 ```
