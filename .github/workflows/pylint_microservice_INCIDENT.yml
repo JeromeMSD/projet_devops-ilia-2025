@@ -2,7 +2,9 @@ name: Pylint Microservice INCIDENT
 
 on: 
   pull_request:
-    branches: -Microservice-INCIDENT
+    branches:
+      - Microservice-INCIDENT
+      - 'Microservice-INCIDENT/**'
 
 jobs:
   build:
