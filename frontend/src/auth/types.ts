@@ -1,13 +1,14 @@
 export type AuthUser = {
-    user_id: string
-    username: string
+    id_user: string
+    firstname: string
+    lastname: string
     email: string
-    role: 'user' | 'sre' | 'admin'
+    role: 'USER' | 'SRE' | 'ADMIN'
+    token?: string | null
     created_at: string
 }
 
 export type LoginResponse = {
     message: string
-    token: string
     user: AuthUser
 }

@@ -17,10 +17,9 @@ const createQueryClient = () =>
         },
     });
 
-const loadUseLogin = async (mode: 'api' | 'mock' = 'api') => {
+const loadUseLogin = async () => {
     vi.resetModules();
-    vi.stubEnv('VITE_AUTH_MODE', mode);
-    vi.stubEnv('VITE_API_URL', 'http://auth.local');
+    vi.stubEnv('VITE_USER_API_URL', 'http://auth.local');
 
     return import('./useLogin');
 };
@@ -34,12 +33,57 @@ describe('useLogin', () => {
     it('performs a successful API login and caches the user', async () => {
         const loginResponse = {
             message: 'ok',
-            token: 'jwt-token',
             user: {
-                user_id: '1',
-                username: 'john',
+                id_user: '1',
+                firstname: 'John',
+                lastname: 'Doe',
                 email: 'john@example.com',
-                role: 'user' as const,
+                role: 'USER' as const,
+                created_at: new Date().toISOString(),
+                token: 'jwt-token',
+            },
+        };
+
+        global.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => loginResponse,
+        } as Response);
+
+        const { useLogin } = await loadUseLogin();
+        const queryClient = createQueryClient();
+        const wrapper = ({ children }: { children: ReactNode }) => (
+            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        );
+
+        const { result } = renderHook(() => useLogin(), { wrapper });
+
+        await act(async () => {
+            await result.current.mutateAsync({ email: 'john@example.com', password: 'secret' });
+        });
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            'http://auth.local/api/v1/login',
+            expect.objectContaining({
+                method: 'POST',
+                body: JSON.stringify({ email: 'john@example.com', password: 'secret' }),
+            }),
+        );
+        expect(signInSpy).toHaveBeenCalledWith({
+            auth: { token: 'jwt-token', type: 'Bearer' },
+            userState: loginResponse.user,
+        });
+        expect(queryClient.getQueryData(['currentUser'])).toEqual(loginResponse.user);
+    });
+
+    it('throws when the API response does not contain a token', async () => {
+        const loginResponse = {
+            message: 'ok',
+            user: {
+                id_user: '1',
+                firstname: 'John',
+                lastname: 'Doe',
+                email: 'john@example.com',
+                role: 'USER' as const,
                 created_at: new Date().toISOString(),
             },
         };
@@ -49,7 +93,7 @@ describe('useLogin', () => {
             json: async () => loginResponse,
         } as Response);
 
-        const { useLogin } = await loadUseLogin('api');
+        const { useLogin } = await loadUseLogin();
         const queryClient = createQueryClient();
         const wrapper = ({ children }: { children: ReactNode }) => (
             <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
@@ -57,27 +101,17 @@ describe('useLogin', () => {
 
         const { result } = renderHook(() => useLogin(), { wrapper });
 
-        await act(async () => {
-            await result.current.mutateAsync({ username: 'john', password: 'secret' });
-        });
-
-        expect(global.fetch).toHaveBeenCalledWith(
-            'http://auth.local/api/v1/auth/login',
-            expect.objectContaining({
-                method: 'POST',
+        await expect(
+            act(async () => {
+                await result.current.mutateAsync({ email: 'john@example.com', password: 'secret' });
             }),
-        );
-        expect(signInSpy).toHaveBeenCalledWith({
-            auth: { token: loginResponse.token, type: 'Bearer' },
-            userState: loginResponse.user,
-        });
-        expect(queryClient.getQueryData(['currentUser'])).toEqual(loginResponse.user);
+        ).rejects.toThrow('Token manquant dans la réponse du serveur');
     });
 
     it('throws a network error when the server is unreachable', async () => {
         global.fetch = vi.fn().mockRejectedValue(new Error('network down'));
 
-        const { useLogin } = await loadUseLogin('api');
+        const { useLogin } = await loadUseLogin();
         const queryClient = createQueryClient();
         const wrapper = ({ children }: { children: ReactNode }) => (
             <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
@@ -86,30 +120,8 @@ describe('useLogin', () => {
 
         await expect(
             act(async () => {
-                await result.current.mutateAsync({ username: 'a', password: 'b' });
+                await result.current.mutateAsync({ email: 'a@example.com', password: 'b' });
             }),
         ).rejects.toThrow('Impossible de joindre le serveur');
-    });
-
-    it('returns a mocked response when mock mode is enabled', async () => {
-        global.fetch = vi.fn();
-
-        const { useLogin } = await loadUseLogin('mock');
-        const queryClient = createQueryClient();
-        const wrapper = ({ children }: { children: ReactNode }) => (
-            <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-        );
-        const { result } = renderHook(() => useLogin(), { wrapper });
-
-        await act(async () => {
-            await result.current.mutateAsync({ username: 'demo', password: 'secret' });
-        });
-
-        expect(global.fetch).not.toHaveBeenCalled();
-        expect(signInSpy).toHaveBeenCalledTimes(1);
-        expect(queryClient.getQueryData(['currentUser'])).toMatchObject({
-            username: 'demo',
-            role: 'user',
-        });
     });
 });

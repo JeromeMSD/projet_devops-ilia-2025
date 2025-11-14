@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -21,8 +21,8 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { useLogin } from '@/auth/useLogin';
-import { loginSchema, type LoginFormValues } from '@/auth/login-schema';
-import { Spinner } from '@/components/ui/spinner.tsx';
+import { loginSchema, type LoginFormValues } from '@/auth/schema/login-schema.ts';
+import { Spinner } from '@/components/ui/spinner';
 
 export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
     const login = useLogin();
@@ -31,7 +31,7 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            username: '',
+            email: '',
             password: '',
         },
     });
@@ -53,7 +53,7 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                 <CardHeader>
                     <CardTitle>Connectez-vous à votre compte</CardTitle>
                     <CardDescription>
-                        Entrez votre nom d&apos;utilisateur ci-dessous pour vous connecter à votre compte
+                        Entrez votre adresse email ci-dessous pour vous connecter à votre compte
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -64,21 +64,21 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                     >
                         <FieldGroup>
                             <Controller
-                                name="username"
+                                name="email"
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
-                                        <FieldLabel htmlFor="username">Nom d&apos;utilisateur</FieldLabel>
+                                        <FieldLabel htmlFor="email">Adresse email</FieldLabel>
                                         <Input
                                             {...field}
-                                            id="username"
-                                            type="text"
-                                            placeholder="johndoe"
+                                            id="email"
+                                            type="email"
+                                            placeholder="simon.pierre@example.com"
                                             aria-invalid={fieldState.invalid}
                                             disabled={login.isPending}
                                         />
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -91,12 +91,12 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                                     <Field data-invalid={fieldState.invalid}>
                                         <div className="flex items-center">
                                             <FieldLabel htmlFor="password">Mot de passe</FieldLabel>
-                                            <a
-                                                href="#"
+                                            <Link
+                                                to="/forgot-password"
                                                 className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                                             >
                                                 Mot de passe oublié ?
-                                            </a>
+                                            </Link>
                                         </div>
                                         <Input
                                             {...field}
@@ -106,7 +106,7 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
                                             disabled={login.isPending}
                                         />
                                         {fieldState.invalid && (
-                                            <FieldError errors={[fieldState.error]}/>
+                                            <FieldError errors={[fieldState.error]} />
                                         )}
                                     </Field>
                                 )}
@@ -114,17 +114,17 @@ export function LoginForm({ className, ...props }: ComponentProps<'div'>) {
 
                             {formError && (
                                 <Field data-invalid>
-                                    <FieldError errors={[{ message: formError }]}/>
+                                    <FieldError errors={[{ message: formError }]} />
                                 </Field>
                             )}
 
                             <Field>
                                 <Button type="submit" disabled={login.isPending} className="w-full">
-                                    {login.isPending && <Spinner/>}
+                                    {login.isPending && <Spinner />}
                                     {login.isPending ? 'Connexion...' : 'Se connecter'}
                                 </Button>
                                 <FieldDescription className="text-center">
-                                    Vous n&apos;avez pas de compte ? <a href="#">S&apos;inscrire</a>
+                                    Vous n&apos;avez pas de compte ? <Link to="/register">S&apos;inscrire</Link>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>

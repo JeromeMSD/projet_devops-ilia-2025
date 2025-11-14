@@ -6,6 +6,9 @@ import { About } from '@/routes/About';
 import { LoginPage } from '@/routes/LoginPage';
 import { NotFound } from '@/routes/NotFound';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
+import { RegisterPage } from '@/routes/RegisterPage';
+import { ForgotPasswordPage } from '@/routes/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/routes/ResetPasswordPage';
 import ProfilePage from '@/routes/ProfilePage.tsx';
 import DashboardPage from '@/routes/DashboardPage';
 
@@ -17,8 +20,11 @@ export default function App() {
 
             <main className="flex-1 flex justify-center items-center px-4 py-10 md:px-8">
                 <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/" element={<Home/>}/>
+                    <Route path="/login" element={<LoginPage/>}/>
+                    <Route path="/register" element={<RegisterPage/>}/>
+                    <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
+                    <Route path="/reset-password" element={<ResetPasswordPage/>}/>
                     <Route
                         path="/dashboard"
                         element={(
@@ -30,6 +36,7 @@ export default function App() {
 
                     <Route path="/about" element={<About />} />
                     <Route path="/me" element={<ProfilePage />} />
+                    {/* catch-all for unknown routes */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>
             </main>

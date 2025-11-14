@@ -38,16 +38,6 @@ Pour lancer les tests, il faut lancer la commande suivante :
 npm run test
 ```
 
-## Authentification (mock)
-
-Par défaut, le frontend essaie d'appeler l'API (`VITE_AUTH_MODE=api`). Tant que votre microservice d'authentification n'est pas prêt, vous pouvez activer un mode mock qui simule totalement la connexion en ajoutant dans `.env.local` :
-
-```
-VITE_AUTH_MODE=mock
-```
-
-Quand l'API sera disponible, supprimez cette variable (ou remettez `api`) et, si besoin, définissez `VITE_API_URL` vers la bonne URL (ex: `http://localhost:5001`). Relancez `npm run dev` pour prendre en compte les changements.
-
 ## Sécurité – Scan Trivy
 
 Dernier scan : 2025-11-11  
