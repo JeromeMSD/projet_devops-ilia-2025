@@ -74,7 +74,7 @@ def test_status_api_format():
     app.config["TESTING"] = True
     client = app.test_client()
 
-    response = client.get("/api/status")
+    response = client.get("/api/v1/public/status")
 
     assert response.status_code == 200
 
