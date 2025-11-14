@@ -62,6 +62,9 @@ export function Navbar() {
                         <NavLink to="/about" className={linkClasses}>
                             About
                         </NavLink>
+                            <NavLink to="/incidents" className={linkClasses}>
+                            Incidents
+                        </NavLink>
                         {isAuthenticated ? (
                             <>
                                 <NavLink to="/dashboard" className={linkClasses}>
