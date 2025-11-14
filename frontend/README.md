@@ -7,6 +7,7 @@ Le frontend utilise React avec Vite.
 Pour lancer le frontend, il faut lancer les commandes suivantes :
 
 ```shell
+npm install
 npm i
 npm run dev
 ```
