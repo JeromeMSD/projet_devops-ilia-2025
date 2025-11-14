@@ -2,6 +2,13 @@
 
 Polytech Dijon - ILIA - Projet DevOps 2025
 
+## Contributeurs (Microservice Communication)
+
+| Prénom      | Nom     | Pseudo GitHub                                         |
+|----------|------------|-------------------------------------------------------|
+| Emmanuel  | PEYRONNET | [Emmanuel0071](https://github.com/Emmanuel0071)       |
+
+
 ## Information lancement avec docker
 
 ## Creation dockerfile
