@@ -22,3 +22,5 @@ Polytech Dijon - ILIA - Projet DevOps 2025
 | PUCHEU        | Mathias  | [mpucheu2](https://github.com/mpucheu2)               |
 | SIDRE         | Ylian    | [TDEVYS](https://github.com/TDEVYS)                   |
 | VILLERET      | Baptiste | [elBaptiste](https://github.com/elBaptiste)           |
+| AIT-EL-MAATI  | TAHA     | [SilentTaha](https://github.com/SilentTaha)           |
+| AIT-EL-MAATI  | ALAA     | [AlaaTheGoat](https://github.com/AlaaTheGoat)         |
